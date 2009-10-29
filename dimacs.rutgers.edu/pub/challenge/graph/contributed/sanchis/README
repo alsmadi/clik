@@ -1,0 +1,65 @@
+ This generator produces a graph with specified number of vertices, number
+ of edges, and maximum clique size.
+
+ Submitted by Laura Sanchis, Computer science department, Colgate University,
+ laura@cs.colgate.edu.
+
+ To compile: cc -o gen gen.c part.c graph.c dist.c
+
+ To run:
+        % gen <n> <m> <c> <rr> <seed> <file>
+
+ where 
+       n = number of vertices
+       m = number of edges
+       c = maximum clique size
+       rr = construction parameter, should be at least 0 and smaller than
+            n/c. Changing the value used for rr adjusts the experimental
+            difficulty of the test cases for certain algorithms. For example,
+            harder graphs for the dmclique algorithm are obtained using
+            higher rr values. See documentation for explanation of
+            the rr value.
+       seed = seed for random number generator.
+       file = output file.
+
+ References: Approximately solving maximum clique using neural network
+             and related heuristics, A. Jagota, L. Sanchis, R. Ganesan,
+             Second Dimacs Challenge Conference, October 1993.
+
+             Some experimental and theoretical results on test case
+             generators for the maximum clique problem, L. Sanchis and
+             A. Jagota, Dimacs technical report 93-69, October 1993.
+
+ File formats:
+
+    The graph is written to a file in the following format:
+    Line 1 holds five numbers: the number of vertices
+                               the number of edges
+                               the maximum clique size
+                               the value of the rr parameter
+                               the seed
+    Each successive line lists the degree and adjacency list for a single
+    vertex. Example:
+
+10 20 3 1 3
+6  1 2 5 7 8 9
+4  0 3 5 6
+5  0 4 5 6 9
+3  1 6 7
+3  2 7 8
+3  0 1 2
+4  1 2 3 7
+6  0 3 4 6 8 9
+3  0 4 7
+3  0 2 7
+
+This graph has 10 vertices and 20 edges. Vertices are numbered from 0 to 9.
+Vertex 0 is adjacent to vertices 1, 2, 5, 7, 8, and 9.
+
+The program convgc translates from this format to the challenge ascii format.
+
+    To compile:  cc -o convgc convgc.c graph.c dist.c
+    To run: convgc <file1> <file2>
+
+    where file1 holds the input graph in generator format. The output is
+    written to file2 in challenge format.

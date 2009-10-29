@@ -1,0 +1,12 @@
+Index of graph/contributed/jagota:
+
+KCC.dvi,KCC.ps:	paper by Jagota and Reganon the average performance of
+		several neural-net heuristics for the clique problem.
+
+nlt.README:	Contains documentation and instructions for their
+		compressible string generation code 
+
+nlt_source.shar:C code related to the above report
+
+ijcnn92.tex:	Latex source of IJCNN'92 paper on Approximating
+		MAX-CLIQUE

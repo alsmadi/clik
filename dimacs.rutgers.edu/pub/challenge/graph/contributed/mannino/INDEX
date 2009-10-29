@@ -1,0 +1,5 @@
+stable.tex: A paper by Carlo Mannino entitled "An Exact Algorithm for
+		the Maximum Cardinality Stable Set Problem".
+stable.bib: Bibliography for above paper.
+stable.dvi, stable.ps: dvi and postscript versions of above.
+

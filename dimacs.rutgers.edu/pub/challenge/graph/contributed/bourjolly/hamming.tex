@@ -1,0 +1,65 @@
+\documentstyle[12pt,psfig]{article}
+\textwidth=6in
+\textheight=8in
+\topmargin=0in
+\oddsidemargin=1cm
+\parindent=0pt
+\parskip=8pt plus 1pt minus 1pt
+
+
+\begin{document}
+
+\baselineskip=15pt
+\pagestyle{plain}
+\setcounter{page}{1}
+
+\begin{center}
+{\LARGE\bf A Note on Hamming Graphs \\
+of Distance 2}
+
+\vspace*{1cm}
+by
+\vspace*{1cm}
+
+{\large Jean-Marie Bourjolly} \\
+Concordia University \\
+and \\
+Centre de Recherche sur les Transports \\
+Universit\'e de Montr\'eal
+\end{center}
+
+\vspace*{2cm}
+
+The purpose of this note is simply to observe that the maximum clique problem is polynomially solvable for Hamming graphs of distance 2.
+Panos Pardalos contributed three Hamming graphs of distance 2 to the present DIMACS/Clique Challenge, namely, Hamming10-2.clq, Hamming8-2.clq, and Hamming6-2.clq.
+The computer program SQUEEZE (see [1]) gave an incredibly fast solution to the maximum clique/stable set problem for these three instances.
+In each case, the optimal solution was found at the root of the branch-and-bound tree.
+Moreover, the bound provided by the first phase of the algorithm was optimal.
+This is a clear indication that these instances must be K\"onig graphs.
+Upon investigation, it appeared that the complement $\overline H = (V,E)$ of a Hamming graph of distance 2 is a bipartite graph which admits a perfect matching.
+It follows that $\overline H$ has a minimum node cover and a maximum stable set of size $|V|/2$ each, which can be identified in polynomial time.
+
+We define the graph $\overline H (n,2)$, of size $n$ and distance 2, as the graph with node set the binary vectors of dimension $n$ in which two nodes are adjacent if they differ in exactly one position (see, for example [2]).
+The graph $\overline H (n,2)$ has $2^n$ nodes, $n2^{n-1}$ edges, and each node has degree $n$.
+Given a set $X$ of binary vectors of dimension $k$, let us define by $X.b$, $b=0$ or 1, the set of binary vectors of dimension $k+1$ obtained by appending $b$ to each element of $X$.
+
+The graph $\overline H (n,2)$ can be defined inductively as follows.  
+$\overline H (1,2)$ contains two nodes and one edge.  
+This graph is bipartite and has a perfect matching.
+The sets $V_1=\{0\}$ and $V_2=\{1\}$ partition the node set of the graph in accordance with that matching.
+Let us assume that $\overline H (k,2)$ is bipartite and has a perfect matching, for some $k \ge 1$, and let $V_1$ and $V_2$ denote the partition of the nodes of $\overline H (k,2)$ corresponding to that matching. 
+Then, the node set of $\overline H (k+1,2)$ can be partitioned into $V_1.0 \bigcup V_2.1$ and $V_1.1 \bigcup V_2.0$.
+It is clear that $\overline H (k+1,2)$ is bipartite and admits a perfect matching.
+
+
+\section*{References}
+
+\noindent
+[1] J.-M. Bourjolly, P. Gill, G. Laporte, H. Mercure, ``Two Exact Algorithms for the Stable Set Problem'', Working paper submitted to the DIMACS Challenge.
+
+\noindent
+[2] J. Hasselberg, P. Pardalos, G. Vairaktarakis, ``Test Case Generators and Computational Results for the Maximum Clique Problem'', Working paper submitted to the DIMACS Challenge.
+
+
+
+\end{document}

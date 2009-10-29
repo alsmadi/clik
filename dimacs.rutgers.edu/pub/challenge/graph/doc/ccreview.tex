@@ -1,0 +1,873 @@
+%
+% ccreview.tex  A brief introduction and project ideas for clique and
+%               coloring problems.
+%
+\documentstyle[12pt]{article}
+\title{Clique and Coloring Problems\\A Brief Introduction, with Project Ideas}
+\author{}
+\date{Last revision: December 2, 1992}
+\begin{document}
+\maketitle 
+
+{\narrower{\it This a work in progress, intended as a quick
+    introduction to the clique and coloring problems, not an
+    exhaustive survey.  (More complete surveys and bibliographies are
+    listed in the references, some of them available via anonymous FTP
+    from} {\tt dimacs.rutgers.edu}.)  {\it Here we restrict our
+    attention to key references (the set of which may change as the
+    document evolves).  Feel free to send us any suggested additions
+    or clarifications, or additional project suggestions.  The email
+    address for suggestions is} {\tt challenge@dimacs.rutgers.edu}.}
+
+\section{Introduction}
+
+Given an undirected graph $G = (V,E)$, a {\it clique} of the graph is a set of
+mutually adjacent vertices.  A {\it maximum clique} is, naturally, a
+clique whose number of vertices is at least as large as that for any
+other clique in the graph.  If the vertices have weights then a {\it
+maximum weighted clique} is a clique with the largest possible sum of vertex
+weights.
+
+A (vertex) {\it coloring} of an undirected graph is an assignment of a
+label to each node.  It is required that the labels on the pair of
+nodes incident to any edge be different.  A {\it minimum coloring} of
+a graph is a coloring that uses as few different labels as possible.
+
+Clique and coloring problems are very closely related.  It is
+straightforward to see that the size of the maximum clique is a lower
+bound on the minimum number of labels needed to color a graph.  
+
+Many problems of practical interest can be modeled as clique and
+coloring problems.  The general form of these applications involves
+forming a graph with nodes representing items of interest.  An edge
+connects two ``incompatible'' items.  The maximum clique problem is then
+to find as large a set of pairwise incompatible items as possible.  The
+minimum coloring problem is to assign a color to each item so that
+every incompatible pair is assigned different colors.
+
+Both of these problems are formally NP--hard for general graphs
+\cite{GaJo79}.  It therefore seems unlikely that it will be possible
+to find a fast (i.e. polynomial-time) algorithm to solve these
+problems.  In fact, based on the results of
+\cite{FGLSS91,ArSa92,ALMSS92,LuYa93} it seems unlikely that it is even
+possible to find an approximate solution to these problems quickly:
+Assuming P $\neq$ NP, there is an $\epsilon > 0$ such that no
+polynomial time approximation algorithm for either problem can find a
+solution that is guaranteed to be within a ratio of $|V|^\epsilon$ of
+optimal.
+
+Despite these negative results, it is still necessary to find
+solutions to large clique and coloring problems.  The applications do
+not go away just because the problem is intractable in the worst case.
+Therefore, it is important for us to determine how difficult clique
+problems are to solve in practice.  Do hard instances, or at least
+hard--to--approximate instances, only occur rarely?
+What structural properties of instances make it difficult to solve these problems,
+and how can those structures be avoided?  The purpose of this note
+(which is currently an evolving document) is to outline some past
+research on solving clique and coloring problems and to identify some
+possible research directions.
+
+In the next section, we discuss a few typical applications of the
+maximum clique and minimum coloring problems.  In
+section~\ref{sec:alg}, we discuss several solution
+approaches that have been tried in the past.  In
+section~\ref{sec:open} we talk about some suggested research
+directions.  
+
+\section{Sample Applications}
+
+Both coloring and clique models are useful in a variety of
+applications.  In this section we discuss a few typical applications,
+first for coloring and then for clique (although note that since
+the two problems provide bounds for each other, both problems may
+well be applicable in several of these domains).
+A more extensive survey of applications for clique can be found in
+\cite{HPV92} and is available via anonymous FTP from DIMACS.
+
+\subsection{Time Tabling and Scheduling}  Many scheduling problems
+involve allowing for a number of pairwise restrictions on which jobs
+can be done simultaneously.  For instance, in attempting to schedule
+classes at a university, two courses taught by the same faculty member
+cannot be scheduled for the same time slot.  Similarly, two course
+that are required by the same group of students also should not
+conflict.  The problem of determining the minimum number of time slots
+needed subject to these restrictions is a graph coloring problem.
+This problems has been studied by many researchers, including
+Leighton \cite{Le79}, Opsu and Roberts \cite{OpRo81}, and de Werra
+\cite{De85}.
+
+\subsection{Frequency Assignment}  Gamst \cite{Ga86} examines a
+problem in assigning frequencies to mobile radios and other users of
+the electromagnetic spectrum.  In the simplest case, two customers
+that are sufficiently close must be assigned different frequencies,
+while those that are distant can share frequencies.  The problem of
+minimizing the number of frequencies is then a graph coloring problem.
+
+If one considers situations where users (vertices) enter and leave
+the system, this application also provides a setting where on--line
+algorithms would be relevant.
+
+\subsection{Register Allocation}  One very active application for
+graph coloring is register allocation.  The register allocation
+problem is to assign variables to a limited number of hardware
+registers during program execution.  Variables in registers can be
+accessed much quicker than those not in registers. Typically, however,
+there are far more variables than registers so it is necessary to
+assign multiple variables to registers.  Variables conflict with each
+other if one is used both before and after the other within a short period
+of time (for instance, within a subroutine).  The goal is to assign variables
+that do not conflict so as to minimize the use of non--register memory.
+
+A simple approach to this is to create a graph where the nodes
+represent variables and an edge represents conflict between its nodes.
+A coloring is then a conflict--free assignment.  If the number of
+colors used is less than the number of registers then a conflict--free
+register assignment is possible.  Some papers that outline and expand
+on this method include Chaitin \cite{Ch82}, Chaitin et. al
+\cite{CACCHM81}, Chow and Hennessy \cite{ChHe84,ChHe90}, and
+Briggs, Cooper, Kennedy, and Torczon \cite{BCKT89}.
+
+\subsection{Printed Circuit Board Testing I -- Coloring}  Garey, Johnson,
+and So \cite{GJS76} consider the problem of testing printed circuit boards
+for unintended short circuits (caused by stray lines of solder).  This gives
+rise to a graph coloring problem in which the vertices correspond to the nets
+on board and there is an edge between two vertices if there is a potential
+for a short circuit between the corresponding nets.  Coloring the graph
+corresponds to partitioning the nets into ``supernets,'' where the nets
+in each supernet can be simultaneously tested for shorts against all
+other nets, thereby speeding up the testing process. 
+
+\subsection{Printed Circuit Board Testing II -- Clique}  A printed
+circuit board tester involves placing probes onto a board.  A probe
+can determine if a portion of a board is working correctly.  Since
+probes have a particular size, not every component can be checked in
+one pass.  The problem of maximizing the number of components checked
+in one pass can be formulated as a clique problem:  each node
+represents a component and an edge represents two nodes that are too
+close to be checked simultaneously.  A clique in this graph is then a
+set of components that can be checked in one pass.  This is an example
+of a {\it geometric} clique problem and has been studied by Yu,
+Goldschmidt and Chen \cite{YGC92} and Yu. Kouvelis, and Luo
+\cite{YKL92}.
+
+\subsection{Pattern Matching} Ogawa \cite{Og86} has an interesting
+application involving pattern recognition.  Given a ``target'' picture
+and an input picture (which involve only a set of points), a related
+compatibility graph is created whose vertices correspond to pairs of points.
+There is an edge between two vertices if the corresponding pairs are
+``mutually consistent'' (where this can depend on a variety of restrictions,
+including angular relationships as well as the requirement that no
+point be matched with more than one other).  A large clique represents a
+large number of mutually consistent pairs, and its size can be used as
+a measure of the corresponding fit.  This model seems to correctly recognize
+affine transformations as well as moderately nonlinear
+transformations.
+
+\subsection{Analysis of Biological and Archeological Data}  In biology
+and archeology, a standard model for relating objects is that of a
+tree.  Trees can represent the division of a species into two separate
+species or the division of features of some artifact (like pottery or
+pins).  Species do not come with histories, however, nor are artifacts
+completely dated.  Therefore, it is necessary to deduce the tree
+structure from the features of the items.  
+
+One approach to this is to create a distance measure between the
+items.  If the distance measure represents distances along a tree,
+then that tree is a good estimate for the underlying, ``real'' tree.
+Normally, the distances do not represent a tree, so it is necessary to
+find a tree that accurately estimates the true distances.  One
+approach to this, suggested by Barth\'elemy and Gu\'enoche
+\cite{BaGu91}, creates a graph as follows: the nodes of the graph
+represent partitions of the items.  These partitions are chosen
+because items within a partition are closer to each other than to
+those in the other side of the partition.  Two nodes are adjacent if
+the partitions are consistent with coming from the same tree (which
+reduces to an inclusion condition).  A clique in this graph represents
+a set of partitions that can be formed into a tree.  Maximum cliques
+attempt to encapsulate as much of the partition data as possible.  For
+more information, see Chapter 5 of \cite{BaGu91}.
+
+\section{Solution Approaches}
+\label{sec:alg}
+
+\subsection{Cliques} 
+There is a vast literature covering algorithms for this problem.
+An extensive survey is \cite{PaXu93}, available by anonymous FTP from DIMACS.
+
+A very common approach to the problem of finding (truly) maximum clique
+is to use some variant on implicit enumeration.
+Some examples of use of this technique are Bron and Kerbosch \cite{BrKe73},
+Akkoyunlu \cite{Ak73}, Gerhards and Lindenberg \cite{GeLi79},
+Loukakis and Tsouros \cite{LoTs82}, and Carraghan and Pardalos \cite{CaPa90}.
+
+Approaches based on branch and bound include Babel \cite{Ba91}
+Balas and Yu \cite{BaYu86}, and Balas and Xue \cite{BaXu91}, which use
+coloring to obtain the required bounds, and Pardalos and Rodgers \cite{PaRo92},
+which uses quadratic programming to obtain its bounds.
+
+Polyedral approaches have been suggested by Nemhauser and Trotter
+\cite{NeTr75} and Balas and Samuelsson \cite{BaSa77}.  
+
+Tarjan and Trojanowski \cite{TaTr77} develop a recursive routine which
+has a worst case bound of $O(2^{n/3})$.
+
+There has been much theoretical work on the application of approximation
+algorithms to random graphs (where typically a random graph is one chosen
+uniformly at random from the set of all labeled graphs).
+Bollob\'as and Erd\"os \cite{BoEr76} and Bollob\'as and Thomason
+\cite{BoTh85} have very strong bounds on the size
+of the largest clique.  Pittel \cite{Pi82} has analyzed a number of
+heuristics for such graphs, and found none that will find the largest
+clique in this model.  Jerrum \cite{Je92} has extended this work to
+include heuristics based on simulated annealing.
+
+Other heuristic approaches that have been considered for clique include the
+``GRASP'' technique of Feo, Resende, and Smith \cite{FRS93} and the
+use of interior point methods by Karmarkar, Ramakrishnan, and Resende
+\cite{KRR89}. 
+
+\subsection{Coloring}
+
+Again, there is a vast literature, but in this case no current survey,
+so we will try to be a bit more complete.
+
+Let us first consider approximations algorithms for graph coloring.
+The most common technique used is that of successive augmentation.
+In this approach a partial coloring is found on a small number of
+vertices and this is extended vertex by vertex until the entire graph
+is colored.  Examples of varients of this approach include Welsh and
+Powell \cite{WePo67}, Wood \cite{Wo69}, Williams \cite{Wi70},
+Matula \cite{Ma72}, Matula, Marble and Isaacson \cite{MMI72},
+Johnson \cite{Jo74a,Jo74b}, Grimmet and McDiarmid \cite{GrMc75}, Br\'elaz
+\cite{Br79}, Leighton \cite{Le79}, Johri and Matula \cite{JoMa82},
+Wigderson \cite{Wi83}, Berger and Rompel \cite{BeRo90}, and Ku\v cera \cite{Ku91},.
+The algorithm providing the currently best worst-case ratio (number
+of colors used divided by optimal number) is due to Halld\'orsson
+\cite{Ha90}, guaranteeing a ratio of no more than
+$O(n(\log\log n)^2 /(\log n)^3$, where $n$ is the number of vertices.
+
+More general heuristic techniques that have been tried include
+simulated annealing (Chams, Hertz, and De Werra \cite{CHD87} and
+Johnson et. al \cite{JAMS91}) and tabu search (Hertz and De Werra
+\cite{HeDe87}).  Issues related to finding an appropriate neighborhood
+structure for coloring graphs are described by Morgenstern and Shapiro
+\cite{MoSh90}. 
+
+Algorithms for finding optimal colorings have been for the most part
+based on implicit enumeration.  See for instance Brown \cite{Br72},
+Christofides \cite{Ch71,Ch75}, Corneil and Graham \cite{CoGr73},
+Lawler \cite{La76}, Korman \cite{Ko79}, Br\'elaz \cite{Br79},
+Peem\"{o}ller \cite{Pe83}, Kubale and Kusz \cite{KuKu83}, Kubale and
+Jackowski \cite{KuJa85}.
+
+Other work has considered algorithms that find $k$-colorings quickly
+on average for various models of random $k$-colorable graphs
+\cite{Ku77,Tu88,Ku89,Bl90,DyFr89,FuSu92}.  The question of the best worst-case bounds
+obtainable in polynomial time for $k$-colorable graphs (fixed $k$, typically
+$k=3$) is addressed in \cite{Wi83,Bl89,Bl90}.  Papers on the expected
+chromatic number of a ``usual'' random graph include Bollob\'as
+\cite{Bo}, and Matula and Ku{\v c}era \cite{MaKu90}.
+
+\section{Suggested Research Projects}
+
+\label{sec:open}
+
+\begin{enumerate}
+
+\item Implement and test algorithms from the literature.
+Our references contain many papers that already do this, and these
+should be examined closely before undertaking a study of this sort, but
+there is still room for such studies.  One can implement theoretical
+algorithms not previously studied experimentally, compare algorithms
+that performed well in earlier studies but had not previously been
+directly compared, test old algorithms on new test beds, etc.
+
+\item Use detailed profiling of an algorithm's implementation to better
+understand the circumstances that make it perform well or poorly,
+and to help extrapolate performance to very large instances sizes.
+
+\item Design new algorithms for the problems and compare them to the
+previous best.  These could involve substantially new algorithmic ideas
+or simply more efficient use of tuned data structures.
+
+\item Adapt general purpose heuristic methods (such
+simulated annealing\cite{AaKo89,Ce85,CEG88,KGV83,VaAa87},
+tabu search \cite{GL89,HeDe87},
+and genetic algorithms \cite{Go89}),
+to the clique and/or coloring problems.
+Some work has already been done along these lines, as cited above,
+but typically there are a variety of ways in which one of these approaches
+can be adapted to a particular problem, and such new adaptations can
+be compared to previous techniques.
+
+\item Examine neighborhood structures for local search.  One aspect of
+these problems
+that makes solution difficult is the lack of a natural neighborhood
+structure for local search.  Neighborhood structures for these
+problems tend either to be too narrow (leading to poor local optima)
+or too broad (leaving a difficult neighborhood problem).  What are
+some alternative neighborhoods and how can they be effectively
+searched?
+
+\item Explore the role of randomization.  Most of the algorithms
+created are completely deterministic.  Can randomization help in
+solving these types of problems?
+
+\item Experiment on alternative  machine architectures, including
+parallel and vector processors.  How can multiple processors be
+exploited in solving these problems?  This could be either via
+distributed computing (generally with high communications costs,
+heterogeneous machines, and/or limited connectivity) or with such
+special purpose machines as Connection Machine computers.
+
+\item Examine real world problems.  The clique problem is commonly
+claimed to have widespread applicability.  Most computational
+work to date, however, has been done with random graphs.  How do real world
+problems differ from such random graphs?  How would the conclusions drawn from
+past research be different if real problems were solved?  Identify a real-world
+application from which you can obtain instance data, and then answer the above
+questions.
+
+\item Create and examine alternative instance generators.  Consider the
+``geometric graphs'' of \cite{JAMS91}, where the nodes
+of a graph as points in the Euclidean plane where an edge occurs only
+if the corresponding nodes are sufficiently close (or sufficiently far
+away).  Consider also the generators proposed in \cite{HPV92}.
+Are these interesting problem generators?  Do algorithms
+perform well or poorly for them?  What other generators have interesting
+properties?  (One ``product'' we hope this Challenge to produce is a
+broad library of generators and real-world instances for future researchers
+to use.)
+
+\item Examine ``pathological'' examples.  For each optimization
+algorithm developed, there is a class of examples for which the
+algorithm does well and a class for which it does poorly.  Can you
+characterize why an algorithm does poorly?  Alternatively, can you
+determine a large, interesting, class for which certain algorithms
+work well?
+
+\item Examine planar graphs.  The four color theorem, as proved by
+\cite{ApHa77a,ApHa77b} is actually a constructive theorem that gives an $O(n^2)$
+algorithm for 4--coloring a graph.  This algorithm seems completely
+impractical due to the large constants involved.  Morgenstern and
+Shapiro \cite{MoSh91} provide some heuristics for such graphs and might
+be seen as a starting point for this class of interesting graphs.
+
+\item Examine more fundamental issues in computational testing using these
+problems as a testbed.  How should algorithms and heuristics be
+compared across environments?  Does good computational work require
+outstanding ``hacking'' ability, or is there some more fundamental
+measure independent of implementation?.
+
+\end{enumerate}
+
+%
+% If you want to use BibTeX, using the file ccreview.bib for
+% references, uncomment the next three lines and remove the current
+% bibliography. 
+
+%\nocite{*}
+%\bibliographystyle{plain}
+%\bibliography{ccreview}
+
+\begin{thebibliography}{10}
+
+\bibitem{AaKo89}
+E.H.L. Aarts and J.H.M Korst.
+\newblock {\em Simulated Annealing and Boltzmann Machines}.
+\newblock John Wiley \& Sons, Chichester, U.K., 1989.
+
+\bibitem{Ak73}
+E.A. Akkoyunlu.
+\newblock The enumeration of maximal cliques of large graphs.
+\newblock {\em SIAM Journal on Computing}, 2(1):1--6, 1973.
+
+\bibitem{ApHa77a}
+K.~Appel and W.~Haken.
+\newblock Every planar map is 4-colorable -- 1: Discharging.
+\newblock {\em Illinois Journal of Mathematics}, 21:421--490, 1977.
+
+\bibitem{ApHa77b}
+K.~Appel and W.~Haken.
+\newblock Every planar map is 4-colorable -- 2: Reducibility.
+\newblock {\em Illinois Journal of Mathematics}, 21:491--567, 1977.
+
+\bibitem{ALMSS92}
+S.~Arora, C.~Lund, R.~Motwani, M.~Sudan, and M.~Szegedy.
+\newblock Proof verification and hardness of approximation problems.
+\newblock In {\em Proceedings 33rd {IEEE} {S}ymposium on the {F}oundations of
+  {C}omputer {S}cience}, pages 14--23, Los Angeles, CA, 1992. IEEE Computer
+  Society.
+
+\bibitem{ArSa92}
+S.~Arora and S.~Safra.
+\newblock Probabilistic checking of proofs; a new characterization of np.
+\newblock In {\em Proceedings 33rd {IEEE} {S}ymposium on {F}oundations of
+  {C}omputer {S}cience}, pages 2--13, Los Angeles, CA, 1992. IEEE Computer
+  Society.
+
+\bibitem{Ba91}
+Luitpold Babel.
+\newblock Finding maximum cliques in arbitrary and in special graphs.
+\newblock {\em Computing}, 46:321--341, 1991.
+
+\bibitem{BaSa77}
+Egon Balas and H.~Samuelsson.
+\newblock A node covering algorithm.
+\newblock {\em Naval Research Logistics Quarterly}, 24(2):213--233, 1977.
+
+\bibitem{BaXu91}
+Egon Balas and Jue Xue.
+\newblock Minimum weighted coloring of triangulated graphs, with application to
+  maximum weight vertex packing and clique finding in arbitrary graphs.
+\newblock {\em SIAM Journal on Computing}, 20(2):209--221, 1991.
+
+\bibitem{BaYu86}
+Egon Balas and Chang~Sung Yu.
+\newblock Finding a maximum clique in an arbitrary graph.
+\newblock {\em SIAM Journal on Computing}, 15(4):1054--1068, 1986.
+
+\bibitem{BaGu91}
+Jean-Pierre Barth\'elemy and Alain Gu\'enoche.
+\newblock {\em Trees and Proximity Representations}.
+\newblock John Wiley and Sons, New York, NY, 1991.
+
+\bibitem{BeRo90}
+B.~Berger and J.~Rompel.
+\newblock A better permance guarantee for approximate graph coloring.
+\newblock {\em Algorithmica}, 5:459--466, 1990.
+
+\bibitem{Bl89}
+A.~Blum.
+\newblock An $\tilde{O} ( n^{0.4} )$-approximation algorithm for 3-coloring
+  (and improved approximation algorithms for $k$-coloring).
+\newblock In {\em Proceedings 21st {ACM} {S}ymposium on {T}heory of
+  {C}omputing}, pages 535--542, New York, 1989. ACM.
+
+\bibitem{Bl90}
+A.~Blum.
+\newblock Some tools for approximate 3-coloring.
+\newblock In {\em Proceedings 31st {IEEE} {S}ymposium on {F}oundations of
+  {C}omputer {S}cience}, pages 554--562, Los Angeles, CA, 1990. IEEE Computer
+  Society.
+
+\bibitem{Bo}
+B.~Bollob\'as.
+\newblock The chromatic number of random graphs.
+\newblock {\em Combinatorica}, 8:49--56, ???
+
+\bibitem{BoEr76}
+B.~Bollob\'as and P.~Erd\"os.
+\newblock Cliques in random graphs.
+\newblock {\em Mathematical Proceedings of the Cambride Philosophical Society},
+  80:419--427, 1976.
+
+\bibitem{BoTh85}
+B.~Bollobas and A.~Thomason.
+\newblock Random graphs of small order.
+\newblock {\em Annals of Discrete Math.}, 28:47--97, 1985.
+
+\bibitem{Br79}
+D.~Br{\'e}laz.
+\newblock New methods to color vertices of a graph.
+\newblock {\em Communications of the ACM}, 22:251--256, 1979.
+
+\bibitem{BCKT89}
+P.~Briggs, K.~Cooper, K.~Kennedy, and L.~Torczon.
+\newblock Coloring heuristics for register allocation.
+\newblock In {\em ASCM Conference on Program Language Design and
+  Implementation}, pages 275--284, 1989.
+
+\bibitem{BrKe73}
+Coen Bron and Joep Kerbosch.
+\newblock Finding all cliques of an undirected graph.
+\newblock {\em Communications of the ACM}, 16(9):575--577, 1973.
+
+\bibitem{Br72}
+R.~J. Brown.
+\newblock Chromatic scheduling and the chromatic number problem.
+\newblock {\em Management Science}, 19:451--463, 1972.
+
+\bibitem{CaPa90}
+R.~Carraghan and P.~M. Pardalos.
+\newblock An exact algorithm for the maximum clique problem.
+\newblock {\em Operations Research Letters}, 9:375--382, 1990.
+
+\bibitem{Ce85}
+V.~Cerny.
+\newblock A thermodynamical approach to the traveling saleman problem: An
+  efficient simulation algorithm.
+\newblock {\em Journal of Optimization Theory and Applications}, 45:41--51,
+  1985.
+
+\bibitem{Ch82}
+G.J. Chaitin.
+\newblock Register allocation and spilling via graph coloring.
+\newblock In {\em Proceedings of the {ACM} {SIGPLAN} 82 Symposium on Compiler
+  Construction}, pages 98--105, New York, NY, 1982. ACM.
+
+\bibitem{CACCHM81}
+G.J. Chaitin, M.~Auslander, A.K. Chandra, J.~Cocke, M.E. Hopkins, and
+  P.~Markstein.
+\newblock Register allocation via coloring.
+\newblock {\em Coputer Languages}, 6:47--57, 1981.
+
+\bibitem{CHD87}
+M.~Chams, A.~Hertz, and D.~De Werra.
+\newblock Some experiments with simulated annealing for coloring graphs.
+\newblock {\em European Journal of Operations Research}, 32:260--266, 1987.
+
+\bibitem{ChHe84}
+Fred~C. Chow and John~L. Hennessy.
+\newblock Register allocation by priority--based coloring.
+\newblock In {\em Proceedings of the {ACM} {SIGPLAN} 84 Symposium on Compiler
+  Construction}, pages 222--232, New York, NY, 1984. ACM.
+
+\bibitem{ChHe90}
+Fred~C. Chow and John~L. Hennessy.
+\newblock The priority--based coloring approach to register allocation.
+\newblock {\em ACM Transactions on Programming Languages and Systems},
+  12(4):501--536, 1990.
+
+\bibitem{Ch71}
+N.~Christofides.
+\newblock An algorithm for the chromatic number of a graph.
+\newblock {\em Computer Journal}, 14:38--39, 1971.
+
+\bibitem{Ch75}
+N.~Christofides.
+\newblock {\em Graph Theory: An Algorithmic Approach}.
+\newblock Academic Press, London., 1975.
+
+\bibitem{CEG88}
+N.E. Collins, R.W. Eglese, and B.L. Golden.
+\newblock Simulated annealing: An annotated bibliography.
+\newblock {\em American Journal of Mathematical and Management Sciences},
+  8:205--307, 1988.
+
+\bibitem{CoGr73}
+D.~G. Corneil and B.~Graham.
+\newblock An algorithm for determining the chromatic number of a graph.
+\newblock {\em SIAM Journal on Computing}, 2:311--218, 1973.
+
+\bibitem{De85}
+D.~De~Werra.
+\newblock An introduction to timetabling.
+\newblock {\em European Journal of Operations Research}, 19:151--162, 1985.
+
+\bibitem{DyFr89}
+M.~Dyer and A.~Frieze.
+\newblock The solution of some random np--hard problems in polynomial expected
+  time.
+\newblock {\em Journal of Algorithms}, 10:451--489, 1989.
+
+\bibitem{FGLSS91}
+U.~Feige, S.~Goldwasser, L.~Lovasz, S.~Safra, , and M.~Szegedy.
+\newblock Approximating clique is almost {NP}-complete.
+\newblock In {\em Proceedings 32nd {IEEE} {S}ymposium on {F}oundations of
+  {C}omputer {S}cience}, pages 2--12, Los Angeles, CA, 1991. IEEE Computer
+  Society.
+
+\bibitem{FRS93}
+T.~A. Feo, M.~G.~C. Resende, and S.~H. Smith.
+\newblock Greedy randomized adaptive search procedure for maximum independent
+  set.
+\newblock {\em Operations Research}, page (to appear), 1993.
+
+\bibitem{FuSu92}
+M.~F\"{u}rer and C.~R. Subramanian.
+\newblock Coloring random graphs.
+\newblock In {\em Proceedings 3rd Scandinavian Workshop on Algorithmic Theory},
+  Berlin, 1992. Springer Lecture Notes in Computer Science.
+
+\bibitem{Ga86}
+Andreas Gamst.
+\newblock Some lower bounds for a class of frequency assignment problems.
+\newblock {\em IEEE Transactions of Vehicular Echnology}, 35(1):8--14, 1986.
+
+\bibitem{GJS76}
+M.~R. Garey, D.~S. Johnson, and H.~C. So.
+\newblock An application of graph coloring to printed circuit testing.
+\newblock {\em IEEE Trans. on Circuits and Systems}, CAS-23:591--599, 1976.
+
+\bibitem{GaJo76}
+Michael~R. Garey and David~S. Johnson.
+\newblock The complexity of near--optimal graph coloring.
+\newblock {\em Journal of the Association for Computing Machinery}, 23:43--49,
+  1976.
+
+\bibitem{GaJo79}
+Michael~R. Garey and David~S. Johnson.
+\newblock {\em Computers and Instractability: A Guide to the Theory of
+  {NP}--Completeness}.
+\newblock W.H Freeman, San Francisco, CA, 1979.
+
+\bibitem{GeLi79}
+L.~Gerhards and W.~Lindenberg.
+\newblock Clique detection for nondirected graphs: Two new algorithms.
+\newblock {\em Computing}, 21:295--322, 1979.
+
+\bibitem{GL89}
+Fred Glover.
+\newblock Tabu search, part 1.
+\newblock {\em ORSA Journal on Computing}, 1:190--206, 1989.
+
+\bibitem{Go89}
+D.~E. Goldberg.
+\newblock {\em Genetic Algorithms in Search, Optimization \& Machine Learning}.
+\newblock Addison-Wesley, Reading, MA, 1989.
+
+\bibitem{Go80}
+M.~Golumbic.
+\newblock {\em Algorithmic Graph Theory and Perfect Graphs}.
+\newblock Acadmeic Press, New York, NY, 1980.
+
+\bibitem{GrMc75}
+G.R. Grimmet and C.J.H. McDiarmid.
+\newblock On colouring random graphs.
+\newblock {\em Mathematical Proceedings of the Cambridge Philosophical
+  Society}, 77:313--324, 1975.
+
+\bibitem{Ha90}
+M.~M. Halld\'orsson.
+\newblock A still better performance guarantee for approximate graph coloring.
+\newblock Technical Report 91--35, DIMACS, New Brunswick, NJl, 1990.
+
+\bibitem{HPV92}
+J.~Hasselberg, P.~M. Pardalos, and G.~Vairaktarakis.
+\newblock Test case generators and computational results for the maximum clique
+  problem.
+\newblock Working paper, University of Florida, 1992.
+
+\bibitem{HeDe87}
+A.~Hertz and D.~De~Werra.
+\newblock Using tabu search techniques for graph coloring.
+\newblock {\em Computing}, 39:345--351, 1987.
+
+\bibitem{Je92}
+Mark Jerrum.
+\newblock Large cliques elude the metropolis process.
+\newblock {\em Random Structures and Algorithms}, 3(4):347--360, 1992.
+
+\bibitem{Jo74a}
+David~S. Johnson.
+\newblock Approximation algorithms for combinatorial problems.
+\newblock {\em Journal of Computer and System Sciences}, 9:256--278, 1974.
+
+\bibitem{Jo74b}
+David~S. Johnson.
+\newblock Worst--case behavior og graph coloring algorithms.
+\newblock In {\em Proceedings 5th Southeastern Conference on Combinatorics,
+  Graph Theory, and Computing}, pages 513--527, Winnipeg, Canada, 1974.
+  Utilitas Mathematica Publishing.
+
+\bibitem{JAMS91}
+David~S. Johnson, Cecilia~R. Aragon, Lyle~A. McGeoch, and Catherine Schevon.
+\newblock Optimization by simulated annealing: An experimental evaluation; part
+  ii, graph coloring and number partitioning.
+\newblock {\em Operations Research}, 39(3):378--406, 1991.
+
+\bibitem{JoMa82}
+A.~Johri and David~W. Matula.
+\newblock Probabilistic bounds and heuristic algorithms for coloring large
+  random graphs.
+\newblock Technical report, Southern Methodist University, Dallas, Texas, 1982.
+
+\bibitem{KRR89}
+N.~K. Karmarkar, K.~G. Ramakrishnan, and M.~G.~C. Resende.
+\newblock An interior point approach to the maximum independent set problem in
+  dense random graphs.
+\newblock In {\em Proceedings of the XV Latin American Conference on
+  Informatics I}, pages 241--260, 1989.
+
+\bibitem{KGV83}
+S.~Kirkpatrick, C.D. Gelatt, and M.P. Vecchi.
+\newblock Optimization by simulated annealing.
+\newblock {\em Science}, 220(13 May 1983):671--680, 1983.
+
+\bibitem{Ko79}
+S.~M. Korman.
+\newblock The graph-colouring problem.
+\newblock In N.~Christofides, A.~Mingozzi, P.~Toth, and C.~Sandi, editors, {\em
+  Combinatorial Optimization}, pages 211--235, New York, 1970. Wiley.
+
+\bibitem{KuJa85}
+M.~Kubale and B.~Jackowski.
+\newblock A generalized implicit enumeration algorithm for graph coloring.
+\newblock {\em Communications of the ACM}, 28:412--418, 1985.
+
+\bibitem{KuKu83}
+M.~Kubale and E.~Kusz.
+\newblock Computational experience with implicit enumeration algorithms for
+  graph coloring.
+\newblock In M.~Nagl and J.~Perl, editors, {\em Proceedings of the WG'83
+  International Workshop on Graphtheoretic Concepts in Computer Science}, pages
+  167--176, Linz, 1983. Trauner Verlag.
+
+\bibitem{Ku77}
+Ludek Ku{\v c}era.
+\newblock Expected behavior of graph coloring algorithms.
+\newblock In M.~Karpinski, editor, {\em Foundations of Comupation Theory 77},
+  volume~56 of {\em Lecture Notes in Computer Science}, pages 447--451, Berlin,
+  1977. Springer.
+
+\bibitem{Ku89}
+Ludek Ku{\v c}era.
+\newblock Graphs with small chromatic numbers are easy to color.
+\newblock {\em Information Processing Letters}, 30:233--236, 1989.
+
+\bibitem{Ku91}
+Ludek Ku{\v c}era.
+\newblock The greedy coloring is a bad probabilistic algorithm.
+\newblock {\em Journal of Algorithms}, 12:674--684, 1991.
+
+\bibitem{La76}
+E.~L. Lawler.
+\newblock A note on the complexity of the chromatic number problem.
+\newblock {\em Information Processing Letters}, 5:66--67, 1976.
+
+\bibitem{Le79}
+F.T. Leighton.
+\newblock A graph coloring algorithm for large scheduling problems.
+\newblock {\em Journal of Reasearch of the National Bureau of Standards},
+  84:489--506, 1979.
+
+\bibitem{LoTs82}
+E.~Loukakis and C.~Tsouros.
+\newblock Determining the number of internal stability of a graph.
+\newblock {\em International Journal of Computer Mathematics}, 11:207--220,
+  1982.
+
+\bibitem{LuYa93}
+C.~Lund and M.~Yannakakis.
+\newblock On the hardness of approximating minimization problems.
+\newblock In {\em Proceedings 25th {ACM} {S}ymposium on {T}heory of
+  {C}omputing}, page (submitted), New York, NY, 1993. ACM.
+
+\bibitem{Ma72}
+D.~G. Matula.
+\newblock Bounded color functions on graphs.
+\newblock {\em Networks}, 2:29--44, 1972.
+
+\bibitem{MMI72}
+D.~W. Matula, G.~Marble, and J.~D. Isaacson.
+\newblock Graph theory and computing.
+\newblock In R.~C. Read, editor, {\em Graph coloring algorithms}, pages
+  109--122, New York, NY, 1972. Academic Press.
+
+\bibitem{MaKu90}
+David Matula and Ludek Ku{\v c}era.
+\newblock An expose--and--merge algorithm and the chromatic number of a random
+  graph.
+\newblock In M.~Karonski, J.~Jaworski, and A.~Rucinski, editors, {\em Random
+  Graphs'87}, pages 175--187. John Wiley and Sons, 1990.
+
+\bibitem{MoSh91}
+C.~Morgenstern and H.~Shapiro.
+\newblock Heuristics for rapidly four--coloring large planar graphs.
+\newblock {\em Algorithmica}, 6:869--891, 1991.
+
+\bibitem{MoSh90}
+Craig Morgenstern and Harry Shapiro.
+\newblock Coloration neighborhood structures for general graph coloring.
+\newblock In {\em First {A}nnual {ACM--SIAM} {S}ymposium on {D}iscrete
+  {A}lgorithms}, 1990.
+
+\bibitem{NeTr75}
+George~L. Nemhauser and Les~E. Trotter.
+\newblock Vertex packings: Structural properties and algorithms.
+\newblock {\em Mathematical Programming}, 8:232--248, 1975.
+
+\bibitem{Og86}
+Hideo Ogawa.
+\newblock Labeled point pattern matching by delaunay triangulation and maximal
+  cliques.
+\newblock {\em Pattern Recognition}, 19(1):35--40, 1986.
+
+\bibitem{OpRo81}
+R.J. Opsut and Fred~S. Roberts.
+\newblock On the fleet maintenance, movile radio frequency, task assignment and
+  traffic phasing problems.
+\newblock In G.~Chartrand, Y.~Alavi, D.L. Goldsmith, L.~Lesniak-Foster, and
+  D.R. Lick, editors, {\em The Theory and Applications of Graphs}, pages
+  479--492, New York, NY, 1981. John Wiley \& Sons.
+
+\bibitem{PaRo92}
+P.~M. Pardalos and G.~P. Rodgers.
+\newblock A branch and bound algorithm for the maximum clique problem.
+\newblock {\em Computers and Operations Research}, 19:363--375, 1992.
+
+\bibitem{PaXu93}
+P.~M. Pardalos and J.~Xue.
+\newblock The maximum clique problem.
+\newblock {\em Journal of Global Optimization}, page (to appear), 1993.
+
+\bibitem{Pe83}
+J.~Peem\"{o}ller.
+\newblock A correction to {B}r\'elaz's modification of {B}rown's coloring
+  algorithm.
+\newblock {\em Communications of the ACM}, 26:595--597, 1983.
+
+\bibitem{Pi82}
+B.~Pittel.
+\newblock On the probable behaviour of some algorithms for finding the
+  stability number of a graph.
+\newblock {\em Mathematical Proceedings of the Cambride Philosophical Society},
+  92:511--526, 1982.
+
+\bibitem{TaTr77}
+Robert~E. Tarjan and A.E. Trojanowski.
+\newblock Finding a maximum independent set.
+\newblock {\em SIAM Journal on Computing}, 6:266--283, 1977.
+
+\bibitem{Tu88}
+J.~S. Turner.
+\newblock Almost all $k$-colorable graphs are easy to color.
+\newblock {\em Journal of Algorithms}, 9:63--82, 1988.
+
+\bibitem{VaAa87}
+P.J.M Van~Laarhoven and E.H.L. Aarts.
+\newblock {\em Simulated Annealing: Theory and Practice}.
+\newblock Kluwer Academic Publishers, Dordrrecht, The Netherlands, 1987.
+
+\bibitem{WePo67}
+D.J.A. Welsh and M.B. Powell.
+\newblock An upper bound on the chromatic number of a graph and its application
+  to timetabling problems.
+\newblock {\em Computer Journal}, 10:85--86, 1967.
+
+\bibitem{Wi83}
+A.~Wigderson.
+\newblock Improving the performance guarantee of approximate graph coloring.
+\newblock {\em Journal of the Association for Computing Machinery},
+  30:729--735, 1983.
+
+\bibitem{Wi70}
+M.~R. Williams.
+\newblock The coloring of very large graphs.
+\newblock In {\em Combinatorial Structures and their Applications}, pages
+  477--478, New York, 1970. Gordon and Breach.
+
+\bibitem{Wo69}
+D.~C. Wood.
+\newblock A technique for coloring a graph applicable to large scale
+  time-tabling problems.
+\newblock {\em The Computer Journal}, 3:317--319, 1969.
+
+\bibitem{YGC92}
+G.~Yu, O.~Goldschmidt, and H.~Chen.
+\newblock Clique, independent set, and vertex cover in geometric graphs.
+\newblock ORSA/TIMS Presentation, San Francisco, CA, 1992.
+
+\bibitem{YKL92}
+G.~Yu, P.~Kouvelis, and Luo.
+\newblock A weighted vertex packing problem for specially structured geometric
+  graphs arising in the design of electronic testing fixtures.
+\newblock ORSA/TIMS Presentation, San Francisco, CA, 1992.
+
+\end{thebibliography}
+
+
+
+\end{document}

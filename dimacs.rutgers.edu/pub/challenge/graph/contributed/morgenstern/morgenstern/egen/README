@@ -1,0 +1,101 @@
+* Use egen or egen_go to generate a maximally planar graph with no vertices of 
+  degree < 5 using the expansion method described in
+
+    C. Morgenstern and H. Shapiro. 1991.
+    Heuristics for Rapidly Four-Coloring Large Planar Graphs.
+    Algorithmica, 6, 869-891.
+
+* Stdin to egen should contain, in order, 
+  (1) the initial circuit size (roughly 1/3 the size of the desired graph),
+  (2) a random number stream seed, and
+  (3) the name of a file in which to dump the graph edges in DIMACS format.
+
+* Stdout from egen includes generation stats and the "p" field of the
+  DIMACS coloring format.  
+
+* Run egen_go to produce a complete DIMACS formatted map file (read
+  egen_go for usage).  Egen_go invokes egen and combines stdout with the
+  edge file.
+
+* Tested with gcc on a SPARCstation-2 running 4.1.1.  
+
+* I'd like to hear of any problems (or ideas!) you have using
+  this generator.
+
+			Craig Morgenstern
+			Department of Computer Science
+			Texas Christian University
+			Fort Worth, Texas, 76129
+			(817) 370-2372
+			morgenst@riogrande.cs.tcu.edu
+
+
+============================================================
+Resource usage on a SPARCstation-2 with 32 Megs
+============================================================
+Map Size	Time	Memory		Map file size
+  32,000	  6s	 0.9 Meg	 1.4 Meg
+  64,000	 15s	 1.5 Meg	 2.7 Meg
+ 128,000	 30s	 3.1 Meg	 5.6 Meg
+ 256,000	 63s	 5.9 Meg	11.8 Meg
+ 512,000	133s	11.5 Meg
+1024,000	269s	19.3 Meg
+
+============================================================
+Stdout out of a sample run:  egen < in
+============================================================
+MPG GENERATION (expansion method)
+initial circuit size     : 333000
+random number stream seed: 1234
+Graph output file        : /dev/null
+
+resource usage after graph initialization...
+     current running time = 23 secs
+     maximum resident set size = 4882432 bytes
+     number of major page faults = 0
+
+resource usage after Triangulate1...
+     current running time = 77 secs
+     maximum resident set size = 12906496 bytes
+     number of major page faults = 0
+
+resource usage after Triangulate2...
+     current running time = 269 secs
+     maximum resident set size = 19341312 bytes
+     number of major page faults = 275
+
+Generation complete...
+number of vertices: 1013813
+number of edges: 3041433
+degree distribution:     degree   num of vertices
+                         ------   ---------------
+                            5           541455
+                            6           235589
+                            7           109759
+                            8            55095
+                            9            29956
+                           10            17280
+                           11             9803
+                           12             5794
+                           13             3549
+                           14             2076
+                           15             1303
+                           16              757
+                           17              464
+                           18              338
+                           19              226
+                           20              123
+                           21               77
+                           22               65
+                           23               34
+                           24               28
+                           25               14
+                           26                8
+                           27                6
+                           28                5
+                           29                2
+                           30                5
+                           32                1
+                           34                1
+270.4u 7.0s 4:51 95% 0+16128k 0+0io 277pf+0w
+

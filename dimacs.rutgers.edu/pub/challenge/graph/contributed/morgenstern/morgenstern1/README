@@ -1,0 +1,8 @@
+mpggen : "Algorithmica" planar graph generator, modified to produce
+	 maps in dimacs challenge format.
+
+ggen : A graph generator to construct some known types of graphs, including
+       random graphs, K-partite graphs, Leighton graphs, and geometric
+       graphs.  Graphs are dumped to a specified file in dimacs format.
+
+Leighton_in : Input files to build Leighton graphs using ggen.

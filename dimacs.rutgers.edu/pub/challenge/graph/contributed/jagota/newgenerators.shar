@@ -1,0 +1,559 @@
+:	This is a shell archive.
+:	Remove everything above this line and
+:	run the following text with /bin/sh to create:
+:	README
+:	graph.c
+:	krcgg
+:	krcgg.README
+:	krcgg.README.BAK
+:	prgg.README
+:	rs_n.c
+:	rs_p.c
+:	vertex.c
+: This archive created: Sun May  9 11:08:43 1993
+cat << 'SHAR_EOF' > README
+
+There are two generators: 
+
+prgg.README: documentation for the p-random graphs generator
+
+krcgg.README: documentation for the k-random-cliques graph generator
+
+Author: Arun Jagota (e-mail: jagota@cs.buffalo.edu)
+
+Uptodate reference for generators and results with them:
+
+@techreport{Jag92g,
+       author = "Jagota, A.",
+        title = "Approximating Max-Clique with a Hopfield Network",
+ institution  = "University at Buffalo, Computer Science",
+ 	number= "92-33",
+	note  = "Available from author only",
+         year =  1992
+  }
+SHAR_EOF
+cat << 'SHAR_EOF' > graph.c
+/* Reads N and string from stdin and outputs set of edges in graph */
+#include <stdio.h>
+#include <strings.h>
+char *wrd;
+int N;
+main(argc,argv)
+int argc;
+char *argv[];
+{int i,j,indx;
+
+  N = atoi(argv[1]);
+  wrd = (char *) calloc((N*(N-1))/2+1,sizeof(char));
+  scanf("%s",wrd);
+  indx =  0;
+  for (i = 1; i < N; i++)
+   for (j = 0; j < (N-i); j++) {
+    if (wrd[indx] == 'b') printf("{ v%d v%d } \n",i,i+1+j);
+    indx++;
+   }
+}
+SHAR_EOF
+cat << 'SHAR_EOF' > krcgg
+#!/bin/csh -f 
+#krcgg <Num-vertices> <numcliques> <seed>
+#Generate "k random cliques" graph 
+  set numvertices = $1
+  set numcliques = $2
+  set seed = $3
+# `maxc' will record the largest clique used to generate the graph
+# This may be used as a lower bound on the size of the maximum clique in the
+# graph.
+  set maxc=1
+  set nc=1
+  while ($nc <= $numcliques)
+#Fix expected size of clique
+    set p =(`rs_n 1 $seed`)
+#Generate clique of expected size p*$numvertices
+    rs_p 1 $numvertices 2 $seed $p | vertex $numvertices > set
+#Update maxc, if necessary, and output this clique if nonempty
+    set sze = (`wc set`) 
+    @ sze[2]-=2
+    if ($sze[2] > $maxc) then
+      set maxc = $sze[2]
+    endif
+    if ($sze[2] > 0) then
+      cat set 
+    endif
+    @ nc++
+    @ seed++
+  end
+  echo "Maximum Clique >= $maxc" >> stats.$1.$2.$3
+SHAR_EOF
+cat << 'SHAR_EOF' > krcgg.README
+       ------------ INSTALLATION -----------------
+Compile the sources:
+
+cc -o rs_n -lm rs_n.c
+cc -o rs_p -lm rs_p.c
+cc -o vertex vertex.c
+
+Invocation:
+
+krcgg <numvertices> <numcliques> <seed>
+
+
+`krcgg' is a *shell script* which implements the "k random cliques" graph 
+generation algorithm. It outputs <numcliques> or less cliques (some may be
+empty). The graph is the UNION of these cliques (see below for examples of 
+what this means). Unfortunately, I do not provide a program to convert the set 
+of output cliques to a list of edges of the graph. You will have to do this 
+yourself.
+
+krcgg needs `rs_n', `rs_p', and `vertex', that's why they have to be compiled 
+earlier. `rs_p' is the same program as the one for `p_random_graphs'. 
+
+ Keep all executables (rs_p, rs_n, vertex) in the same directory as krcgg.
+
+krcgg puts `maxc' in the file   stats.<numvertices>.<numcliques>.<seed>
+This should be ignored if you generate the same graphs as I did in my 
+experiments (see below). If you generate different graphs (say, for additional
+experiments) you may find this value useful, though even then it can be
+ignored.
+
+Example Run:
+
+krcgg 20 5 1 
+{ v5 v15 v17 v19 v20 }
+{ v10 }
+{ v9 v10 }
+{ v4 v6 v8 v9 v11 v17 v19 v20 }
+
+This has generated a set of 4 cliques. It should be 5, but one must have been
+empty, i.e. { }. The graph is the UNION of these cliques. In this particular
+case, the edge-list of the graph is:
+
+{ v5 v15 }
+{ v5 v17 }
+{ v5 v19 }
+{ v5 v20 }
+{ v15 v17 }
+{ v15 v19 }
+{ v15 v20 }
+{ v17 v19 }
+{ v17 v20 }
+{ v19 v20 }
+{ v9 v10 }
+and all the 28 edges that come from the fourth clique (containing 8 vertices).
+
+There are duplicates in above edge-list as some edges may occur in multiple 
+cliques. { v17 v19 }, and more, in above example.
+
+
+      ----------------- EXPERIMENTS -----------------------
+
+There are some experiments on k-random-cliques graphs  reported in my IJCNN92 
+paper (Table I, last 3 rows). Do NOT compare with them. Instead use the ones
+below (which are better).
+
+	COMPARISONS WITH MY UPDATED EXPERIMENTS
+	      TR 92-33 (Available only from me, not Department)
+
+The results:	
+
+  Table I.  Size of retrieved clique by various algorithms, averaged over
+  twenty "20-random-cliques" graphs in each row. Only the three superior 
+  performing algorithms are reported below. For others, see TR 92-33.
+
+	|V|  MFA   SSD(V,N) SSD(emptyset,N)    seeds for the 20 graphs
+	100  49.7   50.9	50.35		1,21,41,61,...
+	400  190.1  183.9	188.5		1000,1020,1040,1060,...
+
+I suggest that you generate the same graphs as above, by using 
+the same seeds, as follows:
+
+krcgg 100 20 seed	(* seed in {1,21,...} *)    
+krcgg 400 20 seed	(* seed in {1000,1020,...} *)    
+
+Compute the average clique size retrieved by your algorithm[s] on the 20 
+graphs in each row, and compare with above performances (MFA,SSD(V,N),
+SSD(emptyset,N)).
+
+On p-random graphs, the performance of all heuristics have small variance. 
+On k random cliques graphs, however, performance of heuristics on individual
+graphs varies considerably. Therefore, I am providing Table II below which
+contains the performance on individual 400-vertex graphs. 
+
+  - column 1 of Table II also serves as a "control" that you have generated 
+    exactly the same graphs as I have (You could check `maxc' stored in the 
+    stats file for this purpose, if you like).
+
+Table II. Size of retrieved clique by MFA and SSD(V,N) on the twenty `20 
+random cliques' 400-vertex graphs of second row of Table I. The first column 
+is the lower bound on the maximum clique size, which is `maxc' in the shell 
+script `krcgg'.
+
+Maximum Clique L.B. 		MFA	SSD(V,N)	SSD(emptyset,N)
+193 				193	179		189
+187 				172	177		187
+200 				200	186		200
+202 				201	192		186
+188 				188	188		188
+207 				211	204		199
+160 				160	160		160
+210 				215	207		210
+180 				180	167		180
+194 				185	184		194
+184 				184	179		184
+212 				212	204		212
+189 				191	183		189
+200 				200	200		200
+201 				206	199		201
+160 				160	160		160
+197 				195	191		192
+160 				158	146		160
+204 				209	209		204
+182 				182	163		175
+
+			TIMING
+
+It may be useful to collect some timing information on your algorithms on
+k-random-cliques as well as p-random graphs.
+SHAR_EOF
+cat << 'SHAR_EOF' > krcgg.README.BAK
+       ------------ INSTALLATION -----------------
+Compile the sources:
+
+cc -o rs_n -lm rs_n.c
+cc -o rs_p -lm rs_p.c
+cc -o vertex vertex.c
+
+Invocation:
+
+krcgg <numvertices> <numcliques> <seed>
+
+
+`krcgg' is a *shell script* which implements the "k random cliques" graph 
+generation algorithm. It outputs <numcliques> or less cliques (some may be
+empty). The graph is the UNION of these cliques (see below for examples of 
+what this means). Unfortunately, I do not provide a program to convert the set 
+of output cliques to a list of edges of the graph. You will have to do this 
+yourself.
+
+krcgg needs `rs_n', `rs_p', and `vertex', that's why they have to be compiled 
+earlier. `rs_p' is the same program as the one for `p_random_graphs'. 
+
+ Keep all executables (rs_p, rs_n, vertex) in the same directory as krcgg.
+
+krcgg puts `maxc' in the file   stats.<numvertices>.<numcliques>.<seed>
+This should be ignored if you generate the same graphs as I did in my 
+experiments (see below). If you generate different graphs (say, for additional
+experiments) you may find this value useful, though even then it can be
+ignored.
+
+Example Run:
+
+krcgg 20 5 1 
+{ v5 v15 v17 v19 v20 }
+{ v10 }
+{ v9 v10 }
+{ v4 v6 v8 v9 v11 v17 v19 v20 }
+
+This has generated a set of 4 cliques. It should be 5, but one must have been
+empty, i.e. { }. The graph is the UNION of these cliques. In this particular
+case, the edge-list of the graph is:
+
+{ v5 v15 }
+{ v5 v17 }
+{ v5 v19 }
+{ v5 v20 }
+{ v15 v17 }
+{ v15 v19 }
+{ v15 v20 }
+{ v17 v19 }
+{ v17 v20 }
+{ v19 v20 }
+{ v9 v10 }
+and all the 28 edges that come from the fourth clique (containing 8 vertices).
+
+There are duplicates in above edge-list as some edges may occur in multiple 
+cliques. { v17 v19 }, and more, in above example.
+
+
+      ----------------- EXPERIMENTS -----------------------
+
+There are some experiments on k-random-cliques graphs  reported in my IJCNN92 
+paper (Table I, last 3 rows). Do NOT compare with them. Instead use the ones
+below (which are better).
+
+	COMPARISONS WITH MY UPDATED EXPERIMENTS
+	      TR 92-33 (Available only from me, not Department)
+
+The results:	
+
+  Table I.  Size of retrieved clique by various algorithms, averaged over
+  twenty "20-random-cliques" graphs in each row. Only the three superior 
+  performing algorithms are reported below. For others, see TR 92-33.
+
+	|V|  MFA   SSD(V,N) SSD(emptyset,N)    seeds for the 20 graphs
+	100  49.7   50.9	50.35		1,21,41,61,...
+	400  190.1  183.9	188.5		1001,1021,1041,1061,...
+
+I suggest that you generate the same graphs as above, by using 
+the same seeds, as follows:
+
+krcgg 100 20 seed	(* seed in {1,21,...} *)    
+krcgg 400 20 seed	(* seed in {1001,1021,...} *)    
+
+Compute the average clique size retrieved by your algorithm[s] on the 20 
+graphs in each row, and compare with above performances (MFA,SSD(V,N),
+SSD(emptyset,N)).
+
+On p-random graphs, the performance of all heuristics have small variance. 
+On k random cliques graphs, however, performance of heuristics on individual
+graphs varies considerably. Therefore, I am providing Table II below which
+contains the performance on individual 400-vertex graphs. 
+
+  - column 1 of Table II also serves as a "control" that you have generated 
+    exactly the same graphs as I have (You could check `maxc' stored in the 
+    stats file for this purpose, if you like).
+
+Table II. Size of retrieved clique by MFA and SSD(V,N) on the twenty `20 
+random cliques' 400-vertex graphs of second row of Table I. The first column 
+is the lower bound on the maximum clique size, which is `maxc' in the shell 
+script `krcgg'.
+
+Maximum Clique L.B. 		MFA	SSD(V,N)	SSD(emptyset,N)
+193 				193	179		189
+187 				172	177		187
+200 				200	186		200
+202 				201	192		186
+188 				188	188		188
+207 				211	204		199
+160 				160	160		160
+210 				215	207		210
+180 				180	167		180
+194 				185	184		194
+184 				184	179		184
+212 				212	204		212
+189 				191	183		189
+200 				200	200		200
+201 				206	199		201
+160 				160	160		160
+197 				195	191		192
+160 				158	146		160
+204 				209	209		204
+182 				182	163		175
+
+			TIMING
+
+It may be useful to collect some timing information on your algorithms on
+k-random-cliques as well as p-random graphs.
+SHAR_EOF
+cat << 'SHAR_EOF' > prgg.README
+       ------------ INSTALLATION -----------------
+Compile the sources:
+
+cc -o rs_p -lm rs_p.c
+cc -o graph graph.c
+
+Invocation:
+
+rs_p 1 <nummaxedges> 2 <seed> p | graph <numvertices> 
+
+Example:
+
+rs_p 1 4950 2 1 0.5 | graph 100
+
+Here nummaxedges = 100*99/2 = 4950
+
+generates a 100-vertex 0.5-random graph (i.e. edge introduction
+probability = 0.5).
+
+The graph is output to stdout as a set of edges. 
+
+Example Run:
+
+rs_p 1 10 2 1 0.5 | graph 5
+{ v1 v2 } 
+{ v1 v5 } 
+{ v2 v3 } 
+{ v2 v5 } 
+
+
+      ----------------- EXPERIMENTS -----------------------
+
+
+	COMPARISONS WITH MY EXPERIMENTS
+
+	         TR 92-24 (Jagota, Regan)
+
+I am giving the seeds to generate exactly the graphs for the rows of Table III 
+of TR 92-24 (Caption: Average performance on p-random graphs) with p=0.9. I
+am restricting myself to p=0.9 (and not including p=0.5) as the performance
+numbers are more interesting for the former (in particular, MFA outperforms 
+every other heuristic I tried by roughly SIX vertices on the 400-vertex graphs).
+
+	p	|V|  seeds
+	0.9	100  101-150
+	0.9	400  201-250
+
+The following will generate exactly the graphs I used:
+
+rs_p 1 4950 2 <seed> 0.9 | graph 100  (* seed in {101,..,150} *)
+rs_p 1 79800 2 <seed> 0.9| graph 400  (* seed in {201,..,250} *)
+
+Compute the average of the clique size returned by your algorithms
+over the 50 seeds, for each of N=100,400 separately. It may be interesting
+to compare these averages with mine in Table III of TR 92-24. I also
+have clique size values for INDIVIDUAL graphs (if you need that information
+later).
+
+SHAR_EOF
+cat << 'SHAR_EOF' > rs_n.c
+/*rs_n.c*/
+/* rs_n N seed */
+/* 
+Routine generates a random number between [0.0,0.5]
+*/
+
+#include	<math.h>
+#include	<string.h>
+#include	<stdio.h>
+
+#define		MAXRAND	        2147483647
+
+extern		int 	rand();
+extern  	void	srand();
+
+main(argc,argv)
+int	argc;
+char	*argv[];
+{	
+	int 	i,seed,N;
+	float   num;
+	N=atoi(argv[1]);
+	seed=atoi(argv[2]);
+	srand(seed);
+	for (i = 0; i < N; i++) {
+          num = (float) rand();
+          num = (0.5*num)/((float) MAXRAND);
+	  printf("%1.2f\n",num);
+	}
+
+}
+SHAR_EOF
+cat << 'SHAR_EOF' > rs_p.c
+/*random_strings.c*/
+/* rs Number-of-tuples N-ary size_alpha [seed] [prob] */
+/* 
+Routine generates `Number' random N-ary tuples on alphabet `a`
+to `size_alpha' of length `N'.  `Number' is a necessary first command 
+line arguement, `N' is a necessary second command line arguement,
+`size_alpha' is a necessary third command line argument, random number 
+generator `seed' is an optional fourth command line arguement, and 
+probability is an optional fifth command line argument. The 5th
+argument makes sense only if size_alpha = 2. It then represents the
+probability of `b'.
+*/
+
+#include	<math.h>
+#include	<string.h>
+#include	<stdio.h>
+
+#define 	MASK	31
+#define		MAXLENGTH	10
+#define		MAXNUMBER	1000000
+#define		MAXRAND	        2147483647
+
+extern		int 	rand();
+extern  	void	srand();
+
+float	SCALE;
+int 	i,j,length,c[6],seed,stringnumber,stringlength,size_alpha;
+float   prob; /* 5th CL argument */
+
+main(argc,argv)
+int	argc ;
+char	*argv[];
+{	
+	char	*string,*stp ;	
+
+	extern	void	generate_random_string() ;
+
+	if(4>argc) 
+	{
+		printf("\nInvalid Argument Number!\n"); 
+		return;
+	}
+
+	stringnumber=atoi(argv[1]);
+	if(MAXNUMBER<stringnumber) stringnumber=MAXNUMBER;
+	stringlength=atoi(argv[2]);
+	/* if(MAXLENGTH<stringlength) stringlength=MAXLENGTH; */
+	string = (char *) calloc(stringlength,sizeof(char));
+	size_alpha=atoi(argv[3]);
+	if(26<size_alpha) size_alpha=26;
+
+	if(5<=argc) seed=atoi(argv[4]);
+	else seed=1;
+
+	if(6<=argc) prob=atof(argv[5]);
+	else prob=0.5;
+
+        SCALE = ((float) size_alpha)/31.0;
+	srand(seed);
+
+	for(i=0;i<stringnumber;i++)
+	{
+		generate_random_string(string,stringlength) ;
+		for(j=0;j<stringlength;j++)
+			printf("%c",string[j]);
+	}
+	printf("\n");
+
+}
+
+void	generate_random_string(string,sl)
+char	string[];
+int	sl;
+{
+	int i,number;
+
+	for(i=0;i<sl;i++)
+	{
+		number = rand();
+		if (size_alpha == 2) {
+		 if (number >= ((1.0-prob)*MAXRAND)) number = 1;
+		 else number = 0;
+		}
+		else {
+		  number = number/(MAXRAND/32);
+		  number = number*SCALE;
+		}
+		string[i] = 'a' + number;
+	}
+}
+
+
+
+
+SHAR_EOF
+cat << 'SHAR_EOF' > vertex.c
+/* Reads N from command line, and string from stdin as characteristic 
+   vector, and outputs set of vertices it denotes */
+#include <stdio.h>
+#include <strings.h>
+char *wrd;
+int N;
+main(argc,argv)
+int argc;
+char *argv[];
+{int i,indx;
+
+  N = atoi(argv[1]);
+  wrd = (char *) calloc(N,sizeof(char));
+  scanf("%s",wrd);
+  printf("{ ");
+  for (i = 0; i < N; i++)
+    if (wrd[i] == 'b') printf("v%d ",i+1);
+  printf("}\n");
+}
+SHAR_EOF
+:	End of shell archive
+exit 0

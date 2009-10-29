@@ -1,0 +1,41 @@
+#-------------------------------- KEM_SL --------------------------------
+res MAPS/E02 KEM_SL_in KEM_SL_outE
+res MAPS/E04 KEM_SL_in KEM_SL_outE
+res MAPS/E08 KEM_SL_in KEM_SL_outE
+res MAPS/E16 KEM_SL_in KEM_SL_outE
+res MAPS/E32 KEM_SL_in KEM_SL_outE
+res MAPS/E64 KEM_SL_in KEM_SL_outE
+res MAPS/E128 KEM_SL_in KEM_SL_outE
+#-------------------------------- W2_SL --------------------------------
+res MAPS/E02 W2_SL_in W2_SL_outE
+res MAPS/E04 W2_SL_in W2_SL_outE
+res MAPS/E08 W2_SL_in W2_SL_outE
+#-------------------------------- W2_SAT --------------------------------
+res MAPS/E02 W2_SAT_in W2_SAT_outE
+res MAPS/E04 W2_SAT_in W2_SAT_outE
+res MAPS/E08 W2_SAT_in W2_SAT_outE
+res MAPS/E16 W2_SAT_in W2_SAT_outE
+#-------------------------------- LDBT_SAT --------------------------------
+res MAPS/E02 LDBT_SAT_in LDBT_SAT_outE
+res MAPS/E04 LDBT_SAT_in LDBT_SAT_outE
+res MAPS/E08 LDBT_SAT_in LDBT_SAT_outE
+res MAPS/E16 LDBT_SAT_in LDBT_SAT_outE
+res MAPS/E32 LDBT_SAT_in LDBT_SAT_outE
+res MAPS/E64 LDBT_SAT_in LDBT_SAT_outE
+res MAPS/E128 LDBT_SAT_in LDBT_SAT_outE
+#-------------------------------- W2_LDBT_SAT --------------------------------
+res MAPS/E02 W2_LDBT_SAT_in W2_LDBT_SAT_outE
+res MAPS/E04 W2_LDBT_SAT_in W2_LDBT_SAT_outE
+res MAPS/E08 W2_LDBT_SAT_in W2_LDBT_SAT_outE
+res MAPS/E16 W2_LDBT_SAT_in W2_LDBT_SAT_outE
+res MAPS/E32 W2_LDBT_SAT_in W2_LDBT_SAT_outE
+res MAPS/E64 W2_LDBT_SAT_in W2_LDBT_SAT_outE
+res MAPS/E128 W2_LDBT_SAT_in W2_LDBT_SAT_outE
+#-------------------------------- W2_KEM_SL --------------------------------
+res MAPS/E02 W2_KEM_SL_in W2_KEM_SL_outE
+res MAPS/E04 W2_KEM_SL_in W2_KEM_SL_outE
+res MAPS/E08 W2_KEM_SL_in W2_KEM_SL_outE
+res MAPS/E16 W2_KEM_SL_in W2_KEM_SL_outE
+res MAPS/E32 W2_KEM_SL_in W2_KEM_SL_outE
+res MAPS/E64 W2_KEM_SL_in W2_KEM_SL_outE
+res MAPS/E128 W2_KEM_SL_in W2_KEM_SL_outE

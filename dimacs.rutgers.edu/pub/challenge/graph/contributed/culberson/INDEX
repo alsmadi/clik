@@ -1,0 +1,8 @@
+This directory contains a very nice bibliography on algorithms and
+applications for graph coloring from Joe Culberson of the University
+of Alberta (joe@cs.ualberta.edu).
+
+color.bib: The bibliography
+
+color.tex, color.dvi: Simple TeX document to print entire
+bibliography.

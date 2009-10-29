@@ -1,0 +1,41 @@
+
+Below is the source for our random graph generator that we have been doing
+experiments on.  We did not submit it before now because we didn't want to
+create something that would eat megabytes of disk space per graph.  Thanks to
+the compressed clique format, that is no longer a problem.
+
+Mark Brockington (brock@cs.ualberta.ca)
+
+From the code:
+
+/* Graph generator submitted by Mark Brockington (brock@cs.ualberta.ca) */
+/* and Joe Culberson (joe@cs.ualberta.ca) for the 1993 DIMACS Challenge */
+/* Pieces of code were borrowed from the conversion programs written    */
+/* by Tamas Badics.                                                     */ 
+
+/* To compile:
+   On Sun systems: gcc graphgen.c -DSUN -lm
+   On other systems: cc graphgen.c (link the math library for the pow
+    function used in subroutine func1).
+*/
+ 
+/* Defender=i (0<=i<=4) means that after i vertices are selected from the
+   independent set, with neighbours removed, the graph degree sequence looks
+   like a random graph.  Details to follow in full paper.
+*/ 
+
+The syntax is
+
+graphgen -gxxxx -cxxxx -pxxxx -dx -sxxxx
+
+where 
+ -gxxxx     (Graph Size)
+ -cxxxx     (Clique Size)
+ -px.xxxxxx (Edge Density Requested)
+ -dx        (Defender Type)
+ -sxxxx     (Seed Number)
+
+The default corresponds to 
+
+graphgen -g1000 -i16 -p0.500 -d0 -s0
+

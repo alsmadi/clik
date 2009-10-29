@@ -1,0 +1,84 @@
+Dear DIMACS Challenge Coordinator,
+
+I posted the following announcement to a neural nets mailing list recently and
+am including it to you for your information. 
+
+The following report may be of interest for:
+* Combinatorial Optimization (Maximum Clique) via neural nets
+* Kolmogorov Complexity; Universal Prior Distribution; generating "hard" 
+  instances for optimization problems
+* A scheme for generating compressible binary vectors motivated by Kolmogorov 
+  Complexity ideas. Source code is offered and may be used to generate 
+  compressible test data for any application whose instances directly or 
+  indirectly utilize binary vectors; comparison of performance on such test 
+  data vs, say, data from the uniform distribution may be useful, as below. 
+
+  The source package also contains Mathematica Implementations of two continous
+  neural network approaches to Maximum Clique: Continous Hopfield Dynamics and
+  Mean Field Annealing
+--------
+
+          Performance of MAX-CLIQUE Approximation Heuristics 
+           Under Description-Length Weighted Distributions
+
+	       Arun Jagota             Kenneth W. Regan
+
+                         Technical Report
+		   Department of Computer Science
+              State University at New York at Buffalo
+
+We study the average performance of several neural-net heuristics applied to 
+the problem of finding the size of the largest clique in an undirected graph. 
+This function is NP-hard even to approximate within a constant factor in the 
+worst case, but the heuristics we study are known to do quite well on average 
+for instances drawn from the uniform distribution on graphs of size n. We 
+extend a theorem of M. Li and P. Vitanyi to show that for instances drawn from 
+the "universal distribution" m(x), the average-case performance of any 
+approximation algorithm has the same order as its worst-case performance.
+The universal distribution is not computable or samplable. However, we give a 
+realistic analogue q(x) which lends itself to efficient empirical testing. Our 
+results so far are: out of nine heuristics we tested, three did markedly worse 
+under q(x) than under uniform distribution, but six others revealed little 
+change. 
+
+
+HOW TO ACCESS:
+--------------
+ftp ftp.cs.buffalo.edu (or 128.205.32.9 subject-to-change)
+Name : anonymous
+> cd users/jagota
+> get <file>
+> quit
+
+<file>: KCC.ps, KCC.dvi    (*Same but some people have had problems printing
+			     our postscript in the past. `KCC.dvi' may require 
+			     `binary' mode in ftp *)
+
+<file>: nlt.README         (* Contains documentation and instructions for 
+			      our compressible string generation code *)
+
+<file>: ijcnn92.tex        (* Latex source of IJCNN'92 paper on Approximating
+                              MAX-CLIQUE *)
+
+IJCNN92 paper details:
+
+      Efficiently Approximating MAX-CLIQUE in a Hopfield-style Network
+		   
+p		           Arun Jagota
+      Proceedings of International Joint Conference on Neural Networks '92
+      Volume II, pages 248--253
+
+In a graph, a clique is a set of vertices such that every pair is connected by 
+an edge. MAX-CLIQUE is the optimization problem of finding the largest clique 
+in a given graph, and is NP-complete. Several real-world and theory problems 
+can be modeled as MAX-CLIQUE. In this paper, we efficiently approximate 
+MAX-CLIQUE in a special case of the Hopfield Network whose stable states are 
+maximal cliques. We present several energy-descent optimizing dynamics; both 
+discrete and continuous. One of these emulates, as special cases, two well 
+known greedy algorithms for approximating MAX-CLIQUE. We report on detailed 
+empirical comparisons on random graphs. Mean-Field Annealing---an efficient 
+approximation to Simulated Annealing---is the narrow but clear winner. All 
+dynamics approximate much better than one which emulates a ``naive'' greedy 
+heuristic.
+
+Arun Jagota
