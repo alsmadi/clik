@@ -1,0 +1,42 @@
+#!/bin/sh
+######################################################################
+# USAGE: egen_go <initial_circuit_size> <random_seed> <map_file_name>
+#
+# Generates an MPG5 expansion graph that has roughly three times
+# the number of vertices as the initial circuit size.  The graph
+# is dumped in DIMACS coloring format to the specified map file.
+######################################################################
+# Egen produces a stream of edges and does not "spool" the graph internally.
+# Edges are written to the output file as they are added to the graph. 
+# This means that we can't write the "p" field of the DIMACS format first
+# since we won't know what it is until the generation has completed.
+# Hence this script--it saves egen's stdout to a tmp file and then
+# combines the edge file with the tmp file to produce a graph file in 
+# DIMACS coloring format (stdout includes generation stats and 
+# the "p" field).
+######################################################################
+
+PATH=/bin:/usr/bin:.
+export PATH
+
+if [ $# -ne 3 ]; then
+   echo "usage: $0 <initial_circuit_size> <random_number_seed> <output_file>"
+   exit 1
+fi
+
+if [ -s $3 ]; then
+   echo "$3: File exists"
+   exit 1
+fi
+
+if [ -s $3.$$ ]; then
+   echo "$3.$$: File exists"
+   exit 1
+fi
+
+trap "rm -f $3.$$ $3; exit 1" 1 2 3 14 15
+
+echo $1 $2 $3 | egen > $3.$$
+cat $3 >> $3.$$
+/bin/mv -f $3.$$ $3
+exit 0

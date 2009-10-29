@@ -1,0 +1,39 @@
+% -*-latex-*-
+% To create the annotated bibliography, you need the BibTeX style file
+% annote.bst.  Assuming this file is called ccannote.tex the commands
+%   latex ccannote
+%   bibtex ccannote
+%   latex ccannote
+%   latex ccannote
+% should create the annotated bibliography
+%
+% Comments to challenge@dimacs.rutgers.edu  
+%
+%                               Mike Trick
+%
+\documentstyle[12pt]{article}
+
+\author{}
+
+\date{Last Revision: December 2, 1992}
+
+\title{Cliques and Colorings Bibliography}
+
+\markboth{DRAFT: Cliques and Coloring Bibliography}{DRAFT: December 2, 1992}
+
+\begin{document}
+
+  \bibliographystyle{annotation}
+
+  \maketitle
+
+{\narrower{\it This document prints out the bibliography ccreview.bib.
+  This bibliography contains a number of important references, but is
+  by no means a complete survey of the field.  Send additions and
+  comments to} {\tt challenge@dimacs.rutgers.edu}.}
+
+  \nocite{*}
+
+  \bibliography{ccreview}
+
+\end{document}

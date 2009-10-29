@@ -1,0 +1,1075 @@
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	graph.c
+#	nlt.c
+#	nlt_dec.c
+#	rsb.c
+#	trunc.c
+#	nlt_sampler
+#	CHDandMFA.m
+# This archive created: Fri Oct  2 12:46:30 1992
+export PATH; PATH=/bin:$PATH
+if test -f 'graph.c'
+then
+	echo shar: will not over-write existing file "'graph.c'"
+else
+cat << \SHAR_EOF > 'graph.c'
+/* Reads N and string from stdin and outputs set of edges in graph */
+#include <stdio.h>
+#include <strings.h>
+char *wrd;
+int N;
+main(argc,argv)
+int argc;
+char *argv[];
+{int i,j,indx;
+
+  N = atoi(argv[1]);
+  wrd = (char *) calloc((N*(N-1))/2+1,sizeof(char));
+  scanf("%s",wrd);
+  indx =  0;
+  for (i = 1; i < N; i++)
+   for (j = 0; j < (N-i); j++) {
+    if (wrd[indx] == 'b') printf("{ v%d v%d } \n",i,i+1+j);
+    indx++;
+   }
+}
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'nlt.c'
+then
+	echo shar: will not over-write existing file "'nlt.c'"
+else
+cat << \SHAR_EOF > 'nlt.c'
+/* Implements calculus for NLT from paper: Nearly Linear Time 
+   by Y. Gurevich and Shelah
+
+   Author: Arun Jagota, CS @ SUNY/BUFFALO, e-mail:jagota@cs.buffalo.edu
+
+nlt <maxsize of output>
+
+*/
+#include <stdio.h>
+#include <strings.h>
+#include <math.h>
+#define TRUE 1
+#define FALSE 0
+#define MATCH 0
+
+int max_ls;
+
+char *R0(u,y,x)
+/* If u is an initial segment of x then 
+     {return a new memory-allocated string y.(x-u); free(x)}
+   else return x. */
+char u[],y[],x[];
+{int lu,ly,lx;
+ char *s;
+  lu = strlen(u);
+  lx = strlen(x);
+  if (strncmp(u,x,lu) == MATCH) {
+    ly = strlen(y);
+    s  = (char *) calloc(ly+lx-lu+1,sizeof(char));
+    strcpy(s,y);
+    strcat(s,&x[lu]);
+    free(x); return (s); 
+  }
+  else return (x);
+}
+
+int pos_of_first(x,u,lx,lu)
+/* Starting Position (SP) of leftmost occurence of u in x. 
+   SP starts from 0. If u does not occur in x return (SP=-1)
+*/
+char *x,*u;
+int lx,lu;
+{int i, found;
+  found = FALSE;
+  for (i = 0; i < lx-lu+1; i++)
+   if (strncmp(u,&x[i],lu) == MATCH) {
+    found = TRUE; break;
+   };
+  if (found) return (i);
+  else return(-1);
+}
+
+char *R1(u,y,x)
+/* If u appears in x (as a substring) then replace the left-most 
+   occurence of u in x with y; else do nothing.
+   In both cases, return a memory-allocated string */
+char u[],y[],x[];
+{int lu,ly,lx,pu;
+ char *s;
+  lu = strlen(u);
+  lx = strlen(x);
+  pu = pos_of_first(x,u,lx,lu);
+  if (pu >= 0) { /* u occurs in x */
+    ly = strlen(y);
+    s  = (char *) calloc(ly+lx-lu+1,sizeof(char));
+    strncpy(s,x,pu);
+    s[pu] = '\0';
+    strcat(s,y);
+    strcat(s,&x[pu+lu]);
+    free(x); return(s); 
+  }
+  else return (x);
+}
+
+char *R2(u,v,y,z,x)
+/* If u and v appear in x and their first occurences do not overlap 
+   then replace the first occurences of u and v with y and z 
+   respectively. All four parameter strings have the same length.
+*/
+char u[],v[],y[],z[],x[];
+{int lu,lv,ly,lz,lx,pu,pv;
+ char *s;
+  lu = strlen(u);
+  lv = strlen(v);
+  ly = strlen(y);
+  lz = strlen(z);
+  lx = strlen(x);
+  if (!((lu == lv) && (lv == ly) && (ly == lz))) {
+    printf("Error in R2: NOT (|u|=|v|=|y|=|z|) \n"); 
+    return (NULL);
+  }
+  pu = pos_of_first(x,u,lx,lu);
+  pv = pos_of_first(x,v,lx,lv);
+  if ((pu >= 0) && (pv >= 0) &&  /* u and v occur in x */
+      ( ((pu + lu) <= pv) || ((pv + lv) <= pu))
+     )
+      { /* Their first occurences don't overlap */
+    s  = (char *) calloc(lx+1,sizeof(char));
+    if (pu < pv) {
+      strncpy(s,x,pu);
+      s[pu] = '\0';
+      strcat(s,y);
+      strncat(s,&x[pu+lu],pv-(pu+lu));
+      strcat(s,z);
+      strcat(s,&x[pv+lv]);
+    }
+    else {
+      strncpy(s,x,pv);
+      s[pv] = '\0';
+      strcat(s,z);
+      strncat(s,&x[pv+lv],pu-(pv+lv));
+      strcat(s,y);
+      strcat(s,&x[pu+lu]);
+    }
+    free(x); return(s); 
+  }
+  else return (x);
+}
+
+char *R3(u,v,w,y,z,x)
+char u[],v[],w[],y[],z[],x[];
+{int lu,lv,lw,ly,lz,lx,pu,pv,pw,wminu;
+ char *s;
+  lu = strlen(u);
+  lv = strlen(v);
+  lw = strlen(w);
+  ly = strlen(y);
+  lz = strlen(z);
+  lx = strlen(x);
+  if (!((lu == lv) && (lv == lw) && (lw == ly) && (lw == lz))) {
+    printf("Error in R3: NOT (|u|=|v|=|w|=|y|=|z|) \n"); 
+    return (NULL);
+  }
+  pu = pos_of_first(x,u,lx,lu);
+  pw = pos_of_first(x,w,lx,lw);
+  wminu = pw - (pu + lu);
+  if ((pu >= 0) && (pw >= 0) &&  /* u and w occur in x */
+      (wminu >= lv) && (((wminu-lv) % 2) == 0)  /* v can fit between u & w exactly */
+     )
+      {  
+    pv = pu + lu + (wminu-lv)/2;
+    if (strncmp(v,&x[pv],lv) == MATCH) { /* Replace v by y; w by z */
+      s  = (char *) calloc(lx+1,sizeof(char));
+      strncpy(s,x,pv);
+      s[pv] = '\0';
+      strcat(s,y);
+      strncat(s,&x[pv+lv],pw-(pv+lv));
+      strcat(s,z);
+      strcat(s,&x[pw+lw]);
+      free(x); return(s); 
+    }
+    else return (x);
+  }
+  else return (x);
+}
+
+char *E(u,v,x)
+char u[],v[],x[];
+{int i, lu,lv,lx,ls;
+ char *s;
+ lu = strlen(u);
+ lv = strlen(v);
+ if (lu != lv) {
+   printf("Error in E: |u| <> |v|\n");
+   return (NULL);
+ }
+ lx = strlen(x);
+ ls = lu*lx;
+ if (ls > max_ls) {
+   printf("<%d> E <%d> <%d>  = %d = |y| too long\n",lx,lu,lv,ls); 
+   exit(0);
+ }
+ else  s  = (char *) calloc(ls + 1, sizeof(char));
+ s[0] = '\0';
+ for (i = 0; i < lx; i++) {
+  if (x[i] == '0') strcat(s,u);
+  else if (x[i] == '1') strcat(s,v);
+  else printf("Error in E: %c not allowed\n",x[i]);
+ }
+ free(x); return(s); 
+}
+
+char *C(u,v,x)
+char u[],v[],x[];
+{char *y;
+ int lu, lv, lx, ly,i,ok;
+ lu = strlen(u);
+ lv = strlen(v);
+ if (lu != lv) {
+   printf("Error in C: |u| <> |v|\n");
+   return (NULL);
+ }
+ lx = strlen(x);
+ ok = TRUE;
+ if ((lx % lu) == 0) { /* lu divides lx */
+   ly = lx/lu;
+   y = (char *) calloc(ly+1,sizeof(char));
+   for (i = 0; i < ly; i++) {
+     if (strncmp(u,&x[i*lu],lu) == MATCH)
+       y[i] = '0';
+     else if (strncmp(v,&x[i*lu],lu) == MATCH)
+       y[i] = '1';
+     else {ok = FALSE; y[i] = '\0'; free(y); break;};
+   }
+ }
+ else ok = FALSE;
+ if (ok) {
+   free(x); return(y); 
+ }
+ else return(x);
+}
+
+int logtwo(n)
+int n;
+{int i,pow_of_i;
+ i = 0; pow_of_i = 1; 
+ while (pow_of_i < n) {
+  pow_of_i = 2*pow_of_i;
+  i++;
+ }
+ return (i);
+}
+
+char *A(u,x)
+char u[],x[];
+{int lu,lx,ru,i,ls;
+ char *s;
+
+ lu = strlen(u);
+ lx = strlen(x);
+ ru = lx*logtwo(lx+1);
+ ls = lx + lu*ru;
+ if (ls > max_ls) {
+   printf("<%d> A <%d>  = %d = |y| too long\n",lx,lu,ls); 
+   exit(0);
+ }
+ else  s  = (char *) calloc(ls + 1, sizeof(char));
+ strcpy(s,x);
+ for (i = 0; i < ru; i++)  strcat(s,u);
+ free(x); return(s);
+}
+
+char *D(u,x)
+char u[],x[];
+{int lu,lx,ls,i;
+ char *s;
+
+ lu = strlen(u);
+ lx = strlen(x);
+ i  = 1;
+ while (strncmp(&x[lx-i*lu],u,lu) == MATCH) i++;
+ ls = lx-(i-1)*lu;
+ s  = (char *) calloc(ls+1,sizeof(char));
+ strncpy(s,x,ls);
+ s[ls] = '\0';
+ free(x); return(s);
+}
+
+char *strsave(s)      /* save string s somewhere */
+char *s;
+{
+      char *p, *malloc();
+
+       if ((p = malloc(strlen(s)+1)) != NULL)
+	  strcpy(p,s);
+       return(p);
+}
+
+main(argc,argv)
+int argc;
+char *argv[];
+{int lx,lu,debug;
+ char *x,*u,*v,*w,*y,*z,op[4];
+ /* Variables for Iterated Replacement */
+ int iter, max_comp_comm, *comp_comm, cc_ind, cp_ind, lx0; 
+ char **comp_params;
+
+  debug = FALSE;
+  switch (argc) {
+   case 2 : lx = 400; lu = 200; max_comp_comm = 50; max_ls = atoi(argv[1]); break;
+   case 6 : debug = TRUE;
+   case 5 : lx = atoi(argv[2]); lu = atoi(argv[3]); max_comp_comm = atoi(argv[4]); break;
+   default: printf("Invocation:  nlt max |s| [|x| |u| |mc| [-d]] \n");
+	    printf("Command Line Arguments:\n");
+            printf("max|s| = max. length of output string\n");
+            printf("   |x| = max. length of input string (DEFAULT: 400)\n");
+	    printf("   |u| = max. length of any op parameter (DEFAULT: 200)\n");
+	    printf("   |mc|= max. commands in composition (DEFAULT: 50)\n");
+	    printf("   -d: print output of every operation\n");
+            printf("nlt accepts (one or more) commands from stdin\n"); 
+	    printf("Each command is a sequence of operations as follows:\n");
+	    printf("<string> op <params> op <params> .. op <params> .\n");
+	    printf("set of ops ::= R0 R1 R2 R3 E C A D\n");
+	    printf("Each command is evaluated from left to right\n");
+	    printf("Iterated replacement is indicated by `( ... )' \n");
+	    printf("Evaluation in iterated replacement is also from left-to-right\n");
+	    printf("Examples:\n");
+	    printf("nlt 1000 50 10 -d\n");
+	    printf("1001 E 00 11 E 11 00 .\n");
+	    printf("11000011\n");
+	    printf("0000111111110000\n");
+	    printf("\n");
+	    printf("nlt 1000 \n");
+	    printf("1001 E 00 11 E 11 00 .\n");
+	    printf("1001 E 00 11 E 11 00 .\n");
+	    printf("0000111111110000\n");
+	    printf("0000111111110000\n");
+	    printf("000 ( R0 0 01 R1 10 01 ) .\n");
+	    exit(0);
+  }
+
+  x     = (char *) calloc(lx+1,sizeof(char));
+  u     = (char *) calloc(lu+1,sizeof(char));
+  v     = (char *) calloc(lu+1,sizeof(char));
+  w     = (char *) calloc(lu+1,sizeof(char));
+  y     = (char *) calloc(lu+1,sizeof(char));
+  z     = (char *) calloc(lu+1,sizeof(char));
+
+  iter = FALSE; 
+  while (scanf("%s",x) != EOF) {
+   while ((scanf("%s",op) || TRUE) && (strncmp(op,".",1) != MATCH)) {
+    if (strncmp(op,"R0",2) == MATCH) {
+      scanf("%s %s",u,y);
+      if (iter) {
+	comp_comm[cc_ind++]   = 0; 
+	comp_params[cp_ind++] = strsave(u); 
+	comp_params[cp_ind++] = strsave(y); 
+      }
+      else x = R0(u,y,x);
+    }
+    else if (strncmp(op,"R1",2) == MATCH) {
+      scanf("%s %s",u,y);
+      if (iter) {
+	comp_comm[cc_ind++]   = 1; 
+	comp_params[cp_ind++] = strsave(u); 
+	comp_params[cp_ind++] = strsave(y); 
+      }
+      else x = R1(u,y,x);
+    }
+    else if (strncmp(op,"R2",2) == MATCH) {
+      scanf("%s %s %s %s",u,v,y,z);
+      if (iter) {
+	comp_comm[cc_ind++]   = 2; 
+	comp_params[cp_ind++] = strsave(u); 
+	comp_params[cp_ind++] = strsave(v); 
+	comp_params[cp_ind++] = strsave(y); 
+	comp_params[cp_ind++] = strsave(z); 
+      }
+      else x = R2(u,v,y,z,x);
+    }
+    else if (strncmp(op,"R3",2) == MATCH) {
+      scanf("%s %s %s %s %s",u,v,w,y,z);
+      if (iter) {
+	comp_comm[cc_ind++]   = 3; 
+	comp_params[cp_ind++] = strsave(u); 
+	comp_params[cp_ind++] = strsave(v); 
+	comp_params[cp_ind++] = strsave(w); 
+	comp_params[cp_ind++] = strsave(y); 
+	comp_params[cp_ind++] = strsave(z); 
+      }
+      else x = R3(u,v,w,y,z,x);
+    }
+    else if (strncmp(op,"E",1) == MATCH) {
+      if (iter) printf("E not allowed in iterated replacement:\n");
+      else {
+        scanf("%s %s",u,v);
+        x = E(u,v,x);
+      }
+    }
+    else if (strncmp(op,"C",1) == MATCH) {
+      if (iter) printf("C not allowed in iterated replacement:\n");
+      else {
+        scanf("%s %s",u,v);
+        x = C(u,v,x);
+      }
+    }
+    else if (strncmp(op,"A",1) == MATCH) {
+      if (iter) printf("A not allowed in iterated replacement:\n");
+      else {
+        scanf("%s",u);
+        x = A(u,x);
+      }
+    }
+    else if (strncmp(op,"D",1) == MATCH) {
+      if (iter) printf("D not allowed in iterated replacement:\n");
+      else {
+        scanf("%s",u);
+        x = D(u,x);
+      }
+    }
+    else if (strncmp(op,"(",1) == MATCH) {
+    /* Start of Iterated (composition of) Replacements */ 
+      cc_ind = cp_ind = 0;
+      lx0 = strlen(x);
+      iter= TRUE;
+    /* Allocate memory */
+      comp_comm   = (int *) calloc(max_comp_comm,sizeof(int));
+      comp_params = (char **) calloc(max_comp_comm*4,sizeof(char *));
+    }
+    else if (strncmp(op,")",1) == MATCH) {int i, ip, ic, lxc; char *xc;
+      iter = FALSE;
+      for (i = 0; i < lx0; i++) { /* Iterate |x| times */
+        ip = 0;
+	/* Make a copy of x */
+	lxc = strlen(x);
+	xc  = (char *) calloc(lxc+1,sizeof(char));
+	strcpy(xc,x);
+
+	for (ic = 0; ic < cc_ind; ic++) /* Evaluate one composition */
+	  switch(comp_comm[ic]) {
+	  case 0: x = R0(comp_params[ip],comp_params[ip+1],x);
+		  ip+=2; break;
+	  case 1: x = R1(comp_params[ip],comp_params[ip+1],x);
+		  ip+=2; break;
+	  case 2: x = R2(comp_params[ip],comp_params[ip+1],comp_params[ip+2],comp_params[ip+3],x);
+		  ip+=4; break;
+	  case 3: x = R3(comp_params[ip],comp_params[ip+1],comp_params[ip+2],comp_params[ip+3],comp_params[ip+4],x); 
+		  ip+=5; break;
+	  }
+
+	 /* If at Fixed Point (xc = x) stop */
+	 if (strcmp(xc,x) == MATCH) {
+	  free(xc);
+	  break;
+	 }
+	 else free(xc);
+      }
+
+      /* Free memory */
+      for (ip = 0; ip < cp_ind; ip++) free(comp_params[ip]);
+      free(comp_params); free(comp_comm);
+
+      if (debug) printf("%s\n",x);
+    }
+    else printf("No such Command \n");
+    if (debug && !iter) printf("%s\n",x);
+   }
+  if (!debug) printf("%s\n",x);
+  free(x);
+  x     = (char *) calloc(lx+1,sizeof(char));
+  }
+
+}
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'nlt_dec.c'
+then
+	echo shar: will not over-write existing file "'nlt_dec.c'"
+else
+cat << \SHAR_EOF > 'nlt_dec.c'
+/* Decodes a binary string into Gurevich-Shelah string calculus
+
+Decoding algorithm briefly described in:
+
+Performance of MAX-CLIQUE Heuristics Under 
+Description-length Weighted Distributions
+
+Arun Jagota and Kenneth W. Regan
+
+Author of Code: Arun Jagota, CS @ SUNY/BUFFALO, e-mail: jagota@cs.buffalo.edu
+
+nlt_dec <input string length>
+
+*/
+/* Reads n and {a,b}^n string from stdin and decodes string as (P,x) 
+   where P is nlt program operating on string x */
+#include <stdio.h>
+#include <strings.h>
+#define TRUE 1
+#define FALSE 0
+char *str;
+int n,indx;
+int lx,vlx,lo,vlo,li,vli,r,lp,r2,*left_pos,*right_pos, *comm_seq; /* variables for decoding string */
+
+int val(start,offset)
+int start,offset;
+{int i, pow_of_i, value;
+  value = 0; pow_of_i = 1;
+  for (i = offset-1; i >= 0; i--) {
+   if (str[start+i] == '1') value += pow_of_i;
+   pow_of_i *= 2;
+  }
+  return(value);
+}
+
+int floorlogtwo(n)
+int n;
+{int i,pow_of_i;
+ i = 0; pow_of_i = 1; 
+ while (pow_of_i <= n) {
+  pow_of_i = 2*pow_of_i;
+  i++;
+ }
+ return (i-1);
+}
+
+int place_parenth()
+/* The commands are indexed as 0,1,..,v(lo).
+   This procedure places the positions of the parentheses in the above
+   sequence in the arrays left_pos and right_pos.
+   The ith left parenthesis must be placed just BEFORE the command with
+   position left_pos[i]  in the above sequence. The ith right 
+   parenthesis must be placed just AFTER the command with position
+   right_pos[i] in the above sequence.
+*/
+
+{int o_left_pos,o_right_pos,rem_pos,i;
+
+  left_pos  = (int *) calloc(vli+1,sizeof(int));
+  right_pos = (int *) calloc(vli+1,sizeof(int));
+  left_pos[0] = 0;
+  right_pos[0]= -1;
+  for (i=1; i <= vli; i++) {
+    rem_pos     = vlo -right_pos[i-1];
+    o_left_pos  = floorlogtwo(rem_pos);
+    left_pos[i] = right_pos[i-1] + val(indx,o_left_pos) + 1;
+    indx       += o_left_pos;
+    rem_pos     = 1 + vlo - left_pos[i];
+    o_right_pos = floorlogtwo(rem_pos);
+    right_pos[i]= left_pos[i] + val(indx,o_right_pos);
+    indx       += o_right_pos;
+  }
+}
+
+static char *comm_name[] = {
+    "R0",
+    "R1",
+    "R2",
+    "R3",
+    "E",
+    "C",
+    "A",
+    "D"
+};
+
+static int comm_num_param[] = {
+     2,
+     2,
+     4,
+     5,
+     2,
+     2,
+     1,
+     1
+};
+
+printn(s,n)
+/* Print n characters from `str' starting at position `s'. Then print
+   a blank. If n = 0, then print a 0.
+*/
+int s,n;
+{int i;
+  for (i = s; i < s+n; i++) printf("%c",str[i]);
+  if (n <= 0) printf("0");
+  printf(" ");
+}
+
+print_cp(comm,ps,pb)
+/* Prints command and parameters. */
+int comm, /* command id */
+    *ps,  /* pointer to variable containing starting position of parameter */
+    pb;   /* length of parameter block for a command */
+{int p,np,bpp,lpp,vlpp;
+  
+  printf("%s ",comm_name[comm]);
+  if ((comm == 0) || (comm == 1)) {
+    lpp = floorlogtwo(pb)-1;
+    vlpp= val(*ps,lpp);
+    *ps+=lpp;
+    printn(*ps,vlpp+1);
+    *ps+=vlpp+1;
+    printn(*ps,pb-(vlpp+1+lpp));
+    *ps+=pb-(vlpp+1+lpp);
+  }
+  else {
+    np  = comm_num_param[comm];  /* num params */
+    bpp = pb/np;                 /* bits per parameter */
+    for (p = 0; p < np; p++) {
+      printn(*ps,bpp);
+      *ps+=bpp;
+    }
+  }
+}
+
+int parse_commands()
+{int ps, mlpb, r2, in, comm,ic,p,lpb,vlpb;
+
+   in = 1;                  /* in - (next) iterated command number */
+   ps = indx + (vlo + 1)*3; /* ps - parameter start position  */
+   ic = FALSE;              /* ic - Whether in iterated command mode */
+
+   for (p = 0; p < vlo + 1; p++) {
+     r2 = n - ps;             /* r2 - length of remaining  bits for parameters */
+     if (p < vlo) { /* At least two commands remaining */
+       mlpb= r2/(vlo+1-p);         /* mlpb- mean length of remaining parameter block (per command) */
+       lpb = floorlogtwo(mlpb) + 1;
+       vlpb= val(ps,lpb);
+       vlpb= ((vlpb+lpb) > (2*mlpb))?vlpb-lpb:vlpb;
+       ps += lpb;
+     }
+     else vlpb=r2-1; /*Give all remaining bits to last command */
+     comm = val(indx,3);
+     indx+=3;
+     if (!ic && (in <= vli) && (left_pos[in] == p)) { /* Begin iterated command */ 
+       ic = TRUE; 
+       printf("( ");
+     }
+
+     if (ic) {
+       comm = (comm > 3)?comm-4:comm;
+       print_cp(comm,&ps,vlpb+1);
+       if (right_pos[in] == p) { /* End current iterated command */
+	 ic = FALSE;
+         printf(") ");
+	 in++;
+       }
+     }
+     else print_cp(comm,&ps,vlpb+1);
+   }
+}
+
+main(argc,argv)
+int argc;
+char *argv[];
+{int i,j,debug;
+
+  n = atoi(argv[1]);
+  debug = (argc == 3);
+  str = (char *) calloc(n+1,sizeof(char));
+  scanf("%s",str);
+  indx =  0;
+  lx = floorlogtwo(n)/2;
+  if (debug) fprintf(stderr,"lx=%d\n",lx);
+  vlx= val(indx,lx);
+  if (debug) fprintf(stderr,"vlx=%d\n",vlx);
+  indx+=lx;
+  printn(indx,vlx+1);
+  indx+=vlx+1;
+  r = n-indx;
+  lo= floorlogtwo(r)/2;
+  if (debug) fprintf(stderr,"lo=%d\n",lo);
+  vlo= val(indx,lo);
+  if (debug) fprintf(stderr,"vlo=%d\n",vlo);
+  indx+=lo;
+  li= floorlogtwo(vlo+1)/2;
+  if (debug) fprintf(stderr,"li=%d\n",li);
+  vli=val(indx,li);
+  if (debug) fprintf(stderr,"vli=%d\n",vli);
+  indx+=li;
+  place_parenth();
+  parse_commands();
+  printf(" .\n");
+}
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'rsb.c'
+then
+	echo shar: will not over-write existing file "'rsb.c'"
+else
+cat << \SHAR_EOF > 'rsb.c'
+/*random_strings.c*/
+/* rs Number-of-tuples N-ary [seed] */
+/* 
+Routine generates `Number' random N-ary tuples on alphabet `a`
+to `size_alpha' of length `N'.  `Number' is a necessary first command 
+line arguement, `N' is a necessary second command line arguement,
+`size_alpha' is a necessary third command line argument and random number 
+generator `seed' is an optional fourth command line arguement.
+*/
+
+#include	<math.h>
+#include	<string.h>
+#include	<stdio.h>
+
+#define 	MASK	31
+#define		MAXLENGTH	10
+#define		MAXNUMBER	1000000
+#define		MAXRAND	        2147483647
+
+extern		int 	rand();
+extern  	void	srand();
+int size_alpha;
+
+
+main(argc,argv)
+int	argc ;
+char	*argv[];
+{	
+	char	*string,*stp ;	
+	int 	i,j,length,c[6],seed,stringnumber,stringlength;
+
+	extern	void	generate_random_string() ;
+
+	if(3>argc) 
+	{
+		printf("\nInvalid Argument Number!\n"); 
+		return;
+	}
+
+	stringnumber=atoi(argv[1]);
+	if(MAXNUMBER<stringnumber) stringnumber=MAXNUMBER;
+	stringlength=atoi(argv[2]);
+	/* if(MAXLENGTH<stringlength) stringlength=MAXLENGTH; */
+	string = (char *) calloc(stringlength,sizeof(char));
+	size_alpha=2;
+/*	if(26<size_alpha) size_alpha=26; */
+
+	if(4<=argc) seed=atoi(argv[3]);
+	else seed=1;
+
+	srand(seed);
+
+	for(i=0;i<stringnumber;i++)
+	{
+		generate_random_string(string,stringlength) ;
+		for(j=0;j<stringlength;j++)
+			printf("%c",string[j]);
+	}
+	printf("\n");
+
+}
+
+void	generate_random_string(string,stringlength)
+char	string[];
+int	stringlength;
+{
+	int i,num;
+	float number;
+
+	for(i=0;i<stringlength;i++)
+	{
+		number = rand();
+		/* now rn in [0,1] */
+		number = number/((float) MAXRAND);
+		num = (int) (number*((float) size_alpha));
+		if (num <= 25) string[i] = '0' + num;
+		else string[i] = 'A' + num-26;
+	}
+}
+
+
+
+
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'trunc.c'
+then
+	echo shar: will not over-write existing file "'trunc.c'"
+else
+cat << \SHAR_EOF > 'trunc.c'
+/* Reads N from CL and {0,1} string from stdin. Outputs first N 
+   characters of string in {a,b} format (a == 0; b == 1) */
+#include <stdio.h>
+#include <strings.h>
+char c;
+int N;
+main(argc,argv)
+int argc;
+char *argv[];
+{int i;
+
+  N = atoi(argv[1]);
+  for (i = 0; i < N; i++) {
+   scanf("%c",&c); 
+   if (c == '0') 
+    printf("a");
+   else if (c == '1')
+    printf("b");
+   else break;
+  } 
+  printf("\n");
+}
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'nlt_sampler'
+then
+	echo shar: will not over-write existing file "'nlt_sampler'"
+else
+cat << \SHAR_EOF > 'nlt_sampler'
+#!/bin/csh -f
+#nlt_sampler n m1 m2 st s1 s2 maxn
+#Samples from q(x): the approximation to the universal prior distribution m(x)
+#Decodes all seed strings `x' of length between m1 and m2 using `st' as step 
+#size for interval [m1,m2] and s1-s2 as seed interval, for each seed length `m'
+#in [m1,m2]. Records the seeds of all those seed strings whose decoding (via
+#`nlt_dec' and `nlt') lead to a string `y' whose length is >= n. `maxn' is a 
+#parameter to nlt so that nlt does not output any string of length larger than 
+#`maxn'. This is useful to prevent memory/disk overflow.
+set n = $1
+set m1 = $2
+set m2 = $3
+set step = $4
+set s1 = $5
+set s2 = $6
+set maxn = $7
+while ($m1 <= $m2)
+ set seed = $s1
+ while ($seed <= $s2)
+   echo $m1 $seed > samples.$1.$2.$3.$4.$5.$6
+   rsb 1 $m1 $seed | nlt_dec $m1 | nlt $maxn > x
+   set wl = (`wc x`)
+   set l = $wl[3]
+   if ($l >= $n) then
+     echo $m1 $seed $l >> samples.$1.$2.$3.$4.$5.$6
+   endif
+   @ seed++
+ end
+ @ m1+=$step
+end
+SHAR_EOF
+chmod +x 'nlt_sampler'
+fi # end of overwriting check
+if test -f 'CHDandMFA.m'
+then
+	echo shar: will not over-write existing file "'CHDandMFA.m'"
+else
+cat << \SHAR_EOF > 'CHDandMFA.m'
+(*  Mathematica Package *)
+(*  Continuous Hopfield Dynamics (CHD) and Mean Field Annealing (MFA) for
+    MAX-CLIQUE
+
+    Relevant Paper: 
+    
+    Efficiently Approximating MAX-CLIQUE in a Hopfield-style Network
+			Arun Jagota
+    Proceedings of International Joint Conference on Neural Networks,
+    Baltimore, June 1992, Vol II, pages 248--253
+
+    Available also by e-mail to jagota@cs.buffalo.edu
+
+AUTHOR: Arun Jagota, CS @ SUNY/BUFFALO
+
+TIPS: 
+1. This package is meant only for early "insight-into-operation/playing with 
+   parameters" experiments. It is too slow (especially MFA) for serious 
+   MAX-CLIQUE experiments such as on 400-vertex or larger graphs.
+2. The package has undergone occasional syntactic and other modification. While
+   care has been taken to keep it to conform to the published description in 
+   the IJCNN'92 paper; there is no guarantee that there are no errors. 
+*)
+
+
+(*    CONVERT S. SKIENA's Combinatorica.m GRAPH OBJECT `g' TO HcN WEIGHT 
+      MATRIX W 
+
+g_  : Combinatorica.m graph object
+rho_: HcN's parameter rho
+
+EXAMPLE:
+
+<< Combinatorica.m              >> you must have this package <<
+g = RandomGraph[100,0.5]
+W = gtoW[g,-400]
+      
+*)
+
+gtoW[Graph[g_,_],rho_] := 
+    Block[{n,i,p,W},
+     W = g;
+     n = Length[W];
+     For [i=1,i <= n,i++, W[[i,i]] = rho];
+     p = Position[W,0];
+     n = Length[p];
+     For [i=1,i <= n,i++,W[[p[[i,1]],p[[i,2]]]] = rho];
+     n = Length[W];
+     For [i=1,i <= n,i++, W[[i,i]] = 0];
+     Return[W];
+    ]
+
+(*                   HcN STORAGE RULE 
+
+CS_ : Set of cliques (for e.g. edges) to cover graph. Vertices are assumed to
+      be named {1,2,..,n}.
+n_  : number of vertices in graph.
+rho_: Value of HcN parameter `rho'. 
+
+RETURN: HcN's weight matrix. If rho = 0, this is also the graph's adjacency
+        matrix.
+
+Example:   SR[{{1,2},{2,3},{1,3}},3,-10]
+	   The graph in the above example is K3.
+
+*)
+
+SR[CS_,n_,rho_] := Block[{i,j,k,W,r,c,l},
+                     W = Table[rho,{i,1,n},{j,1,n}];
+                     For [i=1,i <= n,i++,W[[i,i]] = 0];
+                     For [i=1,i <= Length[CS],i++,
+                      For [j=1,j < Length[CS[[i]]],j++,
+                       For [k=j+1,k <= Length[CS[[i]]],k++,
+		         r = CS[[i,j]]; c = CS[[i,k]];
+		         W[[r,c]] = 1; W[[c,r]] = 1;
+		       ]
+		      ]
+	             ];
+		     Return[W]
+		     ]
+
+(*            WRITE HcN's WEIGHT MATRIX W INTO FILE "f" AS SET OF EDGES
+
+W_: HcN's weight matrix
+f : file name
+
+Example:    ISR[W,"G30.1"]
+*)
+
+ISR[W_,f_] := Block[{i,j,n},
+             n = Length[W];
+             For [i=1,i < n,i++,
+	      For[j=i+1,j <= n,j++,
+	       If [W[[i,j]] == 1,
+	  	 Write[f,"{ v",i," v",j," }"]    
+	       ]
+	      ]
+	     ]
+	   ]
+
+
+Sigmoid[u_,a_] := N[1/(1 + N[E]^{-a u})]
+
+(* SYNCHRONOUS CHD (AS IN MY IJCNN'92 PAPER EQN (9) AND IN HKP P.54 EQN (3.31))
+   THERE IS ONE MODIFICATION FROM THE IJCNN'92 PAPER. THE BIAS w_0 = Abs[rho]/4
+   INSTEAD OF w_0 = 0. 
+
+W_  : HcN Weight Matrix
+S0_ : Initial State of Units
+rho_: HcN parameter `rho'
+it_ : Number of iterations
+T_  : Temperature (= 1/[sigmoid gain])
+gamma: Step size for Euler's method discretization of differential equation
+
+EXAMPLE:
+
+<< Combinatorica.m
+g = RandomGraph[100,0.5]
+W = gtoW[g,-400]              >> Generally choose rho = -4 n <<
+S = S0[100]
+Thresh[CHD[W,S,-400]]        >> Generally `it' = n. In this case n = 100 is 
+				 default it <<
+
+*)
+
+  CHD[W_,S0_,rho_,it_:100,T_:1,gamma_:0.1] := 
+   Block[{S,i,n,b,u},
+	       S = S0;
+	       n = Length[S];
+	       w0=Abs[rho]/4;
+	       b = Table[w0,{i,1,n}];
+	       For [i=1,i <= it,i++,
+		 u = Sigmoid[W.S + b,1/T];
+		 S = S + gamma (-S + u[[1]])
+               ];
+               Return[S];
+   ]
+
+
+(* MFA AS IN MY IJCNN'92 PAPER ALGORITHM FOLLOWING EQN 11 AND WITH THE 
+   ANNEALING SCHEDULE AND OTHER PARAMETER SETTINGS DESCRIBED IN EXPERIMENTAL 
+   RESULTS SECTION. ANNEALING IS GEOMETRIC (I.E. FAST). THERE IS ONE 
+   MODIFICATION FROM THE IJCNN'92 PAPER. THE BIAS w_0 = Abs[rho]/4 INSTEAD OF 
+   w_0 = 0. 
+
+W_  : HcN Weight Matrix
+n_  : Number of vertices in graph
+rho_: HcN parameter `rho'
+T0_ : Initial Temperature 
+
+EXAMPLE:
+
+<< Combinatorica.m
+g = RandomGraph[100,0.5]
+W = gtoW[g,-400]                      >> Generally choose rho = -4 n << 
+Thresh[MFA[W,100,-400,20000]]         >> See IJCNN92 paper on how to choose 
+					 T0 <<
+
+*)
+
+  MFA[W_,n_,rho_,T0_] := 
+   Block[{S,i,T},
+	       S = S0[n];
+	       T = T0;
+	       i = 1;
+	       While [T > 1,
+		 S = CHD[W,S,rho,n,T];
+		 If [i <= 3,
+		   T = 0.9 T,
+		   T = 0.5 T
+		 ];
+		 i++;
+               ];
+	       S = CHD[W,S,rho,n,T];
+               Return[S];
+   ]
+
+(*        THRESHOLDS THE CONTINUOUS OUTPUT OF THE NETWORK     
+S_:      The network state vector: [0,1]^n
+RETURN: The set of indices `i' such that S[i] >= 0.5
+*)
+
+Thresh[S_] := 
+   Block[{i,n,set},
+     set={};
+     n = Length[S];
+     For [i=1,i <= n,i++,
+       If [S[[i]] >= 0.5, 
+	    set = Union[set,{i}]
+       ]
+     ];
+     Return [set]
+   ]
+
+(*           GENERATES A RANDOM VECTOR (0.5 + delta)^n  WHERE delta IS A
+	     NUMBER BETWEEN -0.05 and +0.05 GENERATED INDEPENDENTLY AND
+	     RANDOMLY FOR EACH COMPONENT
+
+n_: Dimension of vector
+*)
+
+S0[n_] := Block[{i,s0},
+   s0 = Table[0.5,{i,1,n}];
+   For [i=1, i <= n, i++,
+     s0[[i]] += Random[Real,{-0.05,0.05}]
+   ];
+   Return[s0]
+  ]
+SHAR_EOF
+fi # end of overwriting check
+#	End of shell archive
+exit 0

@@ -1,0 +1,20 @@
+This is the Pascal source for the generator used to build the maps tested in
+
+C. Morgenstern and H. Shapiro. 1991.
+Heuristics for Rapidly Four-Coloring Large Planar Graphs.
+Algorithmica, 6, 869-891.
+
+Generates maps of up to 128K using two possible methods (there are 13
+possible ways to generate maps with the triangulation routines, but only
+two are invoked by the mainline).  
+
+Compiled with Oregon Pascal-2 and run on a Sun3 with 16 Megs.
+
+Stdin should be three lines containing, in order
+  (1) The size of the initial circuit
+  (2) A random number stream seed
+  (3) A method number (1 or 2):
+         (1) reduction method
+         (2) expansion method
+
+The generated map is written in DIMACS challenge format to stdout.

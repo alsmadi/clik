@@ -1,0 +1,1154 @@
+#LyX file created by tex2lyx 1.6.4
+\lyxformat 264
+\begin_document
+\begin_header
+\textclass article
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+documentstyle[12pt]{article}
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Title
+
+Clique and Coloring Problems
+\newline
+Graph Format
+\end_layout
+
+\begin_layout Author
+
+
+\end_layout
+
+\begin_layout Date
+
+Last revision: May 08, 1993
+\end_layout
+
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{document}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+{
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+narrower
+\end_layout
+
+\end_inset
+
+
+\shape italic
+This paper outlines a suggested graph format. If you have comments on this or other formats or you have information you think should be included, please send a note to 
+\family typewriter
+
+\shape default
+challenge@dimacs.rutgers.edu
+\family default
+\series default
+\shape italic
+.
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+
+Introduction
+\end_layout
+
+\begin_layout Standard
+
+One purpose of the DIMACS Challenge is to ease the effort required to test and compare algorithms and heuristics by providing a common testbed of instances and analysis tools. To facilitate this effort, a standard format must be chosen for the problems addressed. This document outlines a format for graphs that is suitable for those looking at graph coloring and finding cliques in graphs. This format is a flexible format suitable for many types of graph and network problems. This format was also the format chosen for the First Computational Challenge on network flows and matchings.
+\end_layout
+
+\begin_layout Standard
+
+This document describes three problems: unweighted clique, weighted clique, and graph coloring. A separate format is used for satisfiability.
+\end_layout
+
+\begin_layout Section
+
+File Formats for Graph Problems
+\end_layout
+
+\begin_layout Standard
+
+This section describes a standard file format for graph inputs and outputs. There is no requirement that participants follow these specifications; however, compatible implementations will be able to make full use of DIMACS support tools. (Some tools assume that output is appended to input in a single file.)
+\end_layout
+
+\begin_layout Standard
+
+Participants are welcome to develop translation programs to convert instances to and from more convenient, or more compact, representations; the Unix 
+\series bold
+awk
+\family default
+\series default
+\shape default
+ facility is recommended as especially suitable for this task.
+\end_layout
+
+\begin_layout Standard
+
+All files contain ASCII characters. Input and output files contain several types of 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+{
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+em
+\end_layout
+
+\end_inset
+
+ lines
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+}
+\end_layout
+
+\end_inset
+
+, described below. A line is terminated with an end-of-line character. Fields in each line are separated by at least one blank space. Each line begins with a one-character designator to identify the line type.
+\end_layout
+
+\begin_layout Subsection
+
+Input Files
+\end_layout
+
+\begin_layout Standard
+
+An input file contains all the information about a graph needed to define either a clique problem or a coloring problem. Some information may be included that is not relevant to one problem (for instance, node weights are not needed for coloring problem) so that information may be ignored.
+\end_layout
+
+\begin_layout Standard
+
+In this format, nodes are numbered from 1 up to 
+\begin_inset Formula $n$
+\end_inset
+
+. There are 
+\begin_inset Formula $m$
+\end_inset
+
+ edges in the graph.
+\end_layout
+
+\begin_layout Standard
+
+Files are assumed to be well-formed and internally consistent: node identifier values are valid, nodes are defined uniquely, exactly 
+\begin_inset Formula $m$
+\end_inset
+
+ edges are defined, and so forth. A input checker will be made available to ensure compatibility with this standard.
+\end_layout
+
+\begin_layout Itemize
+
+
+\series bold
+Comments.
+\family default
+\series default
+\shape default
+ Comment lines give human-readable information about the file and are ignored by programs. Comment lines can appear anywhere in the file. Each comment line begins with a lower-case character 
+\series bold
+c
+\family default
+\series default
+\shape default
+. 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ c This is an example of a comment line. 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+
+\series bold
+Problem line.
+\family default
+\series default
+\shape default
+ There is one problem line per input file. The problem line must appear before any node or arc descriptor lines. For network instances, the problem line has the following format. 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ p FORMAT NODES EDGES 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+ The lower-case character 
+\family typewriter
+p
+\family default
+\series default
+\shape default
+ signifies that this is the problem line. The 
+\family typewriter
+FORMAT
+\family default
+\series default
+\shape default
+ field is for consistency with the previous Challenge, and should contain the word 
+\begin_inset Quotes eld
+\end_inset
+
+edge
+\begin_inset Quotes erd
+\end_inset
+
+. The 
+\family typewriter
+NODES
+\family default
+\series default
+\shape default
+ field contains an integer value specifying 
+\begin_inset Formula $n$
+\end_inset
+
+, the number of nodes in the graph. The 
+\family typewriter
+EDGES
+\family default
+\series default
+\shape default
+ field contains an integer value specifying 
+\begin_inset Formula $m$
+\end_inset
+
+, the number of edges in the graph.
+\end_layout
+
+\begin_layout Itemize
+
+
+\series bold
+Node Descriptors.
+\family default
+\series default
+\shape default
+ For this Challenge, a node descriptor is required only for the weighted clique problem. These lines will give the weight assigned to a node in the clique. There is one node descriptor line for each node, with the following format. Nodes without a descriptor will take on a default value of 1.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ n ID VALUE 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+The lower-case character 
+\family typewriter
+n
+\family default
+\series default
+\shape default
+ signifies that this is a node descriptor line. The 
+\family typewriter
+ID
+\family default
+\series default
+\shape default
+ field gives a node identification number, an integer between 1 and 
+\begin_inset Formula $n$
+\end_inset
+
+. The 
+\family typewriter
+VALUE
+\family default
+\series default
+\shape default
+ gives the objective value for having this node in the clique. This value is assumed to be integer and can be either positive or negative (or zero).
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+
+\series bold
+Edge Descriptors.
+\family default
+\series default
+\shape default
+ There is one edge descriptor line for each edge the graph, each with the following format. Each edge 
+\begin_inset Formula $(v,w)$
+\end_inset
+
+ appears exactly once in the input file and is not repeated as 
+\begin_inset Formula $(w,v)$
+\end_inset
+
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ e W V 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+ The lower-case character 
+\family typewriter
+e
+\family default
+\series default
+\shape default
+ signifies that this is an edge descriptor line. For an edge 
+\begin_inset Formula $(w,v)$
+\end_inset
+
+ the fields 
+\family typewriter
+W
+\family default
+\series default
+\shape default
+ and 
+\family typewriter
+V
+\family default
+\series default
+\shape default
+ specify its endpoints.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+
+\series bold
+Optional Descriptors.
+\family default
+\series default
+\shape default
+ In addition to the required information, there can be additional pieces of information about a graph. This will typically define the parameters used to generate the graph or otherwise define generator--specific information. The following list may be added to as interesting problem generators are decided on:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+{
+\end_layout
+
+\end_inset
+
+Geometric Descriptors.
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+}
+\end_layout
+
+\end_inset
+
+ One common method to generate or display graphs is to have the nodes be embedded in some space and to have the edges be included according to some function of the distance between nodes according to some metric. The node information can be defined by a dimension descriptor and a vertex embedding descriptor.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ d DIM METRIC 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+is the dimension descriptor. DIM is an integer giving the number of dimensions of the space, while METRIC is a string representing the metric for the space. METRIC is a string that can take a number of forms. L
+\begin_inset Formula $p$
+\end_inset
+
+ (i.e. L1, L2, L122, and so on) denotes the 
+\begin_inset Formula $\ell_p$
+\end_inset
+
+ norm where the distance between two nodes embedded at 
+\begin_inset Formula $(x_1,x_2,\ldots,x_d)$
+\end_inset
+
+ and 
+\begin_inset Formula $(y_1,y_2,\ldots y_d)$
+\end_inset
+
+ is 
+\begin_inset Formula $(\sum_{i=1}^d
+|x_i-y_i|^p)^{1/p}$
+\end_inset
+
+. The string LINF is used to denote the 
+\begin_inset Formula $\ell_\infty$
+\end_inset
+
+ norm. L2S denotes the squared euclidean norm (which can be less susceptible to computer--differences in round--off and accuracy issues).
+\end_layout
+
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ v X1 X2 X3 . .. XD 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+ The lower-case character 
+\family typewriter
+v
+\family default
+\series default
+\shape default
+ signifies that this is a vertex embedding descriptor line. The fields 
+\family typewriter
+X1, X2 . . .XD
+\family default
+\series default
+\shape default
+ give the 
+\begin_inset Formula $d$
+\end_inset
+
+ coordinate values for the vertex. Note that these lines must appear after the 
+\family typewriter
+d
+\family default
+\series default
+\shape default
+ descriptor.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+{
+\end_layout
+
+\end_inset
+
+Parameter Descriptors.
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+}
+\end_layout
+
+\end_inset
+
+ The parameter descriptors are used to give other information about how the graph was generated. The lines are generator--specific, and as such it is not expected that most codes will use most (or any) of them. They are included only to aid those codes specifically designed to attack specially structured problems. The general form of the parameter descriptor is:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ x PARAM VALUE 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+ The lower-case character 
+\family typewriter
+x
+\family default
+\series default
+\shape default
+ signifies that this is a parameter descriptor line. The PARAM field is a string that gives the name of the parameter, while the VALUE field is a numeric value that gives the corresponding value. The following PARAM values have been defined:
+\end_layout
+
+\begin_layout Standard
+
+
+\begin_inset Tabular 
+<lyxtabular version="3" rows="5" columns="2">
+<features>
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<row topline="true">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+PARAM
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+MINLENGTH
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+(Geometric Graphs) Edge included only if 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+length greater than or equal to VALUE
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+MAXLENGTH
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+(Geometric Graphs) Edge included only if 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+length less than or equal to VALUE
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+Note that this information is in addition to the required edge descriptors.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Subsection
+
+Output Files
+\end_layout
+
+\begin_layout Standard
+
+Every algorithm or heuristic should create an output file. This output file should consist of one or more of the following lines, depending on the type of algorithm and problem being solved.
+\end_layout
+
+\begin_layout Itemize
+
+
+\series bold
+Solution Line
+\family default
+\series default
+\shape default
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ s TYPE SOLUTION 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+ The lower--case character 
+\family typewriter
+s
+\family default
+\series default
+\shape default
+ signifies that this is a solution line. The 
+\family typewriter
+TYPE
+\family default
+\series default
+\shape default
+ field denotes the type of solution contained in the file. This should be one of the following strings: 
+\begin_inset Quotes eld
+\end_inset
+
+col
+\begin_inset Quotes erd
+\end_inset
+
+ denotes a graph coloring, 
+\begin_inset Quotes eld
+\end_inset
+
+clq
+\begin_inset Quotes erd
+\end_inset
+
+ denotes a maximum weighted clique, and 
+\begin_inset Quotes eld
+\end_inset
+
+cqu
+\begin_inset Quotes erd
+\end_inset
+
+ denotes a maximum unweighted clique (one that has ignored the 
+\family typewriter
+n
+\family default
+\series default
+\shape default
+ descriptor lines).
+\end_layout
+
+\begin_layout Standard
+
+The 
+\family typewriter
+SOLUTION
+\family default
+\series default
+\shape default
+ field contains an integer corresponding to the solution value. This is the clique size for unweighted clique, clique value for weighted clique, or number of colors used for graph coloring.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+
+\series bold
+Bound Line
+\family default
+\series default
+\shape default
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ b BOUND 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+The lower--case character 
+\family typewriter
+b
+\family default
+\series default
+\shape default
+ signifies that this is a bound on the the solution. The 
+\family typewriter
+BOUND
+\family default
+\series default
+\shape default
+ field contains an integer value that gives a bound on the solution value. This bound is an upper bound on the maximum clique value for cliques and weighted clique and a lower bound on the number of colors needed for coloring the graph.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+
+\series bold
+Clique Line
+\family default
+\series default
+\shape default
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ v V 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+The lower-case character 
+\family typewriter
+v
+\family default
+\series default
+\shape default
+ signifies that this is a clique vertex line. The 
+\family typewriter
+V
+\family default
+\series default
+\shape default
+ field gives the node number for the node in the clique. There will be one clique line for each node in the clique.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+
+\series bold
+Label Line
+\family default
+\series default
+\shape default
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\end_inset
+
+ l V N 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+The lower-case character 
+\family typewriter
+l
+\family default
+\series default
+\shape default
+ signifies that this is a label line, generally used for graph coloring. The 
+\family typewriter
+V
+\family default
+\series default
+\shape default
+ field gives the node number for the node in the clique while the 
+\family typewriter
+N
+\family default
+\series default
+\shape default
+ field gives the corresponding label. There will be one label line for each node in the graph.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+end{document}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

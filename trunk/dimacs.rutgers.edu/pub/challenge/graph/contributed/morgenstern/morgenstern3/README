@@ -1,0 +1,100 @@
+This directory contains an implementation of a localized backtracking
+heuristic for 4-coloring planar graphs and very sparse general graphs.
+This code is based on methods discussed in
+
+    C. Morgenstern and H. Shapiro. 1991.
+    Improved Implementations of Dynamic Sequential Coloring Algorithms.
+    Tech Report CoSc-1991-4, Texas Christian University, Fort Worth, Texas.
+
+    C. Morgenstern, 1992.
+    A New Backtracking Heuristic for Rapidly Four-Coloring Large Planar Graphs.
+    Tech Report CoSc-1992-2, Texas Christian University, Fort Worth, Texas.
+    (Under revision, to be made available soon).
+
+==============================================================================
+Input is via stdin and consists of (in order):
+ 1) The name of a graph file in DIMACS format.
+ 2) An upper bound on the number of colors to be used to color the graph.
+ 3) Verbose flag; 1 means print info on each impasse encountered, and
+                  0 turns verbose info off.
+ 4) Ceiling on the number of backtracks allowed per subgraph per impasse.
+ 5) Subgraph increment; increase the subgraph by this number of colored
+    vertices if the impasse could not be resolved in the current subgraph.
+
+==============================================================================
+In bt.c, the line
+
+   # define maxSGsz 256
+
+is a hard limit on the size of a subgraph that can be recolored for 
+impasse resolution.  This is more than sufficient for planar graphs.  
+This code has been optimized for space efficiency in order to color 
+large planar graphs.  In particular, support for deep backtracking and 
+color selection heuristics has been stripped out.  Note the anomalies 
+in the 128K (c) and (j) graphs -- should this heuristic fail, no attempt 
+is made to resolve the impasse with other heuristics.  The code simply 
+announces its failure and quits.  This has not occurred on any of the 
+planar graph runs that have been made.
+
+==========================================================================
+Here is some sample data produced by 4-coloring maps generated 
+by egen_go.  All runs were done with a baseline subgraph increment 
+of 2 and unlimited backtracking.  The machine was a SPARCstation-2 
+running 4.1.1 with 32 Megs.  Two times are given per graph;
+
+total_run_time (coloring_time).
+
+The total run time includes the time needed to make two passes through
+the graph file.  Coloring time is the amount of time needed once the
+graph has been loaded into the internal data structure.  Saturation
+time is the coloring time needed to 6-color the (a) map of each size.
+This measures the time required by the saturation heuristic without impasse 
+resolution. 
+
+
+map size	memory		initial circuit size	saturation time
+512,000		24 Megs			170,000			79
+256,000		12 Megs			 84,000			39
+128,000		 6 Megs			 42,000			19
+
+           512,000 vertex maps
+	   -------------------
+map	seed	time		backtracks
+a	8998	533 (273)	746,396
+b	69831	532 (275)	756,492
+c	51	561 (302)	875,864
+d	713	549 (291)	825,328
+e	2345	543 (287)	800,655
+f	1213	539 (282)	784,068
+g	2001	537 (279)	778,883
+h	2010	529 (269)	724,693
+i	6201	531 (273)	741,927
+j	31	547 (291)	831,770
+
+           256,000 vertex maps
+	   -------------------
+map	seed	time		backtracks
+a	1234	279 (155)	462,407
+b	4321	260 (137)	383,232
+c	13541	262 (137)	376,714
+d	573	293 (163)	462,652
+e	805	275 (145)	385,595
+f	4095	266 (137)	369,327
+g	143	272 (147)	418,731
+h	225	251 (131)	357,178
+i	491	302 (171)	473,278
+j	845	301 (163)	443,644
+
+           128,000 vertex maps
+	   -------------------
+map	seed	time		backtracks
+a	5098	141 (82)	  229,851
+b	463	128 (67)	  180,629
+c	366	326 (264)	1,008,207
+d	5566	134 (73)	  202,697
+e	747	129 (67)	  175,683
+f	827	131 (68)	  183,122
+g	964	127 (66)	  177,408
+h	93	128 (65)	  172,445
+i	209	140 (78)	  216,444
+j	272	353 (291)	1,210,955

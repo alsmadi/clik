@@ -1,0 +1,16 @@
+List of files in graph/contributed/pardalos
+
+Last updated Nov 21, 1992 MT
+For more information: pardalos@math.ufl.edu
+
+pardalos1.tex:  A very complete bibliography and review of the clique
+	problem by Pardalos and Xue.
+
+pardalos2.tex: A paper by Hassleberg, Pardalos, and Vairaktarakis on
+	generating test clique problems.
+
+pardalos3.f: FORTRAN code for a partial enumeration routine for finding
+	maximum cliques in graphs.
+
+pardalos4.f: FORTRAN code for a quadratic 0-1 based method for finding
+	maximum cliques in graphs.
