@@ -14,10 +14,8 @@ def main(args):
     graph.add_nodes_from(['d', 'c', 'b', 'e', 'a', 'f', 'g'])
     graph.add_edges_from([('d', 'c'), ('c', 'b'), ('b', 'e'), ('c', 'a'), 
                           ('b', 'a'), ('f', 'a'), ('g', 'a')])
-#    NX.draw(graph)
-#    Plot.show()
     upper_bound_opt, graph_opt = sequential_elimination_algorithm(graph, 
-                                upper_bound_from_adjacency_matrix)
+                                upper_bound_from_largest_closed_neighborhood)
     print "upper bound optimum: ", upper_bound_opt
     NX.draw(graph_opt)
     Plot.show()

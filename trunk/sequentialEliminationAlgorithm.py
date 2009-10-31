@@ -83,3 +83,38 @@ def sequential_elimination_algorithm(graph, upper_bound_function):
         print "max: ", max_upper_bound
         print "--------------------------------"
     return upper_bound_opt, graph_opt
+
+def sequential_elimination_algorithm_modified(graph, upper_bound_function):
+    #varie inizializzazioni
+    graph_cur = NX.Graph(data=graph)
+    graph_opt = NX.Graph(data=graph)
+    upper_bound_opt = 0
+    #determiniamo la lista degli upperbounds
+    upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
+    max_upper_bound = get_max_upper_bound(upper_bounds)
+    print "max0: ", max_upper_bound 
+    print "opt0: ", upper_bound_opt
+    while upper_bound_opt < max_upper_bound:
+        #selezioniamo il nodo associato al minor upperbound
+        node = select_node(upper_bounds)
+        print "node: ", node
+        #determiniamo il closed neighborhood del nodo selezionato
+        node_closed_neighborhood = get_node_closed_neighborhood(graph_cur, node)
+        induced_upper_bound = upper_bound_function(graph.subgraph(
+                                                node_closed_neighborhood))
+        print "opt: ", upper_bound_opt
+        print "induced: ", induced_upper_bound
+        if upper_bound_opt < induced_upper_bound:
+            upper_bound_opt = induced_upper_bound
+            graph_opt = NX.Graph(data=graph_cur)
+            print "optNew: ", upper_bound_opt
+            print graph_opt.nodes()
+            print graph_opt.edges()
+        #bisogna aggiornare i dati utili nelle iterazioni
+        remaing_nodes = graph_cur.remove_node(node)
+        graph_cur = graph_cur.subgraph(remaing_nodes)
+        upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
+        max_upper_bound = get_max_upper_bound(upper_bounds)
+        print "max: ", max_upper_bound
+        print "--------------------------------"
+    return upper_bound_opt, graph_opt
