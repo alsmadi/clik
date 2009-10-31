@@ -7,7 +7,7 @@ import networkx as NX
 """
 upperbound = numeri di nodi del grafo passato come parametro
 """
-def upper_bound_from_number_nodes(graph):
+def upper_bound_from_number_of_nodes(graph):
     if isinstance(graph, NX.Graph):
         return len(graph)
     else:
@@ -17,11 +17,13 @@ def upper_bound_from_number_nodes(graph):
 upperbound = massimo autovalore della matrice di adiacenza 
 del grafo passato come parametro + 1
 """
-def upper_bounds_from_adjacency_matrix(graph):
+def upper_bound_from_adjacency_matrix(graph):
     if isinstance(graph, NX.Graph):
         matrix = NX.adj_matrix(graph)
-        eigenvalues = NU.eigvals(matrix)
+        print matrix
+        eigenvalues = NU.linalg.eigvals(matrix)
         max_eigenvalue = eigenvalues.argmax()
+        print max_eigenvalue
         return max_eigenvalue + 1
     else:
         raise Error, "Not a Graph!"
