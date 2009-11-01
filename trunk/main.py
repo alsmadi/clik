@@ -8,17 +8,28 @@ import matplotlib.pyplot as Plot
 from sequentialEliminationAlgorithm import *
 from upperBoundAlgorithms import *
 
+def get_graph(filename):
+    file = open(filename, 'r')
+    edges = []
+    for line in file:
+        if line.find('e', 0, 1) >= 0:
+            list = line.split()
+            edges.append((list[1], list[2]))
+    graph = NX.Graph()
+    graph.add_edges_from(edges)
+    return graph
+
 """main"""
 def main(args):
-    graph = NX.Graph()
-    graph.add_nodes_from(['d', 'c', 'b', 'e', 'a', 'f', 'g'])
-    graph.add_edges_from([('d', 'c'), ('c', 'b'), ('b', 'e'), ('c', 'a'), 
-                          ('b', 'a'), ('f', 'a'), ('g', 'a')])
-    upper_bound_opt, graph_opt = sequential_elimination_algorithm(graph, 
-                                upper_bound_from_largest_closed_neighborhood)
+    filename = "/home/luigi/progetti/tesi/johnson8-2-4.clq"
+    graph = get_graph(filename)
+    print "start"
+    upper_bound_opt, ignore = sequential_elimination_algorithm(graph, 
+                            upper_bound_from_largest_closed_neighborhood)
     print "upper bound optimum: ", upper_bound_opt
-    NX.draw(graph_opt)
-    Plot.show()
+    upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
+                            upper_bound_from_largest_closed_neighborhood)
+    print "upper bound optimum (addendum): ", upper_bound_opt
 
 if __name__ == "__main__":
     main(sys.argv)
