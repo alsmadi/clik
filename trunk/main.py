@@ -21,12 +21,18 @@ def get_graph(filename):
 
 """main"""
 def main(args):
-    filename = "/home/luigi/progetti/tesi/johnson8-2-4.clq"
+#    filename = "/home/luigi/progetti/tesi/hamming6-2.clq"
+#    filename = "/home/luigi/progetti/tesi/johnson8-2-4.clq"
+#    filename = "/home/luigi/progetti/tesi/brock200_1.clq"
+#    filename = "/home/luigi/progetti/tesi/hamming6-4.clq"
+    filename = "/home/luigi/progetti/tesi/johnson16-2-4.clq"
+#    filename = "/home/luigi/progetti/tesi/johnson8-4-4.clq"
     graph = get_graph(filename)
     print "start"
     upper_bound_opt, ignore = sequential_elimination_algorithm(graph, 
                             upper_bound_from_largest_closed_neighborhood)
     print "upper bound optimum: ", upper_bound_opt
+    print "start addendum"
     upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
                             upper_bound_from_largest_closed_neighborhood)
     print "upper bound optimum (addendum): ", upper_bound_opt

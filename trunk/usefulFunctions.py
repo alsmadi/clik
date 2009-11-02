@@ -48,6 +48,6 @@ def get_max_upper_bound(upper_bounds):
     return max(upper_bounds, key=upper_bounds_compare)
 
 def get_node_closed_neighborhood(graph, node):
-    node_neighborhood = graph.neighbors(node)
+    node_neighborhood = graph[node].keys()
     node_neighborhood.append(node)
     return node_neighborhood
