@@ -1,8 +1,0 @@
-This is the Pascal source for the generator used to build the maps tested in
-
-C. Morgenstern and H. Shapiro. 1991.
-Heuristics for Rapidly Four-Coloring Large Planar Graphs.
-Algorithmica, 6, 869-891.
-
-It generates maps of up to 128K using 13 possible methods.  It was
-compiled with Oregon Pascal and run on a Sun3 with 16 Megs.

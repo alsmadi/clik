@@ -1,9 +1,0 @@
-October 12, 1994
-
-These are the new files and generator for flat graphs.
-In addition to presenting the graphs under a random permutation of the
-vertices, the graphs are tested using the simple greedy algorithm under the 
-permutation to see if the expected coloring is obtained.
-
-The sample graphs contained here should be isomorphic to the old ones,
-but with a random permutation of the vertex labels.
