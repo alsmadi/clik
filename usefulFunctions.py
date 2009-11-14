@@ -7,16 +7,7 @@ in questo file ho raccolto alcune funzioni utili per l'esecuzione.
 import sys
 import operator
 import numpy as NU
-import networkx as NX
-
-"""
-determina se un grafo è completo
-"""
-def is_complete(graph):
-    n = len(graph.nodes())
-    if len(graph.edges()) != (n * (n - 1) / 2) :
-        return False
-    return True
+from graphStructure import *
 
 """
 determina una lista di tuple (nodo, upperbound) con upperbound cacolato 
@@ -26,7 +17,7 @@ passata come secondo parametro
 def get_upper_bounds(graph, upper_bound_function):
     upper_bounds = []
     for node in graph:
-        node_closed_neighborhood = get_node_closed_neighborhood(graph, node)
+        node_closed_neighborhood = graph.closed_neighborhood(node)
         subgraph = graph.subgraph(node_closed_neighborhood)
         upper_bound = upper_bound_function(subgraph)
         upper_bounds.append((node, upper_bound))
@@ -48,10 +39,3 @@ di tuple (nodo, upperbound) e ritorna il valore dell'upperbound
 def get_max_upper_bound(upper_bounds):
     return max(upper_bounds, key=operator.itemgetter(1))
 
-"""
-restituisce il closed neighborhood di "node".
-"""
-def get_node_closed_neighborhood(graph, node):
-    node_neighborhood = graph[node].keys()
-    node_neighborhood.append(node)
-    return node_neighborhood

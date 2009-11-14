@@ -7,14 +7,14 @@ o dsatur
 """
 import sys
 import numpy as NU
-import networkx as NX
+from graphStructure import *
 from usefulFunctions import *
 
 """
 upperbound = numeri di nodi del grafo passato come parametro
 """
 def upper_bound_from_number_of_nodes(graph):
-    if not isinstance(graph, NX.Graph):
+    if not isinstance(graph, Graph):
         raise Exception, "Not a Graph!"
     return len(graph)
 
@@ -23,7 +23,7 @@ upperbound = massimo numero dei nodi che compongono il closed
 neighborhood di ogni nodo del grafo passato come parametro
 """
 def upper_bound_from_largest_closed_neighborhood(graph):
-    if not isinstance(graph, NX.Graph):
+    if not isinstance(graph, Graph):
         raise Exception, "Not a Graph!"
     size_neighborhood_list = []
     for node in graph:
@@ -56,7 +56,7 @@ upperbound = massimo autovalore della matrice di adiacenza
 del grafo passato come parametro + 1
 """
 def upper_bound_from_adjacency_matrix(graph):
-    if not isinstance(graph, NX.Graph):
+    if not isinstance(graph, Graph):
         raise Exception, "Not a Graph!"
     matrix = NX.adj_matrix(graph)
     eigenvalues = NU.linalg.eigvals(matrix)
