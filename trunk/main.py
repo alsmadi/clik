@@ -12,7 +12,7 @@ una libreria usata non l'applicazione.
 
 import sys
 import numpy as NU
-import networkx as NX
+from graphStructure import *
 import matplotlib.pyplot as Plot
 from sequentialEliminationAlgorithm import *
 from upperBoundAlgorithms import *
@@ -29,7 +29,7 @@ def get_graph(filename):
         if line.find('e', 0, 1) >= 0:
             list = line.split()
             edges.append((list[1], list[2]))
-    graph = NX.Graph()
+    graph = Graph()
     graph.add_edges_from(edges)
     return graph
 

@@ -7,7 +7,7 @@ di funzioni contenute nei file: upperBoundAlgorithms.py e in usefulFunctions.py
 
 import sys
 import numpy as NU
-import networkx as NX
+from graphStructure import *
 from upperBoundAlgorithms import *
 from usefulFunctions import *
 
@@ -35,13 +35,13 @@ def sequential_elimination_algorithm(graph, upper_bound_function):
 algoritmo di eliminazione sequenziale addendum
 """
 def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
-    graph_cur = NX.Graph(data=graph)
+    graph_cur = Graph(data=graph)
     k = 0
     data= []
-    while is_complete(graph_cur) is False: 
+    while graph_cur.is_complete() is False: 
         upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
         node, induced_upper_bound = get_min_upper_bound(upper_bounds)
-        node_closed_neighborhood = get_node_closed_neighborhood(graph_cur, node)
+        node_closed_neighborhood = graph_cur.closed_neighborhood(node)
         data.append((node, induced_upper_bound, 
                      graph_cur.subgraph(node_closed_neighborhood)))
         graph_cur.remove_node(node)
