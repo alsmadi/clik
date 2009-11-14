@@ -12,10 +12,10 @@ una libreria usata non l'applicazione.
 
 import sys
 import numpy as NU
-from graphStructure import *
+from src.graphStructure import *
 import matplotlib.pyplot as Plot
-from sequentialEliminationAlgorithm import *
-from upperBoundAlgorithms import *
+from src.sequentialEliminationAlgorithm import *
+from src.upperBoundAlgorithms import *
 import time
 import os
 
