@@ -1,3 +1,7 @@
-#Sat Nov 14 20:04:13 CET 2009
+#Sat Nov 14 21:31:24 CET 2009
 eclipse.preferences.version=1
+encoding//src/graphStructure.py=utf-8
+encoding//src/sequentialEliminationAlgorithm.py=utf-8
+encoding//src/upperBoundAlgorithms.py=utf-8
+encoding//src/usefulFunctions.py=utf-8
 encoding/main.py=utf-8

@@ -5,17 +5,15 @@ questo file contiene le definizioni dei due algoritmi; entrambi fanno uso
 di funzioni contenute nei file: upperBoundAlgorithms.py e in usefulFunctions.py
 """
 
-import sys
-import numpy as NU
-from graphStructure import *
-from upperBoundAlgorithms import *
-from usefulFunctions import *
+from graphStructure import Graph
+import upperBoundAlgorithms as UBA
+from usefulFunctions import get_upper_bounds,get_min_upper_bound, get_max_upper_bound 
 
 """
 algoritmo di eliminazione sequenziale  
 """
 def sequential_elimination_algorithm(graph, upper_bound_function):
-    graph_cur = NX.Graph(data=graph)
+    graph_cur = Graph(graph.edges())
     upper_bound_opt = 0
     k = 0
     while True:
@@ -29,13 +27,13 @@ def sequential_elimination_algorithm(graph, upper_bound_function):
             graph_cur.remove_node(node)
         else:
             print "# iterations: ", k
-            return upper_bound_opt
+            return round(upper_bound_opt)
           
 """
 algoritmo di eliminazione sequenziale addendum
 """
 def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
-    graph_cur = Graph(data=graph)
+    graph_cur = Graph(graph.edges())
     k = 0
     data= []
     while graph_cur.is_complete() is False: 
@@ -46,14 +44,15 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
                      graph_cur.subgraph(node_closed_neighborhood)))
         graph_cur.remove_node(node)
         k += 1
+    print "# iterations: ", k
     upper_bound_opt = len(graph_cur)
-    for i in range(k):
+    for i in range(k, 0):
         if data[i][1] > upper_bound_opt:
-            upper_bound_tmp = upper_bound_from_sequential_elimination_algorithm(
+            upper_bound_tmp = UBA.upper_bound_from_sequential_elimination_algorithm(
                                             data[i][2], 
-                                            upper_bound_from_adjacency_matrix, 
+                                            UBA.upper_bound_from_max_eigenvalue, 
                                             upper_bound_opt)
             upper_bound_opt = max(upper_bound_opt, upper_bound_tmp)
-    return upper_bound_opt
+    return round(upper_bound_opt)
         
     
