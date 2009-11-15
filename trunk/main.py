@@ -9,13 +9,10 @@ le definizioni degli algoritmi si trovano nel file sequentialEliminationAlgorith
 NB: probabilmente all'inizio dell'esecuzione vedrà alcuni warning; rigyardano 
 una libreria usata non l'applicazione.
 """
-
 import sys
-import numpy as NU
-from src.graphStructure import *
-import matplotlib.pyplot as Plot
-from src.sequentialEliminationAlgorithm import *
-from src.upperBoundAlgorithms import *
+from src.graphStructure import Graph
+from src.sequentialEliminationAlgorithm import sequential_elimination_algorithm, sequential_elimination_algorithm_addendum
+import src.upperBoundAlgorithms as UBA
 import time
 import os
 
@@ -30,48 +27,48 @@ def get_graph(filename):
             list = line.split()
             edges.append((list[1], list[2]))
     graph = Graph()
-    graph.add_edges_from(edges)
+    graph.add_edges(edges)
     return graph
 
 """
 main
 """
 def main(args):
-	cwd = os.getcwd()
-	ext = ".clq"
+    cwd = os.getcwd()
+    ext = ".clq"
 #    testname = "graph_test"
 #    testname = "hamming6-2"
 #    testname = "hamming6-4"
 #    testname = "johnson16-2-4"
-	testname = "johnson8-4-4"
-#	 testname = "johnson8-2-4"
+#    testname = "johnson8-4-4"
+    testname = "johnson8-2-4"
 #    testname = "brock200_1"
 #    testname = "brock400_4"
 #    testname = "brock800_2"
 #    testname = "c-fat500-2"
-	filename = cwd + "/" + testname + ext
-	graph = get_graph(filename)
-	print "*****************************"
-	print "*****************************"
-	print "file: ", filename
-	print "graph: ", testname
-	print "*****************************"
-	print "start first"
-	start = time.time()
-	upper_bound_opt = sequential_elimination_algorithm(graph, 
-							upper_bound_from_adjacency_matrix)
-	print "end: elapsed time - ", time.time() - start
-	print "upper bound optimum: ", upper_bound_opt
-	print "*****************************"
-	print "*****************************"
-	print "start second"
-	start = time.time()
-	upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
-							upper_bound_from_adjacency_matrix)
-	print "end: elapsed time - ", time.time() - start
-	print "upper bound optimum (addendum): ", upper_bound_opt
-	print "*****************************"
-	print "*****************************"
-
+    filename = cwd + "/benchmarks/" + testname + ext
+    graph = get_graph(filename)
+    print "*****************************"
+    print "*****************************"
+    print "file: ", filename
+    print "graph: ", testname
+    print "*****************************"
+    print "start first"
+    start = time.time()
+    upper_bound_opt = sequential_elimination_algorithm(graph, 
+                                UBA.upper_bound_from_max_eigenvalue)
+    print "end: elapsed time - ", time.time() - start
+    print "upper bound optimum: ", upper_bound_opt
+    print "*****************************"
+    print "*****************************"
+    print "start second"
+    start = time.time()
+    upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
+                                UBA.upper_bound_from_max_eigenvalue)
+    print "end: elapsed time - ", time.time() - start
+    print "upper bound optimum (addendum): ", upper_bound_opt
+    print "*****************************"
+    print "*****************************"
+    
 if __name__ == "__main__":
     main(sys.argv)

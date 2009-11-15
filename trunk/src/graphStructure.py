@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from UserDict import UserDict
-import sys
-import operator
-import numpy as NU
+from copy import deepcopy
 
 class Graph(UserDict):
-    def __init__(self):
+    def __init__(self, edges=None):
         UserDict.__init__(self)
+        if edges != None:
+            self.add_edges(edges)
 
     def nodes(self):
         return self.keys()
@@ -69,19 +69,19 @@ class Graph(UserDict):
     def closed_neighborhood(self, node):
         if node not in self.data:
             return
-        neighborhood = self.data[node]
-        closed_neighborhood = neighborhood.append(node)
-        return closed_neighborhood
+        neighborhood = deepcopy(self.data[node])
+        neighborhood.append(node)
+        return neighborhood
     
     def subgraph(self, nodes):
         subgraph_ = Graph()
         subgraph_.add_nodes(nodes)
         rem_nodes = nodes[:]
         for node_a in nodes:
-             rem_nodes.remove(node_a)
-             for node_b in rem_nodes:
-                 if node_b in self.data[node_a]:
-                     subgraph_.add_edge((node_a, node_b))
+            rem_nodes.remove(node_a)
+            for node_b in rem_nodes:
+                if node_b in self.data[node_a]:
+                    subgraph_.add_edge((node_a, node_b))
         return subgraph_       
     
     def adjacency_matrix(self):
