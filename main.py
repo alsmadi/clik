@@ -37,11 +37,12 @@ def main(args):
     cwd = os.getcwd()
     ext = ".clq"
 #    testname = "graph_test"
+#    testname = "keller4"
 #    testname = "hamming6-2"
 #    testname = "hamming6-4"
 #    testname = "johnson16-2-4"
-#    testname = "johnson8-4-4"
-    testname = "johnson8-2-4"
+    testname = "johnson8-4-4"
+#    testname = "johnson8-2-4"
 #    testname = "brock200_1"
 #    testname = "brock400_4"
 #    testname = "brock800_2"
@@ -64,7 +65,7 @@ def main(args):
     print "start second"
     start = time.time()
     upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
-                                UBA.upper_bound_from_max_eigenvalue)
+                                UBA.upper_bound_from_number_of_nodes)
     print "end: elapsed time - ", time.time() - start
     print "upper bound optimum (addendum): ", upper_bound_opt
     print "*****************************"

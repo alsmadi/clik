@@ -5,6 +5,7 @@ questo file contiene le definizioni delle funzioni che calcolano gli upperbound.
 TODO: aggiungere un algoritmo di coloring o entrambi, tra linear coloring 
 o dsatur
 """
+
 from numpy import linalg
 from graphStructure import Graph
 from usefulFunctions import get_upper_bounds, get_max_upper_bound, get_min_upper_bound
