@@ -46,11 +46,11 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
         k += 1
     print "# iterations: ", k
     upper_bound_opt = len(graph_cur)
-    for i in range(k, 0):
+    for i in range(k - 1, 0, -1):
         if data[i][1] > upper_bound_opt:
             upper_bound_tmp = UBA.upper_bound_from_sequential_elimination_algorithm(
                                             data[i][2], 
-                                            UBA.upper_bound_from_max_eigenvalue, 
+                                            UBA.upper_bound_from_number_of_nodes, 
                                             upper_bound_opt)
             upper_bound_opt = max(upper_bound_opt, upper_bound_tmp)
     return round(upper_bound_opt)
