@@ -36,37 +36,37 @@ main
 def main(args):
     cwd = os.getcwd()
     ext = ".clq"
-#    testname = "graph_test"
-#    testname = "keller4"
-#    testname = "hamming6-2"
-#    testname = "hamming6-4"
-#    testname = "johnson16-2-4"
-    testname = "johnson8-4-4"
-#    testname = "johnson8-2-4"
-#    testname = "brock200_1"
-#    testname = "brock400_4"
-#    testname = "brock800_2"
-#    testname = "c-fat500-2"
+#    testname = "graph_test" # 6 nodes
+#    testname = "keller4" # 171 nodes
+#    testname = "hamming6-2" # 64 nodes
+#    testname = "hamming6-4" # 64 nodes
+#    testname = "johnson16-2-4" # 120 nodes
+#    testname = "johnson8-4-4" # 70 nodes
+#    testname = "johnson8-2-4" # 28 nodes
+    testname = "brock200_1" # 200 nodes
+#    testname = "brock400_4" # 400 nodes
+#    testname = "brock800_2" # 800 nodes
+#    testname = "c-fat500-2" # 500 nodes
     filename = cwd + "/benchmarks/" + testname + ext
     graph = get_graph(filename)
     print "*****************************"
     print "*****************************"
     print "file: ", filename
     print "graph: ", testname
-    print "*****************************"
-    print "start first"
-    start = time.time()
-    upper_bound_opt = sequential_elimination_algorithm(graph, 
-                                UBA.upper_bound_from_max_eigenvalue)
-    print "end: elapsed time - ", time.time() - start
-    print "upper bound optimum: ", upper_bound_opt
-    print "*****************************"
+    #print "*****************************"
+    #print "start first"
+    #start = time.time()
+    #upper_bound_opt = sequential_elimination_algorithm(graph, 
+                                #UBA.upper_bound_from_max_eigenvalue)
+    #print "end: elapsed time - ", time.time() - start
+    #print "upper bound optimum: ", upper_bound_opt
+    #print "*****************************"
     print "*****************************"
     print "start second"
     start = time.time()
     upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
                                 UBA.upper_bound_from_number_of_nodes)
-    print "end: elapsed time - ", time.time() - start
+    print "end: elapsed time (total) - ", time.time() - start
     print "upper bound optimum (addendum): ", upper_bound_opt
     print "*****************************"
     print "*****************************"
