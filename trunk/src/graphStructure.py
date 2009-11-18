@@ -84,6 +84,9 @@ class Graph(UserDict):
                     subgraph_.add_edge((node_a, node_b))
         return subgraph_       
     
+    def degree(self, node):
+        return len(self.data[node])
+    
     def adjacency_matrix(self):
         matrix = [[0 for col in range(len(self.nodes()))] 
                   for row in range(len(self.nodes()))]
