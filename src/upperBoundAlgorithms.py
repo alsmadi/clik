@@ -6,6 +6,7 @@ TODO: aggiungere un algoritmo di coloring o entrambi, tra linear coloring
 o dsatur
 """
 
+from dsatur import dsatur_algorithm
 from numpy import linalg
 from graphStructure import Graph
 from usefulFunctions import get_upper_bounds, get_max_upper_bound, get_min_upper_bound
@@ -45,6 +46,10 @@ def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_functio
             graph_cur.remove_node(node)
         else:
             return round(upper_bound_opt)
+
+def upper_bound_from_dsatur(graph):
+    upper_bound = dsatur_algorithm(graph)
+    return upper_bound
 
 """
 upperbound = massimo autovalore della matrice di adiacenza 
