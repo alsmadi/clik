@@ -52,11 +52,12 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
     print "# iterations: ", k
     start = time.time()
     upper_bound_opt = len(graph_cur)
-    for i in range(k - 1, 0, -1):
+    for i in reversed(range(k)):
+        print "iteration: ", k - i
         if data[i][1] > upper_bound_opt:
             upper_bound_tmp = UBA.upper_bound_from_sequential_elimination_algorithm(
                                             data[i][2], 
-                                            UBA.upper_bound_from_max_eigenvalue, 
+                                            UBA.upper_bound_from_dsatur, 
                                             upper_bound_opt)
             upper_bound_opt = max(upper_bound_opt, upper_bound_tmp)
     print "end: elapsed time (second part) - ", time.time() - start
