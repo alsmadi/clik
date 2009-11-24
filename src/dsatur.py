@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from graphStructure import Graph
-import operator
 from UserDict import UserDict
 
 class NodeDict(UserDict):
@@ -30,13 +29,10 @@ class NodeDict(UserDict):
             self.data[node][1] = len(colors_list)
     
     def update_degree(self, node_sel):
-        print "--------------------------"
-        print "node sel: ", node_sel
-        self.data[node_sel][0] = -1
+        self.data[node_sel][0] = -1   
         for node in self.uncolored_graph.nodes():
-            self.data[node][0] = self.uncolored_graph.degree(node)
-            print "node: " + str(node) + " degree: " + str(self.data[node][0])
-    
+            self.data[node][0] = self.uncolored_graph.degree(node) 
+        
     def get_min_color_possible(self, node_sel):
         colors_list = []
         for node in self.graph[node_sel]:
@@ -75,14 +71,14 @@ class NodeDict(UserDict):
     
     def get_node_max_degree(self):
         list = self.get_sorted_degree()
-        node = list[0]
-        return node[0]
+        nodes = list[0]
+        return nodes[0]
     
     def get_node_max_satur_degre(self):
         list = self.get_sorted_degree_satur()
-        node = list[0]
+        nodes = list[0]
         check_eq = self.check_eq_max_satur_degree(list)
-        return node[0], check_eq
+        return nodes[0], check_eq
         
     def check_eq_max_satur_degree(self, list):
         node_0 = list[0]
@@ -109,9 +105,8 @@ def dsatur_algorithm(graph):
     #coloriamo il nodo e aggiorniamo 
     nodes.color(node_sel)
     iterations = len(nodes.uncolored_graph)
-    i = 0
     #si itera su tutti i nodi rimasti da colorare
-    while i < iterations:
+    for i in range(iterations):
         #si trova il nodo di grado di saturazione minore
         node_sel, check_eq = nodes.get_node_max_satur_degre()
         if check_eq is False:
@@ -128,11 +123,11 @@ def dsatur_algorithm(graph):
             nodes.update_degree_satur(node_sel)
             nodes.update_uncolored_graph(node_sel)
             nodes.update_degree(node_sel)
-        i += 1
-    list = nodes.get_sorted_nodes()
+#    list = nodes.get_sorted_nodes()
     colors_list = []
-    for item in list:
-        print item[0] + ": " + str(item[1][2])
+    for item in nodes.items():
+#        print "node: ", item[0] + " color: " + str(item[1][2]) + " degree: " + \
+#        str(item[1][1]) + " degree satur: " + str(item[1][0])
         col = item[1][2]
         if col not in colors_list:
             colors_list.append(col)
