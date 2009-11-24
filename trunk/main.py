@@ -44,9 +44,9 @@ def main(args):
 #    testname = "keller4" # 171 nodes
 #    testname = "hamming6-2" # 64 nodes
 #    testname = "hamming6-4" # 64 nodes
-    testname = "johnson16-2-4" # 120 nodes
+#    testname = "johnson16-2-4" # 120 nodes
 #    testname = "johnson8-4-4" # 70 nodes
-#    testname = "johnson8-2-4" # 28 nodes
+    testname = "johnson8-2-4" # 28 nodes
 #    testname = "brock200_1" # 200 nodes
 #    testname = "brock400_4" # 400 nodes
 #    testname = "brock800_2" # 800 nodes
@@ -57,17 +57,15 @@ def main(args):
     print "*****************************"
     print "file: ", filename
     print "graph: ", testname
-#    ncolors = UBA.upper_bound_from_dsatur(graph)
-#    print ncolors
-#    print "*****************************"
-#    print "start first"
-#    start = time.time()
-#    upper_bound_opt = sequential_elimination_algorithm(graph, 
-#                                UBA.upper_bound_from_dsatur)
-#    print "end: elapsed time - ", time.time() - start
-#    print "upper bound optimum: ", upper_bound_opt
-#    print "*****************************"
-#    print "*****************************"
+    print "*****************************"
+    print "start first"
+    start = time.time()
+    upper_bound_opt = sequential_elimination_algorithm(graph, 
+                                UBA.upper_bound_from_dsatur)
+    print "end: elapsed time - ", time.time() - start
+    print "upper bound optimum: ", upper_bound_opt
+    print "*****************************"
+    print "*****************************"
     print "start second"
     start = time.time()
     upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
