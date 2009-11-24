@@ -11,7 +11,10 @@ from usefulFunctions import get_upper_bounds,get_min_upper_bound, get_max_upper_
 import time
 
 """
-algoritmo di eliminazione sequenziale  
+algoritmo di eliminazione sequenziale.
+i parametri sono:
+* il grafo da studiare
+* la funzione da usare per ricavare l'upperbound
 """
 def sequential_elimination_algorithm(graph, upper_bound_function):
     graph_cur = Graph(graph.edges())
@@ -32,7 +35,10 @@ def sequential_elimination_algorithm(graph, upper_bound_function):
             return round(upper_bound_opt)
           
 """
-algoritmo di eliminazione sequenziale addendum
+algoritmo di eliminazione sequenziale addendum.
+i parametri sono:
+* il grafo da studiare
+* la funzione da usare per ricavare l'upperbound
 """
 def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
     start = time.time()
