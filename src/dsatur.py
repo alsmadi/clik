@@ -3,6 +3,14 @@
 from graphStructure import Graph
 from UserDict import UserDict
 
+"""
+classe che implementa attraverso un dizionario, una struttura per gestire tutti
+i dati necessari per l'esecuzione dell'algoritmo DSATUR;
+in particolare ogni elemento del dizionario avra come chiave il nodo e come valori
+il grado del nodo nel sottografo non colorato o -1 se il nodo è stato colorato,
+il grado di saturazione ed infine il colore assegnato al nodo o -1 se ancora il 
+nodo non è stato colorato.
+"""
 class NodeDict(UserDict):
     def __init__(self, graph):
         UserDict.__init__(self)
@@ -14,10 +22,17 @@ class NodeDict(UserDict):
             #rispettivamente: il grado nel grafo originale, 0, -1.
             self.data[node] = [graph.degree(node), 0, -1]
     
+    """
+    metodo che rimuove dal sottografo dei nodi non colorati il nodo che è stato
+    appena colorato
+    """
     def update_uncolored_graph(self, node_sel):
         if node_sel in self.uncolored_graph.nodes():
             self.uncolored_graph.remove_node(node_sel)
-            
+    
+    """
+    metodo che aggiorna il grado di saturazione
+    """        
     def update_degree_satur(self, node_sel):
         for node in self.graph[node_sel]:
             colors_list = []
@@ -28,11 +43,21 @@ class NodeDict(UserDict):
                         colors_list.append(col)
             self.data[node][1] = len(colors_list)
     
+    """
+    metodo che aggiorna il grado dei nodi del sottografo dei nodi non colorati dopo
+    che è avvenuta una rimozione in tale sottografo, cioè dopo che un nodo è stato
+    colorato
+    """
     def update_degree(self, node_sel):
         self.data[node_sel][0] = -1   
         for node in self.uncolored_graph.nodes():
             self.data[node][0] = self.uncolored_graph.degree(node) 
-        
+    
+    """
+    metodo che trova il minor colore possibile da assegnare ad un nodo selezionato.
+    itera sui nodi adiacenti e ritorna il primo colore diposnibile tra quelli 
+    non usati
+    """    
     def get_min_color_possible(self, node_sel):
         colors_list = []
         for node in self.graph[node_sel]:
@@ -49,6 +74,9 @@ class NodeDict(UserDict):
                 return i
         return maxcolor + 1
     
+    """
+    metodo che colora il nodo selezionato
+    """
     def color(self, node):
         min_color_possible = self.get_min_color_possible(node)
         self.data[node][2] = min_color_possible
@@ -69,17 +97,28 @@ class NodeDict(UserDict):
         list = sorted(self.data.items(), key=lambda x: x[1][2], reverse=True)
         return list
     
+    """
+    metodo che ritorna il nodo con il massimo grado nel sottografo dei nodi non
+    colorati
+    """
     def get_node_max_degree(self):
         list = self.get_sorted_degree()
         nodes = list[0]
         return nodes[0]
     
+    """
+    metodo che ritorna il nodo con il massimo grado di saturazione
+    """
     def get_node_max_satur_degre(self):
         list = self.get_sorted_degree_satur()
         nodes = list[0]
         check_eq = self.check_eq_max_satur_degree(list)
         return nodes[0], check_eq
-        
+    
+    """
+    metodo ritorna true se vi sono più nodi che hanno lo stesso valore del grado 
+    di saturazione
+    """    
     def check_eq_max_satur_degree(self, list):
         node_0 = list[0]
         node_1 = list[1]
@@ -90,12 +129,13 @@ class NodeDict(UserDict):
         
 def dsatur_algorithm(graph):
     """
+    passi da eseguire:
     1 - ordinare i nodi per grado
-    2 - colorare il nodo con grado maggiore con colore 1
+    2 - colorare il nodo con grado maggiore con colore 0
     3 - scegliere il nodo con il massimo grado di saturazione; 
         se vi sono più nodi con lo stesso grado di saturazione -> scegliere 
         un qualunque nodo con grado maggiore tra quelli non colorati
-    4 - colorare il nodo scelto con il colore di numero più basso
+    4 - colorare il nodo scelto con il minimo colore possibile
     5 - se ultimo nodo colorato -> STOP, altrimenti torna a 3 
     """
     #inizializzazione
@@ -123,11 +163,8 @@ def dsatur_algorithm(graph):
             nodes.update_degree_satur(node_sel)
             nodes.update_uncolored_graph(node_sel)
             nodes.update_degree(node_sel)
-#    list = nodes.get_sorted_nodes()
     colors_list = []
     for item in nodes.items():
-#        print "node: ", item[0] + " color: " + str(item[1][2]) + " degree: " + \
-#        str(item[1][1]) + " degree satur: " + str(item[1][0])
         col = item[1][2]
         if col not in colors_list:
             colors_list.append(col)
