@@ -7,6 +7,7 @@ o dsatur
 """
 
 from dsatur import dsatur_algorithm
+from linearColoring import linear_coloring_algorithm
 from numpy import linalg
 from graphStructure import Graph
 from usefulFunctions import get_upper_bounds, get_max_upper_bound, get_min_upper_bound
@@ -46,9 +47,18 @@ def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_functio
             graph_cur.remove_node(node)
         else:
             return round(upper_bound_opt)
-
+"""
+upperbound = numero di colori ricavato dall'algoritmo DSATUR
+"""
 def upper_bound_from_dsatur(graph):
     upper_bound = dsatur_algorithm(graph)
+    return upper_bound
+
+"""
+upperbound = numero di colori ricavato dall'algoritmo di Linear Coloring
+"""
+def upper_bound_from_linear_coloring(graph):
+    upper_bound = linear_coloring_algorithm(graph)
     return upper_bound
 
 """
