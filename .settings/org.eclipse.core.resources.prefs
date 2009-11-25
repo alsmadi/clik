@@ -1,7 +1,8 @@
-#Tue Nov 17 22:07:10 CET 2009
+#Wed Nov 25 11:48:38 CET 2009
 eclipse.preferences.version=1
 encoding//src/dsatur.py=utf-8
 encoding//src/graphStructure.py=utf-8
+encoding//src/linearColoring.py=utf-8
 encoding//src/sequentialEliminationAlgorithm.py=utf-8
 encoding//src/upperBoundAlgorithms.py=utf-8
 encoding//src/usefulFunctions.py=utf-8

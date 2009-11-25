@@ -11,7 +11,9 @@ una libreria usata non l'applicazione.
 """
 import sys
 from src.graphStructure import Graph
-from src.sequentialEliminationAlgorithm import sequential_elimination_algorithm, sequential_elimination_algorithm_addendum
+from src.sequentialEliminationAlgorithm import \
+                                        sequential_elimination_algorithm, \
+                                        sequential_elimination_algorithm_addendum
 import src.upperBoundAlgorithms as UBA
 import time
 import os
@@ -42,11 +44,11 @@ def main(args):
 #    testname = "myciel7(col)"
 #    testname = "queen9(col)"
 #    testname = "keller4" # 171 nodes
-#    testname = "hamming6-2" # 64 nodes
+    testname = "hamming6-2" # 64 nodes
 #    testname = "hamming6-4" # 64 nodes
 #    testname = "johnson16-2-4" # 120 nodes
 #    testname = "johnson8-4-4" # 70 nodes
-    testname = "johnson8-2-4" # 28 nodes
+#    testname = "johnson8-2-4" # 28 nodes
 #    testname = "brock200_1" # 200 nodes
 #    testname = "brock400_4" # 400 nodes
 #    testname = "brock800_2" # 800 nodes
@@ -61,7 +63,7 @@ def main(args):
     print "start first"
     start = time.time()
     upper_bound_opt = sequential_elimination_algorithm(graph, 
-                                UBA.upper_bound_from_dsatur)
+                                UBA.upper_bound_from_linear_coloring)
     print "end: elapsed time - ", time.time() - start
     print "upper bound optimum: ", upper_bound_opt
     print "*****************************"

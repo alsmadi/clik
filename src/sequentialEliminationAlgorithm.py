@@ -63,7 +63,7 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
         if data[i][1] > upper_bound_opt:
             upper_bound_tmp = UBA.upper_bound_from_sequential_elimination_algorithm(
                                             data[i][2], 
-                                            UBA.upper_bound_from_dsatur, 
+                                            UBA.upper_bound_from_linear_coloring, 
                                             upper_bound_opt)
             upper_bound_opt = max(upper_bound_opt, upper_bound_tmp)
     print "end: elapsed time (second part) - ", time.time() - start
