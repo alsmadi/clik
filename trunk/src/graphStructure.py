@@ -6,17 +6,23 @@ from copy import deepcopy
 class Graph(UserDict):
     def __init__(self, edges=None):
         UserDict.__init__(self)
+        self.nodes = self.keys
         if edges != None:
             self.add_edges(edges)
-
-    def nodes(self):
-        return self.keys()
+    
+    def __deepcopy__(self, memo):
+        graph = Graph()
+        graph.data = deepcopy(self.data, memo)
+        return graph
+    
+    #def nodes(self):
+        #return self.keys()
     
     def edges(self):
         comp = lambda x: (x[0], x[1]) if int(x[0]) < int(x[1]) else (x[1], x[0])
         edges = [comp((node_a, node_b)) for node_a in self.nodes() 
                       for node_b in self.data[node_a]] 
-        edges = frozenset(edges)
+        edges = list(frozenset(edges))
         return edges
     
     def number_of_edges(self):
@@ -82,16 +88,10 @@ class Graph(UserDict):
         neighborhood.append(node)
         return neighborhood
     
-    def subgraph(self, nodes):
-        subgraph_ = Graph()
-        for node_a in nodes:
-            subgraph_.add_node(node_a)
-            for node_b in self.data[node_a]:
-                if node_b in nodes:
-                    subgraph_.add_node(node_b)
-                    if node_b not in subgraph_[node_a]:
-                        subgraph_[node_a].append(node_b)
-                        subgraph_[node_b].append(node_a)
+    def subgraph(self, nodes_list):
+        subgraph_ = deepcopy(self)
+        for node in [node_rem for node_rem in subgraph_.nodes() if node_rem not in nodes_list]:
+            subgraph_.remove_node(node)
         return subgraph_       
     
     def degree(self, node):

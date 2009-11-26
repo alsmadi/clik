@@ -17,10 +17,8 @@ class NodeDict(UserDict):
     non usati
     """    
     def get_min_color_possible(self, node_sel):
-        colors_list = [self.data[node] for node in self.graph[node_sel]]
+        colors_list = [self.data[node] for node in self.graph[node_sel] if self.data[node] != None]
         colors_list = list(frozenset(colors_list))
-        if None in colors_list:
-            colors_list.remove(None)
         if len(colors_list) == 0:
             return 0
         colors_list.sort()
@@ -29,7 +27,7 @@ class NodeDict(UserDict):
             if i != colors_list[i]:
                 return i
         return maxcolor + 1
-#    
+  
     """
     metodo che colora il nodo selezionato
     """
