@@ -2,15 +2,14 @@
 
 """
 questo file contiene le definizioni delle funzioni che calcolano gli upperbound.
-TODO: aggiungere un algoritmo di coloring o entrambi, tra linear coloring 
-o dsatur
 """
 
+import operator
 from dsatur import dsatur_algorithm
 from linearColoring import linear_coloring_algorithm
 from numpy import linalg
 from graphStructure import Graph
-from usefulFunctions import get_upper_bounds, get_max_upper_bound, get_min_upper_bound
+from usefulFunctions import get_upper_bounds
 
 """
 upperbound = numeri di nodi del grafo passato come parametro
@@ -33,20 +32,18 @@ upperbound = valore ricavato dall'algoritmo di eliminazione sequanziale
 NB: la funzione di default per calcolare l'upper bound è
 upper_bound_from_number_of_nodes
 """
-def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_function, 
-                                                      init=0):
+def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_function, init=0):
     graph_cur = Graph(graph.edges())
     upper_bound_opt = init
     while True:
         upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
-        node, induced_upper_bound = get_min_upper_bound(upper_bounds)
-        if upper_bound_opt < induced_upper_bound:
-            upper_bound_opt = induced_upper_bound 
-        ignore, max_upper_bound = get_max_upper_bound(upper_bounds)
+        node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
+        upper_bound_opt = max(upper_bound_opt, induced_upper_bound)
+        ignore, max_upper_bound = max(upper_bounds, key=operator.itemgetter(1))
         if upper_bound_opt < max_upper_bound:
             graph_cur.remove_node(node)
         else:
-            return round(upper_bound_opt)
+            return upper_bound_opt
 """
 upperbound = numero di colori ricavato dall'algoritmo DSATUR
 """
@@ -69,4 +66,4 @@ def upper_bound_from_max_eigenvalue(graph):
     matrix = graph.adjacency_matrix()
     eigenvalues = linalg.eigvals(matrix)
     max_eigenvalue = max(eigenvalues)
-    return max_eigenvalue + 1
+    return round(max_eigenvalue + 1)
