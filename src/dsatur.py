@@ -27,18 +27,18 @@ class NodeDict(UserDict):
     appena colorato
     """
     def update_uncolored_graph(self, node_sel):
-        if node_sel in self.uncolored_graph.nodes():
+        try:
             self.uncolored_graph.remove_node(node_sel)
+        except:
+            print "Error: Node not present!"
     
     """
     metodo che aggiorna il grado di saturazione
     """        
     def update_degree_satur(self, node_sel):
         for node in self.graph[node_sel]:
-            colors_list = [self.data[adj_node][2] for adj_node in self.graph[node]]
+            colors_list = [self.data[adj_node][2] for adj_node in self.graph[node] if self.data[adj_node][2] != None]
             colors_list = list(frozenset(colors_list))
-            if None in colors_list:
-                colors_list.remove(None)
             self.data[node][1] = len(colors_list)
     
     """
@@ -57,10 +57,8 @@ class NodeDict(UserDict):
     non usati
     """    
     def get_min_color_possible(self, node_sel):
-        colors_list = [self.data[node][2] for node in self.graph[node_sel]]
+        colors_list = [self.data[node][2] for node in self.graph[node_sel] if self.data[node][2] != None]
         colors_list = list(frozenset(colors_list))
-        if None in colors_list:
-            colors_list.remove(None)
         if len(colors_list) == 0:
             return 0
         colors_list.sort()
@@ -94,30 +92,20 @@ class NodeDict(UserDict):
     colorati
     """
     def get_node_max_degree(self):
-        list = sorted(self.data.items(), key=lambda x: x[1][0], reverse=True)
-        nodes = list[0]
-        return nodes[0]
+        item = max(self.data.items(), key=lambda x: x[1][0])
+        return item[0]
     
     """
     metodo che ritorna il nodo con il massimo grado di saturazione
     """
     def get_node_max_satur_degre(self):
         list = sorted(self.data.items(), key=lambda x: x[1][1], reverse=True)
-        nodes = list[0]
-        check_eq = self.check_eq_max_satur_degree(list)
-        return nodes[0], check_eq
-    
-    """
-    metodo ritorna true se vi sono più nodi che hanno lo stesso valore del grado 
-    di saturazione
-    """    
-    def check_eq_max_satur_degree(self, list):
-        node_0 = list[0]
-        node_1 = list[1]
-        if node_0[1][1] == node_1[1][1]:
-            return True
-        else:
-            return False
+        node_item_0 = list[0]
+        node_item_1 = list[1]
+        check_eq = False
+        if node_item_0[1][1] == node_item_1[1][1]:
+            check_eq = True
+        return node_item_0[0], check_eq
 
 """
 implementazione dell'algoritmo DSATUR.
@@ -134,14 +122,14 @@ def dsatur_algorithm(graph):
     #inizializzazione
     nodes = NodeDict(graph)
     colors_list = []
-    append_to_color = colors_list.append
+    append_color = colors_list.append
     #estriamo il nodo con grado maggiore
     node_sel = nodes.get_node_max_degree()
     #coloriamo il nodo e aggiorniamo 
     ncolor = nodes.color(node_sel)
     #color_list: lista in cui verrano memorizzati i colori con cui verranno 
     #colorati i nodi
-    append_to_color(ncolor)
+    append_color(ncolor)
     iterations = len(nodes.uncolored_graph)
     #si itera su tutti i nodi rimasti da colorare
     for i in range(iterations):
@@ -150,7 +138,7 @@ def dsatur_algorithm(graph):
         if check_eq is False:
             #se vi è un solo nodo con grado di saturazione massimo
             ncolor = nodes.color(node_sel)
-            append_to_color(ncolor)
+            append_color(ncolor)
             nodes.update_degree_satur(node_sel)
             nodes.update_uncolored_graph(node_sel)
             nodes.update_degree(node_sel)
@@ -159,7 +147,7 @@ def dsatur_algorithm(graph):
             #nel sottografo di nodi non ancora colorati
             node_sel = nodes.get_node_max_degree()
             ncolor = nodes.color(node_sel)
-            append_to_color(ncolor)
+            append_color(ncolor)
             nodes.update_degree_satur(node_sel)
             nodes.update_uncolored_graph(node_sel)
             nodes.update_degree(node_sel)
