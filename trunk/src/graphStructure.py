@@ -29,11 +29,8 @@ class Graph(UserDict):
         return i/2
     
     def add_node(self, node):
-        try: 
+        if node not in self.nodes(): 
             self.data[node] = []
-        except:
-            print "Error: Node not present!"
-        
         
     def add_edge(self, edge):
         if len(edge) != 2:
@@ -63,10 +60,9 @@ class Graph(UserDict):
                 self.data[node_b].append(node_a)
     
     def remove_node(self, node):
-        neighborhood = self.data[node]
-        del self.data[node]
-        for adjacent_node in neighborhood:
+        for adjacent_node in self.data[node]:
             self.data[adjacent_node].remove(node)
+        del self.data[node]
     
     def remove_edge(self, edge):
         if len(edge) != 2:
