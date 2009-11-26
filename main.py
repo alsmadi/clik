@@ -43,10 +43,10 @@ def main(args):
 #    testname = "myciel4(col)"
 #    testname = "myciel7(col)"
 #    testname = "queen9(col)"
-    testname = "keller4" # 171 nodes
+#    testname = "keller4" # 171 nodes
 #    testname = "hamming6-2" # 64 nodes
 #    testname = "MANN_a9" # 45 nodes
-#    testname = "sanr200_0.7" # 200 nodes
+    testname = "sanr200_0.7" # 200 nodes
 #    testname = "hamming6-4" # 64 nodes
 #    testname = "johnson16-2-4" # 120 nodes
 #    testname = "johnson8-4-4" # 70 nodes
@@ -73,7 +73,7 @@ def main(args):
     print "start second"
     start = time.time()
     upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
-                                UBA.upper_bound_from_max_eigenvalue)
+                                UBA.upper_bound_from_number_of_nodes)
     print "end: elapsed time (total) - ", time.time() - start
     print "upper bound optimum (addendum): ", upper_bound_opt
     print "*****************************"
