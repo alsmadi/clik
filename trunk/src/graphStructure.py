@@ -15,9 +15,6 @@ class Graph(UserDict):
         graph.data = deepcopy(self.data, memo)
         return graph
     
-    #def nodes(self):
-        #return self.keys()
-    
     def edges(self):
         comp = lambda x: (x[0], x[1]) if int(x[0]) < int(x[1]) else (x[1], x[0])
         edges = [comp((node_a, node_b)) for node_a in self.nodes() 
@@ -32,8 +29,11 @@ class Graph(UserDict):
         return i/2
     
     def add_node(self, node):
-        if node not in self.nodes(): 
+        try: 
             self.data[node] = []
+        except:
+            print "Error: Node not present!"
+        
         
     def add_edge(self, edge):
         if len(edge) != 2:
@@ -73,20 +73,19 @@ class Graph(UserDict):
             return
         node_a = edge[0]
         node_b = edge[1]
-        if node_a not in self.nodes():
-            return
-        if node_b not in self.nodes():
+        if node_a not in self.nodes() or node_b not in self.nodes():
             return
         if node_b in self.data[node_a]:
             self.data[node_a].remove(node_b)
             self.data[node_b].remove(node_a)
            
     def closed_neighborhood(self, node):
-        if node not in self.data:
-            return
-        neighborhood = deepcopy(self.data[node])
-        neighborhood.append(node)
-        return neighborhood
+        try:
+            neighborhood = deepcopy(self.data[node])
+            neighborhood.append(node)
+            return neighborhood
+        except:
+            print "Error: Node not present!"
     
     def subgraph(self, nodes_list):
         subgraph_ = deepcopy(self)
