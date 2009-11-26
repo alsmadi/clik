@@ -7,8 +7,9 @@ di funzioni contenute nei file: upperBoundAlgorithms.py e in usefulFunctions.py
 
 from graphStructure import Graph
 import upperBoundAlgorithms as UBA
-from usefulFunctions import get_upper_bounds,get_min_upper_bound, get_max_upper_bound 
+from usefulFunctions import get_upper_bounds
 import time
+import operator
 
 """
 algoritmo di eliminazione sequenziale.
@@ -17,22 +18,21 @@ i parametri sono:
 * la funzione da usare per ricavare l'upperbound
 """
 def sequential_elimination_algorithm(graph, upper_bound_function):
-    graph_cur = Graph(graph.edges())
+    graph_cur = graph
     upper_bound_opt = 0
     k = 0
     while True:
         k += 1
         upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
-        node, induced_upper_bound = get_min_upper_bound(upper_bounds)
+        node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
         print "selected node: ", node
-        if upper_bound_opt < induced_upper_bound:
-            upper_bound_opt = induced_upper_bound 
-        ignore, max_upper_bound = get_max_upper_bound(upper_bounds)
+        upper_bound_opt = max(induced_upper_bound, upper_bound_opt)
+        ignore, max_upper_bound = max(upper_bounds, key=operator.itemgetter(1))
         if upper_bound_opt < max_upper_bound:
             graph_cur.remove_node(node)
         else:
             print "# iterations: ", k
-            return round(upper_bound_opt)
+            return upper_bound_opt
           
 """
 algoritmo di eliminazione sequenziale addendum.
@@ -42,12 +42,12 @@ i parametri sono:
 """
 def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
     start = time.time()
-    graph_cur = Graph(graph.edges())
+    graph_cur = graph
     k = 0
     data= []
     while graph_cur.is_complete() is False: 
         upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
-        node, induced_upper_bound = get_min_upper_bound(upper_bounds)
+        node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
         print "selected node: ", node
         node_closed_neighborhood = graph_cur.closed_neighborhood(node)
         data.append((node, induced_upper_bound, 
@@ -58,7 +58,7 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
     print "# iterations: ", k
     start = time.time()
     upper_bound_opt = len(graph_cur)
-    for i in reversed(range(k)):
+    for i in range(k):
         print "iteration: ", k - i
         if data[i][1] > upper_bound_opt:
             upper_bound_tmp = UBA.upper_bound_from_sequential_elimination_algorithm(
@@ -67,6 +67,6 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
                                             upper_bound_opt)
             upper_bound_opt = max(upper_bound_opt, upper_bound_tmp)
     print "end: elapsed time (second part) - ", time.time() - start
-    return round(upper_bound_opt)
+    return upper_bound_opt
         
     

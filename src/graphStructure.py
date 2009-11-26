@@ -13,16 +13,17 @@ class Graph(UserDict):
         return self.keys()
     
     def edges(self):
-        edges = []
+        comp = lambda x: (x[0], x[1]) if int(x[0]) < int(x[1]) else (x[1], x[0])
+        edges = [comp((node_a, node_b)) for node_a in self.nodes() 
+                      for node_b in self.data[node_a]] 
+        edges = frozenset(edges)
+        return edges
+    
+    def number_of_edges(self):
+        i = 0
         for node in self.nodes():
-            node_a = node
-            for node_b in self.data[node]:
-                edge = (node_a, node_b)
-                if edge not in edges:
-                    edge_rev = (node_b, node_a)
-                    if edge_rev not in edges:
-                        edges.append(edge)
-        return edges 
+            i += len(self.data[node])
+        return i/2
     
     def add_node(self, node):
         if node not in self.nodes(): 
@@ -41,11 +42,19 @@ class Graph(UserDict):
     
     def add_nodes(self, nodes):
         for node in nodes:
-            self.add_node(node)
+            self.data[node] = []
           
     def add_edges(self, edges):
         for edge in edges:
-            self.add_edge(edge)
+            if len(edge) != 2:
+                return
+            node_a = edge[0]
+            node_b = edge[1]
+            self.add_node(node_a)
+            self.add_node(node_b)
+            if node_b not in self.data[node_a]:
+                self.data[node_a].append(node_b)
+                self.data[node_b].append(node_a)
     
     def remove_node(self, node):
         neighborhood = self.data[node]
@@ -75,34 +84,27 @@ class Graph(UserDict):
     
     def subgraph(self, nodes):
         subgraph_ = Graph()
-        subgraph_.add_nodes(nodes)
-        rem_nodes = nodes[:]
         for node_a in nodes:
-            rem_nodes.remove(node_a)
-            for node_b in rem_nodes:
-                if node_b in self.data[node_a]:
-                    subgraph_.add_edge((node_a, node_b))
+            subgraph_.add_node(node_a)
+            for node_b in self.data[node_a]:
+                if node_b in nodes:
+                    subgraph_.add_node(node_b)
+                    if node_b not in subgraph_[node_a]:
+                        subgraph_[node_a].append(node_b)
+                        subgraph_[node_b].append(node_a)
         return subgraph_       
     
     def degree(self, node):
         return len(self.data[node])
     
     def adjacency_matrix(self):
-        matrix = [[0 for col in range(len(self.nodes()))] 
-                  for row in range(len(self.nodes()))]
-        i = 0
-        for node_a in self.nodes():
-            j = 0
-            for node_b in self.nodes():
-                if node_b in self.data[node_a]:
-                    if matrix[i][j] == 0:
-                        matrix[i][j] = 1
-                j += 1
-            i +=1
+        f = lambda x: 1 if x[1] in self.data[x[0]] else 0
+        matrix = [[f((node_a, node_b)) for node_b in self.nodes()] 
+                  for node_a in self.nodes()]
         return matrix
     
     def is_complete(self):
         n = len(self.nodes())
-        if len(self.edges()) != (n * (n - 1) / 2) :
+        if self.number_of_edges() != (n * (n - 1) / 2) :
             return False
         return True

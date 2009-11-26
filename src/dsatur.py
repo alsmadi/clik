@@ -19,8 +19,8 @@ class NodeDict(UserDict):
         for node in graph.nodes():
             #dizionario - data[node] = [grado nel grafo non colorato, grado di 
             #saturazione, colore]; i valori di default sono per ogni nodo
-            #rispettivamente: il grado nel grafo originale, 0, -1.
-            self.data[node] = [graph.degree(node), 0, -1]
+            #rispettivamente: il grado nel grafo originale, 0, None.
+            self.data[node] = [graph.degree(node), 0, None]
     
     """
     metodo che rimuove dal sottografo dei nodi non colorati il nodo che è stato
@@ -35,12 +35,10 @@ class NodeDict(UserDict):
     """        
     def update_degree_satur(self, node_sel):
         for node in self.graph[node_sel]:
-            colors_list = []
-            for adj_node in self.graph[node]:
-                col = self.data[adj_node][2]
-                if col != -1:
-                    if col not in colors_list:
-                        colors_list.append(col)
+            colors_list = [self.data[adj_node][2] for adj_node in self.graph[node]]
+            colors_list = list(frozenset(colors_list))
+            if None in colors_list:
+                colors_list.remove(None)
             self.data[node][1] = len(colors_list)
     
     """
@@ -49,9 +47,9 @@ class NodeDict(UserDict):
     colorato
     """
     def update_degree(self, node_sel):
-        self.data[node_sel][0] = -1   
+        self.data[node_sel][0] = None   
         for node in self.uncolored_graph.nodes():
-            self.data[node][0] = self.uncolored_graph.degree(node) 
+            self.data[node][0] = len(self.uncolored_graph[node]) 
     
     """
     metodo che trova il minor colore possibile da assegnare ad un nodo selezionato.
@@ -59,12 +57,10 @@ class NodeDict(UserDict):
     non usati
     """    
     def get_min_color_possible(self, node_sel):
-        colors_list = []
-        for node in self.graph[node_sel]:
-            col = self.data[node][2]
-            if col != -1:
-                if col not in colors_list:
-                    colors_list.append(col)
+        colors_list = [self.data[node][2] for node in self.graph[node_sel]]
+        colors_list = list(frozenset(colors_list))
+        if None in colors_list:
+            colors_list.remove(None)
         if len(colors_list) == 0:
             return 0
         colors_list.sort()
@@ -78,32 +74,27 @@ class NodeDict(UserDict):
     metodo che colora il nodo selezionato
     """
     def color(self, node):
-        min_color_possible = self.get_min_color_possible(node)
-        self.data[node][2] = min_color_possible
-        return min_color_possible
+        self.data[node][2] = self.get_min_color_possible(node)
+        return self.data[node][2]
     
     def get_sorted_nodes(self):
-        list = sorted(self.data.items(), key=lambda x: int(x[0]))
-        return list
+        return sorted(self.data.items(), key=lambda x: int(x[0]))
              
     def get_sorted_degree_satur(self):
-        list = sorted(self.data.items(), key=lambda x: x[1][1], reverse=True)
-        return list
+        return sorted(self.data.items(), key=lambda x: x[1][1], reverse=True)
     
     def get_sorted_degree(self):
-        list = sorted(self.data.items(), key=lambda x: x[1][0], reverse=True)
-        return list
+        return sorted(self.data.items(), key=lambda x: x[1][0], reverse=True)
     
     def get_sorted_color(self):
-        list = sorted(self.data.items(), key=lambda x: x[1][2], reverse=True)
-        return list
+        return sorted(self.data.items(), key=lambda x: x[1][2], reverse=True)
     
     """
     metodo che ritorna il nodo con il massimo grado nel sottografo dei nodi non
     colorati
     """
     def get_node_max_degree(self):
-        list = self.get_sorted_degree()
+        list = sorted(self.data.items(), key=lambda x: x[1][0], reverse=True)
         nodes = list[0]
         return nodes[0]
     
@@ -111,7 +102,7 @@ class NodeDict(UserDict):
     metodo che ritorna il nodo con il massimo grado di saturazione
     """
     def get_node_max_satur_degre(self):
-        list = self.get_sorted_degree_satur()
+        list = sorted(self.data.items(), key=lambda x: x[1][1], reverse=True)
         nodes = list[0]
         check_eq = self.check_eq_max_satur_degree(list)
         return nodes[0], check_eq
@@ -143,13 +134,14 @@ def dsatur_algorithm(graph):
     #inizializzazione
     nodes = NodeDict(graph)
     colors_list = []
+    append_to_color = colors_list.append
     #estriamo il nodo con grado maggiore
     node_sel = nodes.get_node_max_degree()
     #coloriamo il nodo e aggiorniamo 
     ncolor = nodes.color(node_sel)
     #color_list: lista in cui verrano memorizzati i colori con cui verranno 
     #colorati i nodi
-    colors_list.append(ncolor)
+    append_to_color(ncolor)
     iterations = len(nodes.uncolored_graph)
     #si itera su tutti i nodi rimasti da colorare
     for i in range(iterations):
@@ -158,8 +150,7 @@ def dsatur_algorithm(graph):
         if check_eq is False:
             #se vi è un solo nodo con grado di saturazione massimo
             ncolor = nodes.color(node_sel)
-            if ncolor not in colors_list:
-                colors_list.append(ncolor)
+            append_to_color(ncolor)
             nodes.update_degree_satur(node_sel)
             nodes.update_uncolored_graph(node_sel)
             nodes.update_degree(node_sel)
@@ -168,9 +159,8 @@ def dsatur_algorithm(graph):
             #nel sottografo di nodi non ancora colorati
             node_sel = nodes.get_node_max_degree()
             ncolor = nodes.color(node_sel)
-            if ncolor not in colors_list:
-                colors_list.append(ncolor)
+            append_to_color(ncolor)
             nodes.update_degree_satur(node_sel)
             nodes.update_uncolored_graph(node_sel)
             nodes.update_degree(node_sel)
-    return len(colors_list)
+    return len(frozenset(colors_list))

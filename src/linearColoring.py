@@ -9,7 +9,7 @@ class NodeDict(UserDict):
         for node in graph.nodes():
             #dizionario - data[node] =  [colore del nodo o -1 se il nodo non è 
             #stato ancora colorato]
-            self.data[node] = [-1]
+            self.data[node] = None
  
     """
     metodo che trova il minor colore possibile da assegnare ad un nodo selezionato.
@@ -17,12 +17,10 @@ class NodeDict(UserDict):
     non usati
     """    
     def get_min_color_possible(self, node_sel):
-        colors_list = []
-        for node in self.graph[node_sel]:
-            col = self.data[node]
-            if col != -1:
-                if col not in colors_list:
-                    colors_list.append(col)
+        colors_list = [self.data[node] for node in self.graph[node_sel]]
+        colors_list = list(frozenset(colors_list))
+        if None in colors_list:
+            colors_list.remove(None)
         if len(colors_list) == 0:
             return 0
         colors_list.sort()
@@ -36,9 +34,8 @@ class NodeDict(UserDict):
     metodo che colora il nodo selezionato
     """
     def color(self, node):
-        min_color_possible = self.get_min_color_possible(node)
-        self.data[node] = min_color_possible
-        return min_color_possible
+        self.data[node] = self.get_min_color_possible(node)
+        return self.data[node]
 
 """
 implementazione dell'algoritmo Linear Coloring.
@@ -48,9 +45,5 @@ colore possibile
 def linear_coloring_algorithm(graph):
     #inizializzazione
     nodes = NodeDict(graph)
-    colors_list = []
-    for node in graph.nodes():
-        ncolor = nodes.color(node)
-        if ncolor not in colors_list:
-            colors_list.append(ncolor)
-    return len(colors_list)
+    colors_list = [nodes.color(node) for node in graph.nodes()]
+    return len(list(frozenset(colors_list)))
