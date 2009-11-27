@@ -36,7 +36,8 @@ def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_functio
     graph_cur = Graph(graph.edges())
     upper_bound_opt = init
     while True:
-        upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
+        upper_bounds = [(node, upper_bound_function(graph_cur.subgraph(graph_cur.closed_neighborhood(node)))) 
+                        for node in graph_cur.nodes()]
         node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
         upper_bound_opt = max(upper_bound_opt, induced_upper_bound)
         ignore, max_upper_bound = max(upper_bounds, key=operator.itemgetter(1))
