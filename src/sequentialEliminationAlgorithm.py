@@ -9,6 +9,7 @@ from graphStructure import Graph
 import upperBoundAlgorithms as UBA
 import time
 import operator
+from usefulFunctions import get_upper_bounds
 
 """
 algoritmo di eliminazione sequenziale.
@@ -22,7 +23,8 @@ def sequential_elimination_algorithm(graph, upper_bound_function):
     k = 0
     while True:
         k += 1
-        upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
+        upper_bounds = [(node, upper_bound_function(graph_cur.subgraph(graph_cur.closed_neighborhood(node)))) 
+                        for node in graph_cur.nodes()]
         node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
         print "selected node: ", node
         upper_bound_opt = max(induced_upper_bound, upper_bound_opt)
@@ -46,7 +48,8 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
     data= []
     append_data = data.append
     while graph_cur.is_complete() is False: 
-        upper_bounds = get_upper_bounds(graph_cur, upper_bound_function)
+        upper_bounds = [(node, upper_bound_function(graph_cur.subgraph(graph_cur.closed_neighborhood(node)))) 
+                        for node in graph_cur.nodes()]
         node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
         print "selected node: ", node
         node_closed_neighborhood = graph_cur.closed_neighborhood(node)
@@ -58,28 +61,15 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
     print "# iterations: ", k
     start = time.time()
     upper_bound_opt = len(graph_cur)
+    upper_bound_function = UBA.upper_bound_from_sequential_elimination_algorithm
     for i in range(k):
         print "iteration: ", k - i
         if data[i][1] > upper_bound_opt:
-            upper_bound_tmp = UBA.upper_bound_from_sequential_elimination_algorithm(
-                                            data[i][2], 
+            upper_bound_tmp = upper_bound_function(data[i][2], 
                                             UBA.upper_bound_from_linear_coloring, 
                                             upper_bound_opt)
             upper_bound_opt = max(upper_bound_opt, upper_bound_tmp)
     print "end: elapsed time (second part) - ", time.time() - start
     return upper_bound_opt
         
-"""
-determina una lista di tuple (nodo, upperbound) con upperbound cacolato 
-dal grafo indotto dal closed neighborhood di nodo, mediante la funzione 
-passata come secondo parametro   
-"""
-def get_upper_bounds(graph, upper_bound_function):
-    upper_bounds = []
-    append = upper_bounds.append
-    for node in graph.nodes():
-        node_closed_neighborhood = graph.closed_neighborhood(node)
-        subgraph = graph.subgraph(node_closed_neighborhood)
-        upper_bound = upper_bound_function(subgraph)
-        append((node, upper_bound))
-    return upper_bounds    
+  
