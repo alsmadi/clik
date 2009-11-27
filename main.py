@@ -62,14 +62,14 @@ def main(args):
     print "file: ", filename
     print "graph: ", testname
     print "*****************************"
-    print "start first"
-    start = time.time()
-    upper_bound_opt = sequential_elimination_algorithm(graph, 
-                                UBA.upper_bound_from_number_of_nodes)
-    print "end: elapsed time - ", time.time() - start
-    print "upper bound optimum: ", upper_bound_opt
-    print "*****************************"
-    print "*****************************"
+    #print "start first"
+    #start = time.time()
+    #upper_bound_opt = sequential_elimination_algorithm(graph, 
+                                #UBA.upper_bound_from_number_of_nodes)
+    #print "end: elapsed time - ", time.time() - start
+    #print "upper bound optimum: ", upper_bound_opt
+    #print "*****************************"
+    #print "*****************************"
     print "start second"
     start = time.time()
     upper_bound_opt = sequential_elimination_algorithm_addendum(graph, 
