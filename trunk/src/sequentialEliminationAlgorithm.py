@@ -7,9 +7,9 @@ di funzioni contenute nei file: upperBoundAlgorithms.py e in usefulFunctions.py
 
 from graphStructure import Graph
 import upperBoundAlgorithms as UBA
+from networkx.operators import subgraph
 import time
 import operator
-from usefulFunctions import get_upper_bounds
 
 """
 algoritmo di eliminazione sequenziale.
@@ -19,18 +19,23 @@ i parametri sono:
 """
 def sequential_elimination_algorithm(graph, upper_bound_function):
     graph_cur = graph
+    get_subgraph = graph_cur.subgraph
+    get_neighborhood = graph_cur.closed_neighborhood
+    get_nodes = graph_cur.nodes
+    remove_node = graph_cur.remove_node
+    ub_function = upper_bound_function
     upper_bound_opt = 0
     k = 0
     while True:
         k += 1
-        upper_bounds = [(node, upper_bound_function(graph_cur.subgraph(graph_cur.closed_neighborhood(node)))) 
-                        for node in graph_cur.nodes()]
-        node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
-        print "selected node: ", node
+        upper_bounds = [(node, ub_function(get_subgraph(get_neighborhood(node)))) 
+                        for node in get_nodes()]
+        upper_bounds.sort(key=operator.itemgetter(1))
+        node, induced_upper_bound = upper_bounds[0]
         upper_bound_opt = max(induced_upper_bound, upper_bound_opt)
-        ignore, max_upper_bound = max(upper_bounds, key=operator.itemgetter(1))
+        ignore, max_upper_bound = upper_bounds[len(upper_bounds) - 1]
         if upper_bound_opt < max_upper_bound:
-            graph_cur.remove_node(node)
+            remove_node(node)
         else:
             print "# iterations: ", k
             return upper_bound_opt
@@ -41,35 +46,44 @@ i parametri sono:
 * il grafo da studiare
 * la funzione da usare per ricavare l'upperbound
 """
-def sequential_elimination_algorithm_addendum(graph, upper_bound_function):
+def sequential_elimination_algorithm_addendum(graph, upper_bound_function, init=0):
     start = time.time()
     graph_cur = graph
+    get_subgraph = graph_cur.subgraph
+    get_neighborhood = graph_cur.closed_neighborhood
+    get_nodes = graph_cur.nodes
+    remove_node = graph_cur.remove_node
+    get_ub_from_linear_coloring = UBA.upper_bound_from_linear_coloring
+    ub_function_1 = upper_bound_function
+    ub_function_2 = UBA.upper_bound_from_sequential_elimination_algorithm
     k = 0
     data= []
     append_data = data.append
-    while graph_cur.is_complete() is False: 
-        upper_bounds = [(node, upper_bound_function(graph_cur.subgraph(graph_cur.closed_neighborhood(node)))) 
-                        for node in graph_cur.nodes()]
-        node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
-        print "selected node: ", node
-        node_closed_neighborhood = graph_cur.closed_neighborhood(node)
-        append_data((node, induced_upper_bound, 
-                     graph_cur.subgraph(node_closed_neighborhood)))
-        graph_cur.remove_node(node)
+    min_graph = graph_cur
+    while min_graph.is_complete() is False: 
+        def get_upper_bounds(node):
+            subgraph = get_subgraph(get_neighborhood(node))
+            return node, ub_function_1(subgraph), subgraph
+        upper_bounds = [get_upper_bounds(node) for node in get_nodes()]
+        min_item = min(upper_bounds, key=operator.itemgetter(1))
+        append_data(min_item)
+        min_graph = min_item[2]
+        remove_node(node)
         k += 1  
     print "end: elapsed time (first part) - ", time.time() - start
     print "# iterations: ", k
     start = time.time()
-    upper_bound_opt = len(graph_cur)
-    upper_bound_function = UBA.upper_bound_from_sequential_elimination_algorithm
+    print len(min_graph)
+    upper_bound_opt = len(min_graph)
     for i in range(k):
-        print "iteration: ", k - i
         if data[i][1] > upper_bound_opt:
-            upper_bound_tmp = upper_bound_function(data[i][2], 
-                                            UBA.upper_bound_from_linear_coloring, 
-                                            upper_bound_opt)
+            upper_bound_tmp = ub_function_2(data[i][2], 
+                                    get_ub_from_linear_coloring, 
+                                    upper_bound_opt)
             upper_bound_opt = max(upper_bound_opt, upper_bound_tmp)
     print "end: elapsed time (second part) - ", time.time() - start
     return upper_bound_opt
         
-  
+#def get_upper_bounds(node, graph, function):
+#    subgraph = graph.subgraph(graph.closed_neighborhood(node))
+#    return node, function(subgraph), subgraph
