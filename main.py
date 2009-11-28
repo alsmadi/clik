@@ -44,9 +44,9 @@ def main(args):
 #    testname = "queen9(col)"
 #    testname = "keller4" # 171 nodes
 #    testname = "hamming6-2" # 64 nodes
-    testname = "MANN_a9" # 45 nodes
+#    testname = "MANN_a9" # 45 nodes
 #    testname = "sanr200_0.7" # 200 nodes
-#    testname = "hamming6-4" # 64 nodes
+    testname = "hamming6-4" # 64 nodes
 #    testname = "johnson16-2-4" # 120 nodes
 #    testname = "johnson8-4-4" # 70 nodes
 #    testname = "johnson8-2-4" # 28 nodes

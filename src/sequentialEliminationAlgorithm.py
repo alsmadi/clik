@@ -56,7 +56,6 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function, init=
     get_ub_from_linear_coloring = UBA.upper_bound_from_linear_coloring
     ub_function_1 = upper_bound_function
     ub_function_2 = UBA.upper_bound_from_sequential_elimination_algorithm
-    k = 0
     data= []
     append_data = data.append
     min_graph = graph_cur
@@ -69,21 +68,19 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function, init=
         append_data(min_item)
         min_graph = min_item[2]
         remove_node(node)
-        k += 1  
     print "end: elapsed time (first part) - ", time.time() - start
-    print "# iterations: ", k
     start = time.time()
-    print len(min_graph)
     upper_bound_opt = len(min_graph)
-    for i in range(k):
+    data = [item for item in data if item[1] > upper_bound_opt]
+    data.sort(key=operator.itemgetter(1), reverse=True)
+    print "# iterations: ", len(data)
+    for i in range(len(data)):
         if data[i][1] > upper_bound_opt:
             upper_bound_tmp = ub_function_2(data[i][2], 
                                     get_ub_from_linear_coloring, 
                                     upper_bound_opt)
             upper_bound_opt = max(upper_bound_opt, upper_bound_tmp)
+        else:
+            return upper_bound_opt
     print "end: elapsed time (second part) - ", time.time() - start
     return upper_bound_opt
-        
-#def get_upper_bounds(node, graph, function):
-#    subgraph = graph.subgraph(graph.closed_neighborhood(node))
-#    return node, function(subgraph), subgraph
