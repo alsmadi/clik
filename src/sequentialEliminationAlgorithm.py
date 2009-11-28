@@ -74,7 +74,7 @@ def sequential_elimination_algorithm_addendum(graph, upper_bound_function, init=
     data = [item for item in data if item[1] > upper_bound_opt]
     data.sort(key=operator.itemgetter(1), reverse=True)
     print "# iterations: ", len(data)
-    for i in range(len(data)):
+    for i in xrange(0, len(data)):
         if data[i][1] > upper_bound_opt:
             upper_bound_tmp = ub_function_2(data[i][2], 
                                     get_ub_from_linear_coloring, 

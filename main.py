@@ -46,8 +46,8 @@ def main(args):
 #    testname = "hamming6-2" # 64 nodes
 #    testname = "MANN_a9" # 45 nodes
 #    testname = "sanr200_0.7" # 200 nodes
-    testname = "hamming6-4" # 64 nodes
-#    testname = "johnson16-2-4" # 120 nodes
+#    testname = "hamming6-4" # 64 nodes
+    testname = "johnson16-2-4" # 120 nodes
 #    testname = "johnson8-4-4" # 70 nodes
 #    testname = "johnson8-2-4" # 28 nodes
 #    testname = "brock200_1" # 200 nodes
@@ -79,7 +79,7 @@ def main(args):
 #    print "upper bound optimum (addendum): ", upper_bound_opt_2
 #    print "*****************************"
 #    print "*****************************"
-#    print "start third"
+    print "start third"
 #    graph = get_graph(filename)
     start = time.time()
     upper_bound_opt_3 = sequential_elimination_algorithm_addendum(graph, 

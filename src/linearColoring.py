@@ -6,7 +6,8 @@ class NodeDict(UserDict):
     def __init__(self, graph):
         UserDict.__init__(self)
         self.graph = graph
-        for node in graph.nodes():
+        get_nodes = graph.nodes
+        for node in get_nodes():
             #dizionario - data[node] =  [colore del nodo o -1 se il nodo non è 
             #stato ancora colorato]
             self.data[node] = None
@@ -23,7 +24,7 @@ class NodeDict(UserDict):
             return 0
         colors_list.sort()
         maxcolor = colors_list[len(colors_list) - 1]
-        for i in range(len(colors_list)):
+        for i in xrange(0, len(colors_list)):
             if i != colors_list[i]:
                 return i
         return maxcolor + 1
@@ -43,5 +44,7 @@ colore possibile
 def linear_coloring_algorithm(graph):
     #inizializzazione
     nodes = NodeDict(graph)
-    colors_list = [nodes.color(node) for node in graph.nodes()]
+    get_nodes = graph.nodes
+    color = nodes.color
+    colors_list = [color(node) for node in get_nodes()]
     return len(list(frozenset(colors_list)))
