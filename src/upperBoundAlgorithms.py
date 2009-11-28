@@ -10,6 +10,7 @@ from linearColoring import linear_coloring_algorithm
 from numpy import linalg
 from graphStructure import Graph
 from usefulFunctions import get_upper_bounds
+from copy import deepcopy
 
 """
 upperbound = numeri di nodi del grafo passato come parametro
@@ -33,16 +34,21 @@ NB: la funzione di default per calcolare l'upper bound è
 upper_bound_from_number_of_nodes
 """
 def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_function, init=0):
-    graph_cur = Graph(graph.edges())
+    get_subgraph = graph.subgraph
+    get_neighborhood = graph.closed_neighborhood
+    get_nodes = graph.nodes
+    remove_node = graph.remove_node
+    ub_function = upper_bound_function
     upper_bound_opt = init
     while True:
-        upper_bounds = [(node, upper_bound_function(graph_cur.subgraph(graph_cur.closed_neighborhood(node)))) 
-                        for node in graph_cur.nodes()]
-        node, induced_upper_bound = min(upper_bounds, key=operator.itemgetter(1))
+        upper_bounds = [(node, ub_function(get_subgraph(get_neighborhood(node)))) 
+                        for node in get_nodes()]
+        upper_bounds.sort(key=operator.itemgetter(1))
+        node, induced_upper_bound = upper_bounds[0]
         upper_bound_opt = max(upper_bound_opt, induced_upper_bound)
-        ignore, max_upper_bound = max(upper_bounds, key=operator.itemgetter(1))
+        ignore, max_upper_bound = upper_bounds[len(upper_bounds) - 1]
         if upper_bound_opt < max_upper_bound:
-            graph_cur.remove_node(node)
+            remove_node(node)
         else:
             return upper_bound_opt
 """
