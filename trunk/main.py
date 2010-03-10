@@ -6,7 +6,7 @@ questo file contiene il main; ho aggiunto qualche funzione per misurare
 il tempo di esecuzione.
 il primo algoritmo è quello originale.
 le definizioni degli algoritmi si trovano nel file sequentialEliminationAlgorithm.py
-NB: probabilmente all'inizio dell'esecuzione vedrà alcuni warning; rigyardano 
+NB: probabilmente all'inizio dell'esecuzione vedrà alcuni warning; riguardano 
 una libreria usata non l'applicazione.
 """
 
@@ -29,6 +29,7 @@ def get_graph(filename):
     edges = [get_edge(line.split()) for line in file 
              if line.find('e', 0, 1) >= 0]
     graph = Graph(edges)
+    print len(graph)
     return graph
 
 """
@@ -47,7 +48,8 @@ def main(args):
 #    testname = "MANN_a9" # 45 nodes
 #    testname = "sanr200_0.7" # 200 nodes
 #    testname = "hamming6-4" # 64 nodes
-    testname = "johnson16-2-4" # 120 nodes
+#    testname = "johnson16-2-4" # 120 nodes
+    testname = "vediamo"
 #    testname = "johnson8-4-4" # 70 nodes
 #    testname = "johnson8-2-4" # 28 nodes
 #    testname = "brock200_1" # 200 nodes

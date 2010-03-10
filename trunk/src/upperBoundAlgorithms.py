@@ -26,7 +26,8 @@ def upper_bound_from_largest_closed_neighborhood(graph):
     size_neighborhood_list = []
     for node in graph.nodes():
         size_neighborhood_list.append(len(graph[node]) + 1)
-    return max(size_neighborhood_list)
+    size_neighborhood_list.sort()
+    return size_neighborhood_list[1]
 
 """
 upperbound = valore ricavato dall'algoritmo di eliminazione sequanziale
