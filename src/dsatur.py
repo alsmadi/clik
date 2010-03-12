@@ -37,7 +37,8 @@ class NodeDict(UserDict):
     """        
     def update_degree_satur(self, node_sel):
         for node in self.graph[node_sel]:
-            colors_list = [self.data[adj_node][2] for adj_node in self.graph[node] if self.data[adj_node][2] != None]
+            colors_list = [self.data[adj_node][2] for adj_node in self.graph[node] 
+                           if self.data[adj_node][2] != None]
             colors_list = list(frozenset(colors_list))
             self.data[node][1] = len(colors_list)
     
@@ -132,7 +133,7 @@ def dsatur_algorithm(graph):
     append_color(ncolor)
     iterations = len(nodes.uncolored_graph)
     #si itera su tutti i nodi rimasti da colorare
-    for i in range(iterations):
+    for i in xrange(iterations):
         #si trova il nodo di grado di saturazione minore
         node_sel, check_eq = nodes.get_node_max_satur_degre()
         if check_eq is False:

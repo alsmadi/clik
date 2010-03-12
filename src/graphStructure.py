@@ -29,17 +29,18 @@ class Graph(UserDict):
         return i/2
     
     def add_node(self, node):
-        if node not in self.nodes(): 
-            self.data[node] = []
+        self.data[node] = []
         
     def add_edge(self, edge):
-        if len(edge) != 2:
-            return
+        #---------------------------------------------------- if len(edge) != 2:
+            #------------------------------------------------------------ return
         node_a = edge[0]
         node_b = edge[1]
-        self.add_node(node_a)
-        self.add_node(node_b)
-        if node_b not in self.data[node_a]:
+        if not node_a in self.nodes():
+            self.data[node_a] = []
+        if not node_b in self.nodes():
+            self.data[node_b] = []
+        if not node_b in self.data[node_a]:
             self.data[node_a].append(node_b)
             self.data[node_b].append(node_a)
     
@@ -47,15 +48,17 @@ class Graph(UserDict):
         for node in nodes:
             self.data[node] = []
           
-    def add_edges(self, edges):
-        for edge in edges:
-            if len(edge) != 2:
-                return
-            node_a = edge[0]
-            node_b = edge[1]
-            self.add_node(node_a)
-            self.add_node(node_b)
-            if node_b not in self.data[node_a]:
+    def add_edges(self, edges_list):
+        for edges in edges_list:
+            #----------------------------------------------- if len(edges) != 2:
+                #-------------------------------------------------------- return
+            node_a = edges[0]
+            node_b = edges[1]
+            if not node_a in self.nodes():
+                self.data[node_a] = []
+            if not node_b in self.nodes():
+                self.data[node_b] = []
+            if not node_b in self.data[node_a]:
                 self.data[node_a].append(node_b)
                 self.data[node_b].append(node_a)
     
@@ -64,9 +67,13 @@ class Graph(UserDict):
             self.data[adjacent_node].remove(node)
         del self.data[node]
     
+    def remove_nodes(self, nodes):
+        for node in nodes:
+            self.remove_node(node)
+            
     def remove_edge(self, edge):
-        if len(edge) != 2:
-            return
+        #---------------------------------------------------- if len(edge) != 2:
+            #------------------------------------------------------------ return
         node_a = edge[0]
         node_b = edge[1]
         if node_a not in self.nodes() or node_b not in self.nodes():
@@ -74,7 +81,7 @@ class Graph(UserDict):
         if node_b in self.data[node_a]:
             self.data[node_a].remove(node_b)
             self.data[node_b].remove(node_a)
-           
+
     def closed_neighborhood(self, node):
         try:
             neighborhood = deepcopy(self.data[node])
@@ -84,10 +91,13 @@ class Graph(UserDict):
             print "Error: Node not present!"
     
     def subgraph(self, nodes_list):
-        subgraph_ = deepcopy(self)
-        for node in [node_rem for node_rem in subgraph_.nodes() if node_rem not in nodes_list]:
-            subgraph_.remove_node(node)
-        return subgraph_       
+        #-------------------------------------------- subgraph_ = deepcopy(self)
+        # for node in [node_rem for node_rem in subgraph_.nodes() if node_rem not in nodes_list]:
+            #--------------------------------------- subgraph_.remove_node(node)
+        #------------------------------------------------------ return subgraph_
+        edges = [(node_1, node_2) for node_1 in nodes_list 
+                 for node_2 in nodes_list if node_2 in self.data[node_1]]
+        return Graph(edges)
     
     def degree(self, node):
         return len(self.data[node])

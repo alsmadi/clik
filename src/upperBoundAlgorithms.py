@@ -8,9 +8,6 @@ import operator
 from dsatur import dsatur_algorithm
 from linearColoring import linear_coloring_algorithm
 from numpy import linalg
-from graphStructure import Graph
-from usefulFunctions import get_upper_bounds
-from copy import deepcopy
 
 """
 upperbound = numeri di nodi del grafo passato come parametro
@@ -20,14 +17,22 @@ def upper_bound_from_number_of_nodes(graph):
 
 """
 upperbound = massimo numero dei nodi che compongono il closed 
-neighborhood di ogni nodo del grafo passato come parametro
+neighborhood di ogni nodo del grafo (= parametro)
 """
 def upper_bound_from_largest_closed_neighborhood(graph):
-    size_neighborhood_list = []
-    for node in graph.nodes():
-        size_neighborhood_list.append(len(graph[node]) + 1)
-    size_neighborhood_list.sort()
+    size_neighborhood_list = [(len(graph[node]) + 1) for node in graph.nodes()]
+    size_neighborhood_list.sort(reverse=True)
     return size_neighborhood_list[1]
+
+"""
+upperbound = 
+"""
+def upper_bound_from_cardinality(graph):
+    size_neighborhood_list = [(len(graph[node]) + 1) for node in graph.nodes()]
+    size_neighborhood_list.sort(reverse=True)
+    for i in xrange(len(size_neighborhood_list)):
+        if size_neighborhood_list[i] <= i:
+            return min(i - 1, size_neighborhood_list[i-1])
 
 """
 upperbound = valore ricavato dall'algoritmo di eliminazione sequanziale
@@ -41,17 +46,18 @@ def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_functio
     remove_node = graph.remove_node
     ub_function = upper_bound_function
     upper_bound_opt = init
-    while True:
+    max_upper_bound = init + 1
+    while upper_bound_opt < max_upper_bound:
         upper_bounds = [(node, ub_function(get_subgraph(get_neighborhood(node)))) 
                         for node in get_nodes()]
         upper_bounds.sort(key=operator.itemgetter(1))
         node, induced_upper_bound = upper_bounds[0]
         upper_bound_opt = max(upper_bound_opt, induced_upper_bound)
         ignore, max_upper_bound = upper_bounds[len(upper_bounds) - 1]
-        if upper_bound_opt < max_upper_bound:
-            remove_node(node)
-        else:
-            return upper_bound_opt
+        #--------------------------------- if upper_bound_opt < max_upper_bound:
+        remove_node(node)
+        #----------------------------------------------------------------- else:
+    return upper_bound_opt
 """
 upperbound = numero di colori ricavato dall'algoritmo DSATUR
 """
