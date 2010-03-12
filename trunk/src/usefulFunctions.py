@@ -1,6 +1,4 @@
- # -*- coding: utf-8 -*-
-
-import operator
+# -*- coding: utf-8 -*-
 
 """
 determina una lista di tuple (nodo, upperbound) con upperbound cacolato 
