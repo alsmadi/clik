@@ -2,32 +2,36 @@
 
 from UserDict import UserDict
 
+def unique(seq):
+    keys = {}
+    for e in seq:
+        if not e is None: 
+            keys[e] = 1
+    return keys.keys()
+
 class NodeDict(UserDict):
     def __init__(self, graph):
         UserDict.__init__(self)
         self.graph = graph
-        get_nodes = graph.nodes
-        for node in get_nodes():
-            #dizionario - data[node] =  [colore del nodo o -1 se il nodo non è 
+        for node in graph.nodes():
+            #dizionario - data[node] =  [colore del nodo o None se il nodo non è 
             #stato ancora colorato]
             self.data[node] = None
  
     """
     metodo che trova il minor colore possibile da assegnare ad un nodo selezionato.
-    itera sui nodi adiacenti e ritorna il primo colore diposnibile tra quelli 
+    itera sui nodi adiacenti e ritorna il primo colore disponibile tra quelli 
     non usati
     """    
     def get_min_color_possible(self, node_sel):
-        colors_list = [self.data[node] for node in self.graph[node_sel] if self.data[node] != None]
-        colors_list = list(frozenset(colors_list))
-        if len(colors_list) == 0:
+        adj_colors = unique([self.data[node] for node in self.graph[node_sel]])
+        if len(adj_colors) == 0:
             return 0
-        colors_list.sort()
-        maxcolor = colors_list[len(colors_list) - 1]
-        for i in xrange(0, len(colors_list)):
-            if i != colors_list[i]:
+        adj_colors.sort()
+        for i in xrange(len(adj_colors)):
+            if i != adj_colors[i]:
                 return i
-        return maxcolor + 1
+        return  i + 1
   
     """
     metodo che colora il nodo selezionato
@@ -43,8 +47,7 @@ colore possibile
 """        
 def linear_coloring_algorithm(graph):
     #inizializzazione
-    nodes = NodeDict(graph)
-    get_nodes = graph.nodes
-    color = nodes.color
-    colors_list = [color(node) for node in get_nodes()]
-    return len(list(frozenset(colors_list)))
+    clr_nodes = NodeDict(graph)
+    nodes = clr_nodes.graph.nodes()
+    color = clr_nodes.color
+    return len(unique([color(node) for node in nodes]))

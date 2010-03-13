@@ -16,94 +16,75 @@ class Graph(UserDict):
         return graph
     
     def edges(self):
-        comp = lambda x: (x[0], x[1]) if int(x[0]) < int(x[1]) else (x[1], x[0])
+        def comp(x):
+            if int(x[0]) < int(x[1]):
+                return (x[0], x[1])
+            else:
+                return (x[1], x[0]) 
         edges = [comp((node_a, node_b)) for node_a in self.nodes() 
-                      for node_b in self.data[node_a]] 
-        edges = list(frozenset(edges))
+                 for node_b in self.data[node_a]] 
+        edges = list(set(edges))
         return edges
     
     def number_of_edges(self):
-        i = 0
-        for node in self.nodes():
-            i += len(self.data[node])
+        i = sum([len(self.data[node]) for node in self.nodes()])
         return i/2
     
     def add_node(self, node):
-        self.data[node] = []
+        self.data.setdefault(node, [])
         
     def add_edge(self, edge):
-        #---------------------------------------------------- if len(edge) != 2:
-            #------------------------------------------------------------ return
-        node_a = edge[0]
-        node_b = edge[1]
-        if not node_a in self.nodes():
-            self.data[node_a] = []
-        if not node_b in self.nodes():
-            self.data[node_b] = []
-        if not node_b in self.data[node_a]:
-            self.data[node_a].append(node_b)
-            self.data[node_b].append(node_a)
-    
+        self.data.setdefault(edge[0],[])
+        self.data.setdefault(edge[1],[])
+        if not edge[1] in self.data[edge[0]]:
+            self.data[edge[0]].append(edge[1])
+            self.data[edge[1]].append(edge[0])
+
     def add_nodes(self, nodes):
-        for node in nodes:
-            self.data[node] = []
+        map(self.add_node, nodes)
           
     def add_edges(self, edges_list):
-        for edges in edges_list:
-            #----------------------------------------------- if len(edges) != 2:
-                #-------------------------------------------------------- return
-            node_a = edges[0]
-            node_b = edges[1]
-            if not node_a in self.nodes():
-                self.data[node_a] = []
-            if not node_b in self.nodes():
-                self.data[node_b] = []
-            if not node_b in self.data[node_a]:
-                self.data[node_a].append(node_b)
-                self.data[node_b].append(node_a)
+        [self.add_edge(edge) for edge in edges_list]
     
     def remove_node(self, node):
-        for adjacent_node in self.data[node]:
-            self.data[adjacent_node].remove(node)
+        [self.data[adj_node].remove(node) for adj_node in self.data[node]]
         del self.data[node]
     
     def remove_nodes(self, nodes):
-        for node in nodes:
-            self.remove_node(node)
+        map(self.remove_node, nodes)
             
     def remove_edge(self, edge):
-        #---------------------------------------------------- if len(edge) != 2:
-            #------------------------------------------------------------ return
-        node_a = edge[0]
-        node_b = edge[1]
-        if node_a not in self.nodes() or node_b not in self.nodes():
-            return
-        if node_b in self.data[node_a]:
-            self.data[node_a].remove(node_b)
-            self.data[node_b].remove(node_a)
+        try:
+            self.data[edge[0]].remove(edge[1])
+            self.data[edge[1]].remove(edge[0])
+        except:
+            print "Errore nella rimozione di un arco!"
 
     def closed_neighborhood(self, node):
         try:
-            neighborhood = deepcopy(self.data[node])
+            neighborhood = list(self.data[node])
             neighborhood.append(node)
             return neighborhood
         except:
             print "Error: Node not present!"
     
     def subgraph(self, nodes_list):
-        #-------------------------------------------- subgraph_ = deepcopy(self)
-        # for node in [node_rem for node_rem in subgraph_.nodes() if node_rem not in nodes_list]:
-            #--------------------------------------- subgraph_.remove_node(node)
-        #------------------------------------------------------ return subgraph_
-        edges = [(node_1, node_2) for node_1 in nodes_list 
-                 for node_2 in nodes_list if node_2 in self.data[node_1]]
-        return Graph(edges)
+        subgraph = Graph()
+        for key in nodes_list:
+            subgraph.data[key] = [n for n in self.data[key] if n in nodes_list]
+#        [subgraph.data.setdefault(key, [n for n in self.data[key] if n in nodes_list]) 
+#                                        for key in nodes_list]
+        return subgraph
     
     def degree(self, node):
         return len(self.data[node])
     
     def adjacency_matrix(self):
-        f = lambda x: 1 if x[1] in self.data[x[0]] else 0
+        def f(x):
+            if x[1] in self.data[x[0]]:
+                return 1
+            else:
+                return 0
         matrix = [[f((node_a, node_b)) for node_b in self.nodes()] 
                   for node_a in self.nodes()]
         return matrix
@@ -112,4 +93,5 @@ class Graph(UserDict):
         n = len(self.nodes())
         if self.number_of_edges() != (n * (n - 1) / 2) :
             return False
-        return True
+        else:
+            return True

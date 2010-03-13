@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import operator
-#---------------------------------------------- from graphStructure import Graph
-
+"""
+algoritmo greedy per determinare il lower bound del problema della massima
+clique
+"""
 def lower_bound_from_MIN(graph):
     graph_cur = graph
     node_max_list = []
