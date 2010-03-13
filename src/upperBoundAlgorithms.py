@@ -54,9 +54,7 @@ def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_functio
         node, induced_upper_bound = upper_bounds[0]
         upper_bound_opt = max(upper_bound_opt, induced_upper_bound)
         ignore, max_upper_bound = upper_bounds[len(upper_bounds) - 1]
-        #--------------------------------- if upper_bound_opt < max_upper_bound:
         remove_node(node)
-        #----------------------------------------------------------------- else:
     return upper_bound_opt
 """
 upperbound = numero di colori ricavato dall'algoritmo DSATUR
