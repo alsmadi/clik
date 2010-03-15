@@ -13,10 +13,11 @@ class NodeDict(UserDict):
     def __init__(self, graph):
         UserDict.__init__(self)
         self.graph = graph
-        for node in graph.nodes():
+        nodes = graph.nodes()
+        for node in nodes:
             #dizionario - data[node] =  [colore del nodo o None se il nodo non è 
             #stato ancora colorato]
-            self.data[node] = None
+            self.data[node] = None 
  
     """
     metodo che trova il minor colore possibile da assegnare ad un nodo selezionato.

@@ -12,6 +12,7 @@ una libreria usata non l'applicazione.
 
 import sys
 import os
+import psyco
 from src.graphStructure import Graph
 from src.sequentialEliminationAlgorithm import \
                                         sequential_elimination_algorithm_1, \
@@ -21,14 +22,16 @@ import src.upperBoundAlgorithms as UBA
 """
 funzione per leggere il grafo dal file su disco
 """
-def get_graph(filename):
-    file = open(filename, 'r')
-    def get_edge(list):
-        return list[1], list[2]
-    edges = [get_edge(line.split()) for line in file 
-             if line.find('e', 0, 1) >= 0]
-    graph = Graph(edges)
-    return graph
+def get_edges_from_file(filename):
+    try:
+        file = open(filename, 'r')
+        def get_edge(list):
+            return list[1], list[2]
+        edges = [get_edge(line.split()) for line in file 
+                 if line.find('e', 0, 1) >= 0]
+        return edges
+    except:
+        print "Errorre nel aprire il file!"
 
 """
 main
@@ -47,8 +50,9 @@ def main(args):
 #    testname = "sanr200_0_7" # 200 nodes
 #    testname = "hamming6-4" # 64 nodes
 #    testname = "johnson16-2-4" # 120 nodes
-    testname = "johnson8-4-4" # 70 nodes
+#    testname = "johnson8-4-4" # 70 nodes
 #    testname = "johnson8-2-4" # 28 nodes
+    testname = "Inprova2_3"
 #    testname = "brock200_1" # 200 nodes
 #    testname = "brock400_4" # 400 nodes
 #    testname = "brock800_2" # 800 nodes
@@ -68,8 +72,10 @@ def main(args):
 #    sequential_elimination_algorithm_1(graph, UBA.upper_bound_from_linear_coloring)
     print "*****************************"
     print "start second"
-    graph = get_graph(filename)
-    sequential_elimination_algorithm_2(graph, UBA.upper_bound_from_number_of_nodes)
+ #   psyco.full()
+    upper_bound_fun = UBA.upper_bound_from_number_of_nodes
+    graph = Graph(get_edges_from_file(filename))
+    sequential_elimination_algorithm_2(graph, upper_bound_fun)
 
 if __name__ == "__main__":
     main(sys.argv)

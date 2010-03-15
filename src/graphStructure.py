@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from UserDict import UserDict
-from copy import deepcopy
+#from copy import deepcopy
 
 class Graph(UserDict):
     def __init__(self, edges=None):
         UserDict.__init__(self)
         self.nodes = self.keys
-        if edges != None:
-            self.add_edges(edges)
-    
-    def __deepcopy__(self, memo):
-        graph = Graph()
-        graph.data = deepcopy(self.data, memo)
-        return graph
+        dict_set = self.data.setdefault
+        if not edges is None:
+            for edge in edges:
+                dict_set(edge[0],[])
+                dict_set(edge[1],[])
+                if not edge[1] in self.data[edge[0]]:
+                    self.data[edge[0]].append(edge[1])
+                    self.data[edge[1]].append(edge[0])
     
     def edges(self):
         def comp(x):
@@ -21,37 +22,54 @@ class Graph(UserDict):
                 return (x[0], x[1])
             else:
                 return (x[1], x[0]) 
-        edges = [comp((node_a, node_b)) for node_a in self.nodes() 
+        nodes = self.nodes()
+        edges = [comp((node_a, node_b)) for node_a in nodes 
                  for node_b in self.data[node_a]] 
         edges = list(set(edges))
         return edges
     
     def number_of_edges(self):
-        i = sum([len(self.data[node]) for node in self.nodes()])
+        nodes = self.nodes()
+        i = sum([len(self.data[node]) for node in nodes])
         return i/2
     
     def add_node(self, node):
         self.data.setdefault(node, [])
         
     def add_edge(self, edge):
-        self.data.setdefault(edge[0],[])
-        self.data.setdefault(edge[1],[])
+        dict_set = self.data.setdefault
+        dict_set(edge[0],[])
+        dict_set(edge[1],[])
         if not edge[1] in self.data[edge[0]]:
             self.data[edge[0]].append(edge[1])
             self.data[edge[1]].append(edge[0])
 
     def add_nodes(self, nodes):
-        map(self.add_node, nodes)
+        dict_set = self.data.setdefault
+        [dict_set(node, []) for node in nodes]
           
-    def add_edges(self, edges_list):
-        [self.add_edge(edge) for edge in edges_list]
+    def add_edges(self, edges):
+        dict_set = self.data.setdefault
+        for edge in edges:
+            dict_set(edge[0],[])
+            dict_set(edge[1],[])
+            if not edge[1] in self.data[edge[0]]:
+                self.data[edge[0]].append(edge[1])
+                self.data[edge[1]].append(edge[0])
     
     def remove_node(self, node):
-        [self.data[adj_node].remove(node) for adj_node in self.data[node]]
+        adj_list = self.data[node]
+        for adj_node in adj_list:
+            self.data[adj_node].remove(node)
+#        [self.data[adj_node].remove(node) for adj_node in list]
         del self.data[node]
     
     def remove_nodes(self, nodes):
-        map(self.remove_node, nodes)
+        for node in nodes:
+            adj_list = self.data[node]
+            for adj_node in adj_list:
+                self.data[adj_node].remove(node)
+            del self.data[node] 
             
     def remove_edge(self, edge):
         try:
@@ -66,14 +84,14 @@ class Graph(UserDict):
             neighborhood.append(node)
             return neighborhood
         except:
-            print "Error: Node not present!"
+            print "Errore: nodo non presente!"
     
-    def subgraph(self, nodes_list):
-        subgraph = Graph()
-        for key in nodes_list:
-            subgraph.data[key] = [n for n in self.data[key] if n in nodes_list]
-#        [subgraph.data.setdefault(key, [n for n in self.data[key] if n in nodes_list]) 
-#                                        for key in nodes_list]
+    def subgraph(self, nodes):
+        subgraph = self.__class__()
+        nodes = set(nodes)
+        adj_list = self.data
+        for node in nodes:
+            subgraph.data[node] = [n for n in adj_list[node] if n in nodes]
         return subgraph
     
     def degree(self, node):
@@ -85,8 +103,9 @@ class Graph(UserDict):
                 return 1
             else:
                 return 0
-        matrix = [[f((node_a, node_b)) for node_b in self.nodes()] 
-                  for node_a in self.nodes()]
+        nodes = self.nodes()
+        matrix = [[f((node_a, node_b)) for node_b in nodes] 
+                  for node_a in nodes]
         return matrix
     
     def is_complete(self):
