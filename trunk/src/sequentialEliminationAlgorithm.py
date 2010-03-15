@@ -56,8 +56,7 @@ def sequential_elimination_algorithm_2(graph, upper_bound_function, init=0):
     remove_node = graph_cur.remove_node
     get_ub_from = UBA.upper_bound_from_linear_coloring
     ub_function_1 = upper_bound_function
-#    ub_function_2 = UBA.upper_bound_from_sequential_elimination_algorithm
-    ub_function_2 = UBA.upper_bound_from_linear_coloring
+    ub_function_2 = UBA.upper_bound_from_sequential_elimination_algorithm
     data= []
     append_data = data.append
     min_graph = graph_cur
@@ -79,9 +78,8 @@ def sequential_elimination_algorithm_2(graph, upper_bound_function, init=0):
         data.sort(key=operator.itemgetter(1), reverse=True)
         for d in data:
             if d[1] > upper_bound_opt:
-#                upper_bound_opt = max(ub_function_2(d[2], get_ub_from, upper_bound_opt), 
-#                                      upper_bound_opt)
-                upper_bound_opt = max(ub_function_2(d[2]), upper_bound_opt)
+                upper_bound_opt = max(ub_function_2(d[2], get_ub_from, upper_bound_opt), 
+                                      upper_bound_opt)
             else:
                 break
     print "elapsed time - ", time.time() - start
