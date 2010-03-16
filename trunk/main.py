@@ -18,6 +18,7 @@ from src.sequentialEliminationAlgorithm import \
                                         sequential_elimination_algorithm_1, \
                                         sequential_elimination_algorithm_2
 import src.upperBoundAlgorithms as UBA
+import logging
 
 """
 funzione per leggere il grafo dal file su disco
@@ -51,7 +52,7 @@ def main(args):
 #    testname = "sanr200_0_7" # 200 nodes
 #    testname = "hamming6-4" # 64 nodes
 #    testname = "johnson16-2-4" # 120 nodes
-    testname = "johnson8-4-4" # 70 nodes
+#    testname = "johnson8-4-4" # 70 nodes
 #    testname = "johnson8-2-4" # 28 nodes
 #    testname = "Inprova2_3"
 #    testname = "brock200_1" # 200 nodes
@@ -61,18 +62,27 @@ def main(args):
 #    filename1 = cwd + "/benchmarks/" + "sanr200_0.7" + ext
 #    filename2 = cwd + "/benchmarks/" + "brock200_1" + ext
 #    filenames = [filename1, filename2]
-#    for filename in filenames:
-    filename = cwd + "/benchmarks/" + testname + ext
-    graph = Graph(get_edges_from_file(filename))
+#    filename = cwd + "/benchmarks/" + testname + ext
+    LOG_FILENAME = './result.log'
+    logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
     print "*****************************"
-    print "graph:", testname, ",nodes:", len(graph), ",edges:", graph.number_of_edges()
-    upper_bound_fun = UBA.upper_bound_from_linear_coloring
-    sequential_elimination_algorithm_1(graph, upper_bound_fun)
-    print "--"
-    graph = Graph(get_edges_from_file(filename))
-    upper_bound_fun = UBA.upper_bound_from_number_of_nodes
-    sequential_elimination_algorithm_2(graph, upper_bound_fun)
-    print "*****************************"
+    for ignore, ignore, files in os.walk("./test/"):
+        for file in files:
+            filename = "./test/" + file
+            graph = Graph(get_edges_from_file(filename))
+            text = ''.join(["graph: ", file, ", nodes: ", str(len(graph)), ", edges: ", 
+                            str(graph.number_of_edges())])
+            logging.info(text)
+            print text
+#            upper_bound_fun = UBA.upper_bound_from_linear_coloring
+#            sequential_elimination_algorithm_1(graph, upper_bound_fun)
+#            print "--"
+#            graph = Graph(get_edges_from_file(filename))
+            upper_bound_fun_1 = UBA.upper_bound_from_cardinality
+            upper_bound_fun_2 = UBA.upper_bound_from_cardinality
+            sequential_elimination_algorithm_2(graph, upper_bound_fun_1, upper_bound_fun_2)
+            logging.info('---')
+            print "----"
 
 if __name__ == "__main__":
     main(sys.argv)

@@ -9,6 +9,7 @@ import upperBoundAlgorithms as UBA
 import time
 import operator
 from src.lowerBoundAlgorithms import lower_bound_from_MIN
+import logging
 
 """
 algoritmo di eliminazione sequenziale.
@@ -45,21 +46,20 @@ i parametri sono:
 * il grafo da studiare
 * la funzione da usare per ricavare l'upperbound
 """
-def sequential_elimination_algorithm_2(graph, upper_bound_function, init=0):
+def sequential_elimination_algorithm_2(graph, ub_function_1, ub_function_2, init=0):
     start = time.time()
     lower_bound = lower_bound_from_MIN(graph)
     graph_cur = graph
     get_subgraph = graph_cur.subgraph
     get_neighborhood = graph_cur.closed_neighborhood
+    get_nodes = graph_cur.nodes
     remove_node = graph_cur.remove_node
-    ub_function_1 = upper_bound_function
-    ub_function_2 = UBA.upper_bound_from_sequential_elimination_algorithm
-    ub_function_3 = UBA.upper_bound_from_linear_coloring
+    ub_function_3 = UBA.upper_bound_from_sequential_elimination_algorithm
     data = []
     append_data = data.append
     min_graph = graph_cur
     while len(min_graph) >= lower_bound: 
-        nodes = graph_cur.nodes()
+        nodes = get_nodes()
         upper_bounds = []
         for node in nodes:
             subgraph = get_subgraph(get_neighborhood(node))
@@ -78,11 +78,14 @@ def sequential_elimination_algorithm_2(graph, upper_bound_function, init=0):
         data.sort(key=operator.itemgetter(1), reverse=True)
         for d in data:
             if d[1] > upper_bound_opt:
-                upper_bound_opt = max(ub_function_2(d[2], ub_function_3, upper_bound_opt), 
+                upper_bound_opt = max(ub_function_3(d[2], ub_function_2, upper_bound_opt), 
                                       upper_bound_opt)
                 iter_2 += 1
             else:
                 break
     t_2 =  time.time() - start
     t_tot = t_1 + t_2
-    print "opt_2:", upper_bound_opt, "|", t_tot, "|", t_1, "|", t_2, "|", iter_1, "|", iter_2
+    text = ''.join(["opt_2: ", str(upper_bound_opt), " | ", str(t_tot), " | ", 
+                    str(t_1), " | ", str(t_2), " | ", str(iter_1), " | ", str(iter_2)])
+    logging.info(text)
+    print text
