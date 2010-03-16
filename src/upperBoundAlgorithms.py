@@ -31,33 +31,36 @@ def upper_bound_from_cardinality(graph):
     nodes = graph.nodes()
     size_neighborhood_list = [(len(graph[node]) + 1) for node in nodes]
     size_neighborhood_list.sort(reverse=True)
-    length = len(size_neighborhood_list)
-    for i in xrange(length):
-        if size_neighborhood_list[i] <= i:
-            return min(i - 1, size_neighborhood_list[i-1])
+    length = len(size_neighborhood_list) + 1
+    for i in xrange(1, length):
+        if size_neighborhood_list[i-1] <= i:
+            return min(i, size_neighborhood_list[i-1])
 
 """
 upperbound = valore ricavato dall'algoritmo di eliminazione sequanziale
-NB: la funzione di default per calcolare l'upper bound è
-upper_bound_from_number_of_nodes
 """
-def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_function, init=0):
+def upper_bound_from_sequential_elimination_algorithm(graph, ub_function, init=0):
     get_subgraph = graph.subgraph
     get_neighborhood = graph.closed_neighborhood
     get_nodes = graph.nodes
     remove_node = graph.remove_node
-    ub_function = upper_bound_function
     upper_bound_opt = init
-    max_upper_bound = init + 1
+    nodes = get_nodes()
+    upper_bounds = [(node, ub_function(get_subgraph(get_neighborhood(node)))) 
+                    for node in nodes]
+    upper_bounds.sort(key=operator.itemgetter(1), reverse=True)
+    ignore, max_upper_bound = upper_bounds[0]
     while upper_bound_opt < max_upper_bound:
+        nodes = get_nodes()
         upper_bounds = [(node, ub_function(get_subgraph(get_neighborhood(node)))) 
-                        for node in get_nodes()]
+                        for node in nodes]
         upper_bounds.sort(key=operator.itemgetter(1))
-        node, induced_upper_bound = upper_bounds[0]
-        upper_bound_opt = max(upper_bound_opt, induced_upper_bound)
+        node, min_upper_bound = upper_bounds[0]
+        upper_bound_opt = max(upper_bound_opt, min_upper_bound)
         ignore, max_upper_bound = upper_bounds[len(upper_bounds) - 1]
         remove_node(node)
     return upper_bound_opt
+
 """
 upperbound = numero di colori ricavato dall'algoritmo DSATUR
 """
