@@ -2,6 +2,8 @@
 
 from graphStructure import Graph
 from UserDict import UserDict
+from usefulFunctions import unique
+from copy import deepcopy
 
 """
 classe che implementa attraverso un dizionario, una struttura per gestire tutti
@@ -11,102 +13,79 @@ il grado del nodo nel sottografo non colorato o -1 se il nodo è stato colorato,
 il grado di saturazione ed infine il colore assegnato al nodo o -1 se ancora il 
 nodo non è stato colorato.
 """
-class NodeDict(UserDict):
+class DSaturClass(UserDict):
     def __init__(self, graph):
         UserDict.__init__(self)
         self.graph = graph
-        self.uncolored_graph = Graph(graph.edges())
-        for node in graph.nodes():
+        self.uncolored_graph = graph.dcopy()
+        nodes = graph.nodes()
+        for node in nodes:
             #dizionario - data[node] = [grado nel grafo non colorato, grado di 
             #saturazione, colore]; i valori di default sono per ogni nodo
             #rispettivamente: il grado nel grafo originale, 0, None.
-            self.data[node] = [graph.degree(node), 0, None]
+            self.data[node] = [len(graph[node]), 0, None]
     
+    # aggiorniamo
+    def update(self, node_sel):
+        data = self.data
+        graph = self.graph
+        ugraph = self.uncolored_graph
+        # aggiorniamo il grafo dei nodi non colorati
+        ugraph.remove_node(node_sel)
+        # aggiorniamo il grado di saturazione
+        for node in graph[node_sel]:
+            colors_list = unique([data[adj_node][2] for adj_node in graph[node] 
+                                  if not data[adj_node][2] is None])
+            data[node][1] = len(colors_list)
+        # aggiorniamo il grado dei nodi non colorati
+        data[node_sel][0] = None
+        unodes = ugraph.nodes()
+        for node in unodes:
+            data[node][0] = len(ugraph[node]) 
+        
     """
-    metodo che rimuove dal sottografo dei nodi non colorati il nodo che è stato
-    appena colorato
-    """
-    def update_uncolored_graph(self, node_sel):
-        try:
-            self.uncolored_graph.remove_node(node_sel)
-        except:
-            print "Error: Node not present!"
-    
-    """
-    metodo che aggiorna il grado di saturazione
-    """        
-    def update_degree_satur(self, node_sel):
-        for node in self.graph[node_sel]:
-            colors_list = [self.data[adj_node][2] for adj_node in self.graph[node] 
-                           if self.data[adj_node][2] != None]
-            colors_list = list(frozenset(colors_list))
-            self.data[node][1] = len(colors_list)
-    
-    """
-    metodo che aggiorna il grado dei nodi del sottografo dei nodi non colorati dopo
-    che è avvenuta una rimozione in tale sottografo, cioè dopo che un nodo è stato
-    colorato
-    """
-    def update_degree(self, node_sel):
-        self.data[node_sel][0] = None   
-        for node in self.uncolored_graph.nodes():
-            self.data[node][0] = len(self.uncolored_graph[node]) 
-    
-    """
-    metodo che trova il minor colore possibile da assegnare ad un nodo selezionato.
-    itera sui nodi adiacenti e ritorna il primo colore diposnibile tra quelli 
-    non usati
-    """    
-    def get_min_color_possible(self, node_sel):
-        colors_list = [self.data[node][2] for node in self.graph[node_sel] if self.data[node][2] != None]
-        colors_list = list(frozenset(colors_list))
-        if len(colors_list) == 0:
-            return 0
-        colors_list.sort()
-        maxcolor = colors_list[len(colors_list) - 1]
-        for i in range(len(colors_list)):
-            if i != colors_list[i]:
-                return i
-        return maxcolor + 1
-    
-    """
-    metodo che colora il nodo selezionato
+    metodo che determina il colore e colora il nodo selezionato
     """
     def color(self, node):
-        self.data[node][2] = self.get_min_color_possible(node)
-        return self.data[node][2]
-    
-    def get_sorted_nodes(self):
-        return sorted(self.data.items(), key=lambda x: int(x[0]))
-             
-    def get_sorted_degree_satur(self):
-        return sorted(self.data.items(), key=lambda x: x[1][1], reverse=True)
-    
-    def get_sorted_degree(self):
-        return sorted(self.data.items(), key=lambda x: x[1][0], reverse=True)
-    
-    def get_sorted_color(self):
-        return sorted(self.data.items(), key=lambda x: x[1][2], reverse=True)
+        data = self.data
+        graph = self.graph
+        colors_list = unique([data[adj_node][2] for adj_node in graph[node] 
+                             if not data[adj_node][2] is None])
+        length = len(colors_list)
+        if length == 0:
+            data[node][2] = 0
+            return 0
+        colors_list.sort()
+        for i in range(length):
+            if i != colors_list[i]:
+                data[node][2] = i
+                return data[node][2]
+        data[node][2] = i + 1
+        return data[node][2]
     
     """
     metodo che ritorna il nodo con il massimo grado nel sottografo dei nodi non
     colorati
     """
     def get_node_max_degree(self):
-        item = max(self.data.items(), key=lambda x: x[1][0])
+        items = self.data.items()
+        item = max(items, key=lambda x: x[1][0])
         return item[0]
     
     """
     metodo che ritorna il nodo con il massimo grado di saturazione
     """
-    def get_node_max_satur_degre(self):
-        list = sorted(self.data.items(), key=lambda x: x[1][1], reverse=True)
+    def get_node_max_satur_degree(self):
+        unodes = set(self.uncolored_graph.nodes())
+        items = self.data.items()
+        list = [item for item in items if item[0] in unodes]
+        list.sort(key=lambda x: x[1][1], reverse=True)
         node_item_0 = list[0]
         node_item_1 = list[1]
-        check_eq = False
         if node_item_0[1][1] == node_item_1[1][1]:
-            check_eq = True
-        return node_item_0[0], check_eq
+            return node_item_0[0], True
+        else:
+            return node_item_0[0], False
 
 """
 implementazione dell'algoritmo DSATUR.
@@ -121,35 +100,35 @@ passi da eseguire:
 """        
 def dsatur_algorithm(graph):
     #inizializzazione
-    nodes = NodeDict(graph)
+    dsatur = DSaturClass(graph)
     colors_list = []
     append_color = colors_list.append
     #estriamo il nodo con grado maggiore
-    node_sel = nodes.get_node_max_degree()
+    node_sel = dsatur.get_node_max_degree()
     #coloriamo il nodo e aggiorniamo 
-    ncolor = nodes.color(node_sel)
+    ncolor = dsatur.color(node_sel)
     #color_list: lista in cui verrano memorizzati i colori con cui verranno 
     #colorati i nodi
     append_color(ncolor)
-    iterations = len(nodes.uncolored_graph)
+    iterations = len(dsatur.uncolored_graph) - 1 
     #si itera su tutti i nodi rimasti da colorare
     for i in xrange(iterations):
         #si trova il nodo di grado di saturazione minore
-        node_sel, check_eq = nodes.get_node_max_satur_degre()
+        node_sel, check_eq = dsatur.get_node_max_satur_degree()
         if check_eq is False:
             #se vi è un solo nodo con grado di saturazione massimo
-            ncolor = nodes.color(node_sel)
+            ncolor = dsatur.color(node_sel)
             append_color(ncolor)
-            nodes.update_degree_satur(node_sel)
-            nodes.update_uncolored_graph(node_sel)
-            nodes.update_degree(node_sel)
+            dsatur.update(node_sel)
         else:
             #se vi è un conflitto si estrae un qualunque nodo di grado maggiore
             #nel sottografo di nodi non ancora colorati
-            node_sel = nodes.get_node_max_degree()
-            ncolor = nodes.color(node_sel)
+            node_sel = dsatur.get_node_max_degree()
+            ncolor = dsatur.color(node_sel)
             append_color(ncolor)
-            nodes.update_degree_satur(node_sel)
-            nodes.update_uncolored_graph(node_sel)
-            nodes.update_degree(node_sel)
-    return len(frozenset(colors_list))
+            dsatur.update(node_sel)
+    node_sel = dsatur.uncolored_graph.nodes()[0]
+    ncolor = dsatur.color(node_sel)
+    append_color(ncolor)
+    dsatur.update(node_sel)
+    return len(unique(colors_list))

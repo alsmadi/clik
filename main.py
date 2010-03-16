@@ -37,6 +37,7 @@ def get_edges_from_file(filename):
 main
 """
 def main(args):
+    psyco.full()
     cwd = os.getcwd()
     ext = ".clq"
 #    testname = "graph_test" # 7 nodes
@@ -50,9 +51,9 @@ def main(args):
 #    testname = "sanr200_0_7" # 200 nodes
 #    testname = "hamming6-4" # 64 nodes
 #    testname = "johnson16-2-4" # 120 nodes
-#    testname = "johnson8-4-4" # 70 nodes
+    testname = "johnson8-4-4" # 70 nodes
 #    testname = "johnson8-2-4" # 28 nodes
-    testname = "Inprova2_3"
+#    testname = "Inprova2_3"
 #    testname = "brock200_1" # 200 nodes
 #    testname = "brock400_4" # 400 nodes
 #    testname = "brock800_2" # 800 nodes
@@ -62,20 +63,16 @@ def main(args):
 #    filenames = [filename1, filename2]
 #    for filename in filenames:
     filename = cwd + "/benchmarks/" + testname + ext
-    print "*****************************"
-    print "*****************************"
-    print "file: ", filename
-    print "graph: ", testname
-#    print "*****************************"
-#    print "start first"
-#    graph = get_graph(filename)
-#    sequential_elimination_algorithm_1(graph, UBA.upper_bound_from_linear_coloring)
-    print "*****************************"
-    print "start second"
- #   psyco.full()
-    upper_bound_fun = UBA.upper_bound_from_number_of_nodes
     graph = Graph(get_edges_from_file(filename))
+    print "*****************************"
+    print "graph:", testname, ",nodes:", len(graph), ",edges:", graph.number_of_edges()
+    upper_bound_fun = UBA.upper_bound_from_linear_coloring
+    sequential_elimination_algorithm_1(graph, upper_bound_fun)
+    print "--"
+    graph = Graph(get_edges_from_file(filename))
+    upper_bound_fun = UBA.upper_bound_from_number_of_nodes
     sequential_elimination_algorithm_2(graph, upper_bound_fun)
+    print "*****************************"
 
 if __name__ == "__main__":
     main(sys.argv)

@@ -26,6 +26,9 @@ def main(args):
     graph = Graph(edges)
     print "graph: elapsed time - ", time.time() - start
     start = time.time()
+    copy = graph.dcopy()
+    print "copy: elapsed time - ", time.time() - start
+    start = time.time()
     for i in xrange(10):
         subgraph = graph.subgraph(test_list[i]) 
     print "subgraph: elapsed time - ", time.time() - start
