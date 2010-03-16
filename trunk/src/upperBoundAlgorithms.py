@@ -28,9 +28,11 @@ def upper_bound_from_largest_closed_neighborhood(graph):
 upperbound = 
 """
 def upper_bound_from_cardinality(graph):
-    size_neighborhood_list = [(len(graph[node]) + 1) for node in graph.nodes()]
+    nodes = graph.nodes()
+    size_neighborhood_list = [(len(graph[node]) + 1) for node in nodes]
     size_neighborhood_list.sort(reverse=True)
-    for i in xrange(len(size_neighborhood_list)):
+    length = len(size_neighborhood_list)
+    for i in xrange(length):
         if size_neighborhood_list[i] <= i:
             return min(i - 1, size_neighborhood_list[i-1])
 
@@ -60,15 +62,13 @@ def upper_bound_from_sequential_elimination_algorithm(graph, upper_bound_functio
 upperbound = numero di colori ricavato dall'algoritmo DSATUR
 """
 def upper_bound_from_dsatur(graph):
-    upper_bound = dsatur_algorithm(graph)
-    return upper_bound
+    return dsatur_algorithm(graph)
 
 """
 upperbound = numero di colori ricavato dall'algoritmo di Linear Coloring
 """
 def upper_bound_from_linear_coloring(graph):
-    upper_bound = linear_coloring_algorithm(graph)
-    return upper_bound
+    return linear_coloring_algorithm(graph)
 
 """
 upperbound = massimo autovalore della matrice di adiacenza 

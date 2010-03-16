@@ -1,54 +1,44 @@
 # -*- coding: utf-8 -*-
 
+from graphStructure import Graph
 from UserDict import UserDict
+from usefulFunctions import unique
 
-def unique(seq):
-    keys = {}
-    for e in seq:
-        if not e is None: 
-            keys[e] = 1
-    return keys.keys()
-
-class NodeDict(UserDict):
+"""
+classe che implementa attraverso un dizionario, una struttura per gestire tutti
+i dati necessari per l'esecuzione dell'algoritmo DSATUR;
+in particolare ogni elemento del dizionario avra come chiave il nodo e come valori
+il grado del nodo nel sottografo non colorato o -1 se il nodo è stato colorato,
+il grado di saturazione ed infine il colore assegnato al nodo o -1 se ancora il 
+nodo non è stato colorato.
+"""
+class LinearColoringClass(UserDict):
     def __init__(self, graph):
         UserDict.__init__(self)
         self.graph = graph
         nodes = graph.nodes()
         for node in nodes:
-            #dizionario - data[node] =  [colore del nodo o None se il nodo non è 
-            #stato ancora colorato]
-            self.data[node] = None 
- 
-    """
-    metodo che trova il minor colore possibile da assegnare ad un nodo selezionato.
-    itera sui nodi adiacenti e ritorna il primo colore disponibile tra quelli 
-    non usati
-    """    
-    def get_min_color_possible(self, node_sel):
-        adj_colors = unique([self.data[node] for node in self.graph[node_sel]])
-        if len(adj_colors) == 0:
-            return 0
-        adj_colors.sort()
-        for i in xrange(len(adj_colors)):
-            if i != adj_colors[i]:
-                return i
-        return  i + 1
-  
-    """
-    metodo che colora il nodo selezionato
-    """
-    def color(self, node):
-        self.data[node] = self.get_min_color_possible(node)
-        return self.data[node]
+            self.data[node] = None
 
-"""
-implementazione dell'algoritmo Linear Coloring.
-ad ogni nodo del grafo, dato nell'ordine memorizzato, assegniamo il minimo 
-colore possibile
-"""        
+    def color(self, node):
+        data = self.data
+        graph = self.graph
+        adj_colors = unique([data[adj_node] for adj_node in graph[node] 
+                             if not adj_node is None])
+        length = len(adj_colors)
+        if length == 0:
+            data[node] = 0
+            return data[node]
+        adj_colors.sort()
+        for i in xrange(length):
+            if i != adj_colors[i]:
+                data[node] = i
+                return data[node]
+        data[node] = i + 1
+        return data[node] 
+
 def linear_coloring_algorithm(graph):
-    #inizializzazione
-    clr_nodes = NodeDict(graph)
-    nodes = clr_nodes.graph.nodes()
-    color = clr_nodes.color
+    nodes = graph.nodes()
+    lin_color = LinearColoringClass(graph) 
+    color = lin_color.color
     return len(unique([color(node) for node in nodes]))

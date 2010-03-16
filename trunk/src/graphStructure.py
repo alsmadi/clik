@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from UserDict import UserDict
-#from copy import deepcopy
+from copy import deepcopy
 
 class Graph(UserDict):
     def __init__(self, edges=None):
         UserDict.__init__(self)
         self.nodes = self.keys
-        dict_set = self.data.setdefault
         if not edges is None:
+            dict_set = self.data.setdefault
             for edge in edges:
                 dict_set(edge[0],[])
                 dict_set(edge[1],[])
@@ -16,17 +16,13 @@ class Graph(UserDict):
                     self.data[edge[0]].append(edge[1])
                     self.data[edge[1]].append(edge[0])
     
-    def edges(self):
-        def comp(x):
-            if int(x[0]) < int(x[1]):
-                return (x[0], x[1])
-            else:
-                return (x[1], x[0]) 
-        nodes = self.nodes()
-        edges = [comp((node_a, node_b)) for node_a in nodes 
-                 for node_b in self.data[node_a]] 
-        edges = list(set(edges))
-        return edges
+    def dcopy(self):
+        graph = self.__class__()
+        graph.data = deepcopy(self.data)
+        return graph
+    
+#    def edges(self):
+#        return self._edges
     
     def number_of_edges(self):
         nodes = self.nodes()
@@ -61,7 +57,6 @@ class Graph(UserDict):
         adj_list = self.data[node]
         for adj_node in adj_list:
             self.data[adj_node].remove(node)
-#        [self.data[adj_node].remove(node) for adj_node in list]
         del self.data[node]
     
     def remove_nodes(self, nodes):
@@ -96,17 +91,18 @@ class Graph(UserDict):
     
     def degree(self, node):
         return len(self.data[node])
-    
-    def adjacency_matrix(self):
-        def f(x):
-            if x[1] in self.data[x[0]]:
-                return 1
-            else:
-                return 0
-        nodes = self.nodes()
-        matrix = [[f((node_a, node_b)) for node_b in nodes] 
-                  for node_a in nodes]
-        return matrix
+   
+#    def adjacency_matrix(self):
+#        edges = set(self.edges())
+#        nodes = self.nodes()
+#        def f(x):
+#            if x in edges:
+#                return 1
+#            else:
+#                return 0
+#        matrix = [[f((node_a, node_b)) for node_b in nodes] 
+#                  for node_a in nodes]
+#        return matrix
     
     def is_complete(self):
         n = len(self.nodes())
