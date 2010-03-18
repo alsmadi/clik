@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import scipy.weave as weave
+#import scipy.weave as weave
 
 """
 funzione per leggere il grafo dal file su disco
@@ -84,7 +84,7 @@ class Graph(object):
         data = self.data
         adj_list = data[node]
         for adj_node in adj_list:
-            self.data[adj_node].remove(node)
+            data[adj_node].remove(node)
         del data[node]
 
     def remove_nodes(self, nodes):
@@ -115,8 +115,7 @@ class Graph(object):
     def induced_subgraph(self, node):
         subgraph = self.__class__()
         adj_list = self.data
-#        nodes = self.closed_neighborhood(node)
-        nodes = set(self.data[node])
+        nodes = set(adj_list[node])
         nodes.add(node)
         sub_data = subgraph.data
         for node in nodes:
