@@ -68,6 +68,7 @@ def main(args):
     print "*****************************"
     for dirpath, ignore, files in os.walk("./test/"):
         if dirpath == "./test/":
+            files.sort()
             for nfile in files:
                 if nfile != ".directory":
                     filename = os.path.join(dirpath, nfile)
@@ -76,10 +77,10 @@ def main(args):
                                     str(graph.number_of_edges())])
                     logging.info(text)
                     print text
-        #            upper_bound_fun = UBA.upper_bound_from_cardinality
-        #            sequential_elimination_algorithm_1(graph, upper_bound_fun)
-        #            print "--"
-        #            graph = Graph(get_edges_from_file(filename))
+                    #upper_bound_fun = UBA.upper_bound_from_linear_coloring
+                    #sequential_elimination_algorithm_1(graph, upper_bound_fun)
+                    #print "--"
+                    #graph = Graph(get_edges_from_file(filename))
                     upper_bound_fun_1 = UBA.upper_bound_from_cardinality
                     upper_bound_fun_2 = UBA.upper_bound_from_cardinality
                     sequential_elimination_algorithm_2(graph, upper_bound_fun_1, upper_bound_fun_2)
