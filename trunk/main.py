@@ -13,7 +13,7 @@ una libreria usata non l'applicazione.
 import sys
 import os
 import psyco
-from src.graphStructure import Graph
+from src.graphStructure import Graph, get_edges_from_file
 from src.sequentialEliminationAlgorithm import \
                                         sequential_elimination_algorithm_1, \
                                         sequential_elimination_algorithm_2
@@ -21,26 +21,12 @@ import src.upperBoundAlgorithms as UBA
 import logging
 
 """
-funzione per leggere il grafo dal file su disco
-"""
-def get_edges_from_file(filename):
-    try:
-        file = open(filename, 'r')
-        def get_edge(list):
-            return list[1], list[2]
-        edges = [get_edge(line.split()) for line in file
-                 if line.find('e', 0, 1) >= 0]
-        return edges
-    except:
-        print "Errorre nel aprire il file!"
-
-"""
 main
 """
 def main(args):
     psyco.full()
-    cwd = os.getcwd()
-    ext = ".clq"
+#    cwd = os.getcwd()
+#    ext = ".clq"
 #    testname = "graph_test" # 7 nodes
 #    testname = "myciel6(col)"
 #    testname = "myciel4(col)"
@@ -82,7 +68,7 @@ def main(args):
                     #print "--"
                     #graph = Graph(get_edges_from_file(filename))
                     upper_bound_fun_1 = UBA.upper_bound_from_cardinality
-                    upper_bound_fun_2 = UBA.upper_bound_from_cardinality
+                    upper_bound_fun_2 = UBA.upper_bound_from_dsatur_2
                     sequential_elimination_algorithm_2(graph, upper_bound_fun_1, upper_bound_fun_2)
                     logging.info('---')
                     print "----"
