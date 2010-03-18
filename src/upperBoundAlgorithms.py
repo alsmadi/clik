@@ -5,9 +5,10 @@ questo file contiene le definizioni delle funzioni che calcolano gli upperbound.
 """
 
 import operator
-from dsatur import dsatur_algorithm
-from linearColoring import linear_coloring_algorithm
-from numpy import linalg
+import dsatur
+import linearColoring
+import usefulFunctions
+#from numpy import linalg
 
 """
 upperbound = numeri di nodi del grafo passato come parametro
@@ -45,36 +46,100 @@ def upper_bound_from_sequential_elimination_algorithm(graph, ub_function, init=0
     get_neighborhood = graph.closed_neighborhood
     get_nodes = graph.nodes
     remove_node = graph.remove_node
+    getter = operator.itemgetter
     upper_bound_opt = init
     nodes = get_nodes()
-    upper_bounds = [(node, ub_function(get_subgraph(get_neighborhood(node))))
-                    for node in nodes]
-    upper_bounds.sort(key=operator.itemgetter(1), reverse=True)
-    ignore, max_upper_bound = upper_bounds[0]
     while 1:
         nodes = get_nodes()
         upper_bounds = [(node, ub_function(get_subgraph(get_neighborhood(node))))
                         for node in nodes]
-        upper_bounds.sort(key=operator.itemgetter(1))
-        node, min_upper_bound = upper_bounds[0]
-        upper_bound_opt = max(upper_bound_opt, min_upper_bound)
+        upper_bounds.sort(key=getter(1))
         ignore, max_upper_bound = upper_bounds[len(upper_bounds) - 1]
         if upper_bound_opt >= max_upper_bound:
             break
+        node, min_upper_bound = upper_bounds[0]
+        upper_bound_opt = max(upper_bound_opt, min_upper_bound)
         remove_node(node)
     return upper_bound_opt
 
 """
 upperbound = numero di colori ricavato dall'algoritmo DSATUR
+implementazione dell'algoritmo DSATUR.
+passi da eseguire:
+1 - ordinare i nodi per grado
+2 - colorare il nodo con grado maggiore con colore 0
+3 - scegliere il nodo con il massimo grado di saturazione;
+    se vi sono più nodi con lo stesso grado di saturazione -> scegliere
+    un qualunque nodo con grado maggiore tra quelli non colorati
+4 - colorare il nodo scelto con il minimo colore possibile
+5 - se ultimo nodo colorato -> STOP, altrimenti torna a 3
 """
 def upper_bound_from_dsatur(graph):
-    return dsatur_algorithm(graph)
+    #inizializzazione
+    unique = usefulFunctions.unique
+    dst = dsatur.DSaturClass(graph)
+    dst_color = dst.color
+    dst_get_node_max_degree = dst.get_node_max_degree
+    dst_update = dst.update
+    dst_ungraph = dst.uncolored_graph
+    dst_get_node_max_satur_degree = dst.get_node_max_satur_degree
+    colors_list = []
+    append_color = colors_list.append
+    #estriamo il nodo con grado maggiore
+    node_sel = dst_get_node_max_degree()
+    #coloriamo il nodo e aggiorniamo
+    ncolor = dst_color(node_sel)
+    #color_list: lista in cui verrano memorizzati i colori con cui verranno
+    #colorati i nodi
+    append_color(ncolor)
+    iterations = len(dst_ungraph) - 1
+    #si itera su tutti i nodi rimasti da colorare
+    for i in xrange(iterations):
+        #si trova il nodo di grado di saturazione minore
+        node_sel, check_eq = dst_get_node_max_satur_degree()
+        if check_eq is False:
+            #se vi è un solo nodo con grado di saturazione massimo
+            ncolor = dst_color(node_sel)
+            append_color(ncolor)
+            dst_update(node_sel)
+        else:
+            #se vi è un conflitto si estrae un qualunque nodo di grado maggiore
+            #nel sottografo di nodi non ancora colorati
+            node_sel = dst_get_node_max_degree()
+            ncolor = dst_color(node_sel)
+            append_color(ncolor)
+            dst_update(node_sel)
+    node_sel = dst_ungraph.nodes()[0]
+    ncolor = dst_color(node_sel)
+    append_color(ncolor)
+    return len(unique(colors_list))
 
 """
 upperbound = numero di colori ricavato dall'algoritmo di Linear Coloring
 """
 def upper_bound_from_linear_coloring(graph):
-    return linear_coloring_algorithm(graph)
+    data = {}
+    colors = set()
+    nodes = graph.nodes()
+    unique = usefulFunctions.unique
+    colors_add = colors.add
+    for node in nodes:
+        adj_colors = unique([data[adj_node] for adj_node in graph[node]
+                            if adj_node in data])
+        length = len(adj_colors)
+        if length == 0:
+            data[node] = 0
+        else:
+            if length != adj_colors[length - 1] + 1:
+                adj_colors.sort()
+                for i in xrange(length):
+                    if i != adj_colors[i]:
+                        data[node] = i
+                        break
+            else:
+                data[node] = length
+        colors_add(data[node])
+    return len(colors)
 
 """
 upperbound = massimo autovalore della matrice di adiacenza
