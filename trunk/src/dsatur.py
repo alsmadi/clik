@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import usefulFunctions
-import scipy.weave as weave
+#import scipy.weave as weave
 
 """
 classe che implementa attraverso un dizionario, una struttura per gestire tutti

@@ -17,7 +17,7 @@ from src.graphStructure import Graph, get_edges_from_file
 from src.sequentialEliminationAlgorithm import \
                                         sequential_elimination_algorithm_1, \
                                         sequential_elimination_algorithm_2
-from src.upperBoundAlgorithms import *
+import src.upperBoundAlgorithms as UBA
 import logging
 
 """
@@ -25,34 +25,12 @@ main
 """
 def main(args):
     psyco.full()
-#    cwd = os.getcwd()
-#    ext = ".clq"
-#    testname = "graph_test" # 7 nodes
-#    testname = "myciel6(col)"
-#    testname = "myciel4(col)"
-#    testname = "myciel7(col)"
-#    testname = "queen9(col)"
-#    testname = "keller4" # 171 nodes
-#    testname = "hamming6-2" # 64 nodes
-#    testname = "MANN_a9" # 45 nodes
-#    testname = "sanr200_0_7" # 200 nodes
-#    testname = "hamming6-4" # 64 nodes
-#    testname = "johnson16-2-4" # 120 nodes
-#    testname = "johnson8-4-4" # 70 nodes
-#    testname = "johnson8-2-4" # 28 nodes
-#    testname = "Inprova2_3"
-#    testname = "brock200_1" # 200 nodes
-#    testname = "brock400_4" # 400 nodes
-#    testname = "brock800_2" # 800 nodes
-#    testname = "c-fat500-2" # 500 nodes
-#    filename1 = cwd + "/benchmarks/" + "sanr200_0.7" + ext
-#    filename2 = cwd + "/benchmarks/" + "brock200_1" + ext
-#    filenames = [filename1, filename2]
-#    filename = cwd + "/benchmarks/" + testname + ext
     logging.basicConfig(filename='./results.log', level=logging.INFO, format=" %(message)s")
     print "------------------------------"
-    fun_1 = [upper_bound_from_cardinality, upper_bound_from_linear_coloring, upper_bound_from_dsatur]
-    fun_2 = [upper_bound_from_cardinality_2, upper_bound_from_linear_coloring_2, upper_bound_from_dsatur_2]
+    fun_1 = [UBA.upper_bound_from_cardinality, UBA.upper_bound_from_linear_coloring, 
+             UBA.upper_bound_from_dsatur]
+    fun_2 = [UBA.upper_bound_from_cardinality_2, UBA.upper_bound_from_linear_coloring_2, 
+             UBA.upper_bound_from_dsatur_2]
     log = ['cardinality', 'linear coloring', 'dsatur']
     for dirpath, ignore, files in os.walk("./test/"):
         if dirpath == "./test/":
