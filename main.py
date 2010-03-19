@@ -17,7 +17,7 @@ from src.graphStructure import Graph, get_edges_from_file
 from src.sequentialEliminationAlgorithm import \
                                         sequential_elimination_algorithm_1, \
                                         sequential_elimination_algorithm_2
-import src.upperBoundAlgorithms as UBA
+from src.upperBoundAlgorithms import *
 import logging
 
 """
@@ -49,29 +49,35 @@ def main(args):
 #    filename2 = cwd + "/benchmarks/" + "brock200_1" + ext
 #    filenames = [filename1, filename2]
 #    filename = cwd + "/benchmarks/" + testname + ext
-    LOG_FILENAME = './result_cardinality.log'
-    logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
-    print "*****************************"
+    logging.basicConfig(filename='./results.log', level=logging.INFO, format=" %(message)s")
+    print "------------------------------"
+    fun_1 = [upper_bound_from_cardinality, upper_bound_from_linear_coloring, upper_bound_from_dsatur]
+    fun_2 = [upper_bound_from_cardinality_2, upper_bound_from_linear_coloring_2, upper_bound_from_dsatur_2]
+    log = ['cardinality', 'linear coloring', 'dsatur']
     for dirpath, ignore, files in os.walk("./test/"):
         if dirpath == "./test/":
-            files.sort()
-            for nfile in files:
-                if nfile != ".directory":
-                    filename = os.path.join(dirpath, nfile)
-                    graph = Graph(get_edges_from_file(filename))
-                    text = ''.join(["graph: ", str(nfile), ", nodes: ", str(len(graph)), ", edges: ",
-                                    str(graph.number_of_edges())])
-                    logging.info(text)
-                    print text
-                    #upper_bound_fun = UBA.upper_bound_from_linear_coloring
-                    #sequential_elimination_algorithm_1(graph, upper_bound_fun)
-                    #print "--"
-                    #graph = Graph(get_edges_from_file(filename))
-                    upper_bound_fun_1 = UBA.upper_bound_from_cardinality
-                    upper_bound_fun_2 = UBA.upper_bound_from_dsatur_2
-                    sequential_elimination_algorithm_2(graph, upper_bound_fun_1, upper_bound_fun_2)
-                    logging.info('---')
-                    print "----"
+            for i in range(3):
+                text = "---------- " + log[i]
+                logging.info(text)
+                print text
+                files.sort()
+                for nfile in files:
+                    if nfile != ".directory":
+                        filename = os.path.join(dirpath, nfile)
+                        graph = Graph(get_edges_from_file(filename))
+                        text = ''.join(["graph: ", str(nfile), ", nodes: ", str(len(graph)), ", edges: ",
+                                        str(graph.number_of_edges())])
+                        logging.info(text)
+                        print text
+                        #upper_bound_fun = UBA.upper_bound_from_linear_coloring
+                        #sequential_elimination_algorithm_1(graph, upper_bound_fun)
+                        #print "--"
+                        #graph = Graph(get_edges_from_file(filename))
+                        upper_bound_fun_1 = fun_1[i]
+                        upper_bound_fun_2 = fun_2[i]
+                        sequential_elimination_algorithm_2(graph, upper_bound_fun_1, upper_bound_fun_2)
+                logging.info("")
+                print ""
 
 if __name__ == "__main__":
     main(sys.argv)

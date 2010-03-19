@@ -34,7 +34,7 @@ def sequential_elimination_algorithm_1(graph, ub_function, init=0):
         upper_bound_opt = max(min_upper_bound, upper_bound_opt)
         remove_node(node)
     t_tot = time.time() - start
-    print "opt_1:", upper_bound_opt, "|", t_tot, "|", k
+    print "    opt_1:", upper_bound_opt, "|", t_tot, "|", k
 
 """
 algoritmo di eliminazione sequenziale addendum.
@@ -71,7 +71,7 @@ def sequential_elimination_algorithm_2(graph, ub_function_1, ub_function_2, init
             break
     t_2 =  time.time() - start
     t_tot = t_1 + t_2
-    text = ''.join(["opt_2: ", str(upper_bound_opt), " | ", str(t_tot), " | ",
+    text = ''.join(["    opt_2: ", str(upper_bound_opt), " | ", str(t_tot), " | ",
                     str(t_1), " | ", str(t_2), " | ", str(iter_1), " | ", str(iter_2)])
     logging.info(text)
     print text
