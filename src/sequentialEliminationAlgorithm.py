@@ -51,7 +51,7 @@ def sequential_elimination_algorithm_2(graph, ub_function_1, ub_function_2, init
     append_data = data.append
     getter = operator.itemgetter
     while len(graph) >= lower_bound:
-        upper_bounds = ub_function_1(graph)
+        upper_bounds = ub_function_1(graph, lower_bound)
         min_item = min(upper_bounds, key=getter(1))
         append_data(min_item)
         remove_node(min_item[0])

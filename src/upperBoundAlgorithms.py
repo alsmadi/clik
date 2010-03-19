@@ -28,6 +28,28 @@ def upper_bound_from_largest_closed_neighborhood(graph):
 """
 upperbound =
 """
+def upper_bound_from_cardinality(graph, lower_bound):
+    nodes = graph.nodes()
+    get_induced_subgraph = graph.induced_subgraph
+    upper_bounds = []
+    upper_bounds_append = upper_bounds.append
+    for node in nodes:
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
+        size_neighborhood_list = [(len(subgraph[sub_node]) + 1) 
+                                  for sub_node in sub_nodes]
+        size_neighborhood_list.sort(reverse=True)
+        length = len(size_neighborhood_list) + 1
+        for i in xrange(length):
+            if size_neighborhood_list[i-1] <= i:
+                ub = min(i, size_neighborhood_list[i-2])
+                break
+        upper_bounds_append((node, ub, subgraph))
+    return upper_bounds 
+
+"""
+upperbound =
+"""
 def upper_bound_from_cardinality_2(graph):
     nodes = graph.nodes()
     get_induced_subgraph = graph.induced_subgraph
@@ -46,28 +68,6 @@ def upper_bound_from_cardinality_2(graph):
                 break
         upper_bounds_append((node, ub))
     return upper_bounds      
-
-"""
-upperbound =
-"""
-def upper_bound_from_cardinality(graph):
-    nodes = graph.nodes()
-    get_induced_subgraph = graph.induced_subgraph
-    upper_bounds = []
-    upper_bounds_append = upper_bounds.append
-    for node in nodes:
-        subgraph = get_induced_subgraph(node)
-        sub_nodes = subgraph.nodes()
-        size_neighborhood_list = [(len(subgraph[sub_node]) + 1) 
-                                  for sub_node in sub_nodes]
-        size_neighborhood_list.sort(reverse=True)
-        length = len(size_neighborhood_list) + 1
-        for i in xrange(length):
-            if size_neighborhood_list[i-1] <= i:
-                ub = min(i, size_neighborhood_list[i-2])
-                break
-        upper_bounds_append((node, ub, subgraph))
-    return upper_bounds          
                 
 """
 upperbound = valore ricavato dall'algoritmo di eliminazione sequanziale
