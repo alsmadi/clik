@@ -25,11 +25,11 @@ def upper_bound_from_largest_closed_neighborhood(graph):
     size_neighborhood_list.sort(reverse=True)
     return size_neighborhood_list[1]
 
+
 """
 upperbound =
 """
-def upper_bound_from_cardinality(graph, lower_bound):
-    nodes = graph.nodes()
+def upper_bound_from_cardinality(graph, nodes):
     get_induced_subgraph = graph.induced_subgraph
     upper_bounds = []
     upper_bounds_append = upper_bounds.append
@@ -40,7 +40,7 @@ def upper_bound_from_cardinality(graph, lower_bound):
                                   for sub_node in sub_nodes]
         size_neighborhood_list.sort(reverse=True)
         length = len(size_neighborhood_list) + 1
-        for i in xrange(length):
+        for i in xrange(2, length):
             if size_neighborhood_list[i-1] <= i:
                 ub = min(i, size_neighborhood_list[i-2])
                 break
@@ -99,10 +99,10 @@ passi da eseguire:
 4 - colorare il nodo scelto con il minimo colore possibile
 5 - se ultimo nodo colorato -> STOP, altrimenti torna a 3
 """
-def upper_bound_from_dsatur(graph):
+def upper_bound_from_dsatur(graph, nodes):
     #inizializzazione
     unique = usefulFunctions.unique
-    nodes = graph.nodes()
+#    nodes = graph.nodes()
     get_induced_subgraph = graph.induced_subgraph
     upper_bounds = []
     upper_bounds_append = upper_bounds.append
@@ -198,8 +198,8 @@ def upper_bound_from_dsatur_2(graph):
 """
 upperbound = numero di colori ricavato dall'algoritmo di Linear Coloring
 """
-def upper_bound_from_linear_coloring(graph):
-    nodes = graph.nodes()
+def upper_bound_from_linear_coloring(graph, nodes):
+#    nodes = graph.nodes()
     get_induced_subgraph = graph.induced_subgraph
     upper_bounds = []
     upper_bounds_append = upper_bounds.append
