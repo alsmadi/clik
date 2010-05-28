@@ -1,20 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#import scipy.weave as weave
-
-"""
-funzione per leggere il grafo dal file su disco
-"""
-def get_edges_from_file(filename):
-    try:
-        file = open(filename, 'r')
-        def get_edge(list):
-            return list[1], list[2]
-        edges = [get_edge(line.split()) for line in file
-                 if line.find('e', 0, 1) >= 0]
-        return edges
-    except:
-        print "Errorre nel aprire il file!"
+import numpy
+from scipy import sparse
 
 """
 classe per gestire i grafi
@@ -23,14 +10,17 @@ class Graph(object):
     def __init__(self, edges=None):
         self.data = {}
         self.nodes = self.data.keys
-        if edges is not None:
-            dict_set = self.data.setdefault
-            for edge in edges:
-                dict_set(edge[0],[])
-                dict_set(edge[1],[])
-                if edge[1] not in self.data[edge[0]]:
-                    self.data[edge[0]].append(edge[1])
-                    self.data[edge[1]].append(edge[0])
+        if isinstance(edges, list):      
+            if edges is not None:
+                dict_set = self.data.setdefault
+                for edge in edges:
+                    dict_set(edge[0],[])
+                    dict_set(edge[1],[])
+                    if edge[1] not in self.data[edge[0]]:
+                        self.data[edge[0]].append(edge[1])
+                        self.data[edge[1]].append(edge[0])
+        elif isinstance(edges, dict):
+            self.data.update(edges)
 
     def __iter__(self):
         return self.data.iterkeys()
@@ -159,17 +149,20 @@ class Graph(object):
     def degree(self, node):
         return len(self.data[node])
 
-#    def adjacency_matrix(self):
-#        edges = set(self.edges())
-#        nodes = self.nodes()
-#        def f(x):
-#            if x in edges:
-#                return 1
-#            else:
-#                return 0
-#        matrix = [[f((node_a, node_b)) for node_b in nodes]
-#                  for node_a in nodes]
-#        return matrix
+    def adjacency_matrix(self):
+        nodes = self.nodes()
+        len_nodes = len(nodes)
+        matrix = numpy.zeros((len_nodes, len_nodes), dtype=numpy.int)
+#        matrix = sparse.lil_matrix((len_nodes, len_nodes), dtype=numpy.int)
+        index=dict(zip(nodes,range(len_nodes)))
+        data = self.data
+        for a in nodes:
+            for b in data[a]:
+                i,j = index[a], index[b]
+                if j > i:
+                    matrix[i, j] = 1
+                    matrix[j, i] = 1
+        return matrix
 
     def is_complete(self):
         n = len(self.data)
@@ -178,3 +171,17 @@ class Graph(object):
             return False
         else:
             return True
+
+"""
+funzione per leggere il grafo dal file su disco
+"""
+def get_edges_from_file(filename):
+    try:
+        file = open(filename, 'r')
+        def get_edge(list):
+            return list[1], list[2]
+        edges = [get_edge(line.split()) for line in file
+                 if line.find('e', 0, 1) >= 0]
+        return edges
+    except:
+        print "Errorre nel aprire il file!"
