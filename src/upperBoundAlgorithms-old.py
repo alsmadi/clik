@@ -9,7 +9,6 @@ import logging
 import time
 import dsatur
 import usefulFunctions
-from graphStructure import Graph
 #from numpy import linalg
 
 """
@@ -36,146 +35,165 @@ def upper_bound_from_cardinality(nfile, graph):
     l = str(len(graph))
     e = str(graph.number_of_edges())
     start = time.time()
-    getter = operator.itemgetter
     nodes = graph.nodes()
-    get_induced_subgraph = graph.induced_subgraph
-    upper_bounds = []
-    upper_bounds_append = upper_bounds.append
-    adj_list = graph.data
-    subgraph = Graph()
-    for node in nodes:
-        #### determiniamo il sottografo ####
-        subgraph.data = {}
-        sub_nodes = set(adj_list[node])
-        sub_nodes.add(node)
-        for adj_node in sub_nodes:
-            subgraph.data[adj_node] = [x for x in adj_list[adj_node] if x in sub_nodes]
-        ####################################
-        #subgraph = get_induced_subgraph(node)
-        #sub_nodes = subgraph.nodes()
-        size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
-                                  for sub_node in sub_nodes]
-        size_neighborhood_list.sort()
-        size_neighborhood_list.reverse()
-        length = len(size_neighborhood_list) + 1
-        for i in xrange(length):
-            if size_neighborhood_list[i-1] <= i:
-                ub = i
-                break
-        upper_bounds_append((node, ub))
-    upper_bounds.sort(key=getter(1))
-    min_item = upper_bounds[0]
-    max_item = upper_bounds[len(upper_bounds) - 1]
-    ub_min = min_item[1]
-    ub_max = max_item[1]
+    size_neighborhood_list = [(len(graph[node]) + 1) for node in nodes]
+    size_neighborhood_list.sort(reverse=True)
+    length = len(size_neighborhood_list) + 1
+    for i in xrange(2, length):
+        if size_neighborhood_list[i-1] <= i:
+            ub = min(i, size_neighborhood_list[i-2])
+            break
     t_tot = round(time.time() - start, 2)
-    text = ''.join([str(nfile), "; ", l, "; ", e, "; ", str(ub_min), "; ", str(ub_max), "; ", str(t_tot)])
+    text = ''.join([str(nfile), "; ", l, "; ", e, "; ", str(ub), "; ", str(t_tot)])
     logging.info(text)
     print text
 
-def upper_bound_from_cardinality_(nfile, graph):
-    l = str(len(graph))
-    e = str(graph.number_of_edges())
-    start = time.time()
-    getter = operator.itemgetter
-    nodes = graph.nodes()
-    get_induced_subgraph = graph.induced_subgraph
-    subgraph_nodes = graph.get_subgraph_nodes
-    subgraph_nodes_adj = graph.get_subgraph_adj
-    upper_bounds = []
-    upper_bounds_append = upper_bounds.append
-    for node in nodes:
-        sub_nodes = subgraph_nodes(node)
-        size_neighborhood_list = [(len(subgraph_nodes_adj(node, sub_node)) + 1)
-                                  for sub_node in sub_nodes]
-        size_neighborhood_list.sort()
-        size_neighborhood_list.reverse()
-        length = len(size_neighborhood_list) + 1
-        for i in xrange(length):
-            if size_neighborhood_list[i-1] <= i:
-                ub = i
-                break
-        upper_bounds_append((node, ub))
-    upper_bounds.sort(key=getter(1))
-    min_item = upper_bounds[0]
-    max_item = upper_bounds[len(upper_bounds) - 1]
-    ub_min = min_item[1]
-    ub_max = max_item[1]
-    t_tot = round(time.time() - start, 2)
-    text = ''.join([str(nfile), "; ", l, "; ", e, "; ", str(ub_min), "; ", str(ub_max), "; ", str(t_tot)])
-    logging.info(text)
-    print text
-
+"""
+upperbound =
+"""
 def upper_bound_from_cardinality_new(nfile, graph):
     l = str(len(graph))
     e = str(graph.number_of_edges())
     start = time.time()
     nodes = graph.nodes()
+    size_neighborhood_list = [(len(graph[node]) + 1) for node in nodes]
+    size_neighborhood_list.sort(reverse=True)
+    length = len(size_neighborhood_list) + 1
+    for i in xrange(2, length):
+        if size_neighborhood_list[i-1] <= i:
+            ub = i
+            break
+    t_tot = round(time.time() - start, 2)
+    text = ''.join([str(nfile), "; ", l, "; ", e, "; ", str(ub), "; ", str(t_tot)])
+    logging.info(text)
+    print text
+
+"""
+upperbound =
+"""
+def upper_bound_from_cardinality_1(graph):
+    nodes = graph.nodes()
     get_induced_subgraph = graph.induced_subgraph
-    ub_min = len(nodes) + 1
-    ub_max = 0
-    adj_list = graph.data
-    subgraph = Graph()
+    upper_bounds = []
+    upper_bounds_append = upper_bounds.append
     for node in nodes:
-        #### determiniamo il sottografo ####
-        subgraph.data = {}
-        sub_nodes = set(adj_list[node])
-        sub_nodes.add(node)
-        for adj_node in sub_nodes:
-            subgraph.data[adj_node] = [x for x in adj_list[adj_node] if x in sub_nodes]
-        ####################################
-        #subgraph = get_induced_subgraph(node)
-        #sub_nodes = subgraph.nodes()
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
         size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
                                   for sub_node in sub_nodes]
-        size_neighborhood_list.sort()
-        size_neighborhood_list.reverse()
+        size_neighborhood_list.sort(reverse=True)
         length = len(size_neighborhood_list) + 1
-        print length
-        print size_neighborhood_list
+        for i in xrange(2, length):
+            if size_neighborhood_list[i-1] <= i:
+                ub = min(i, size_neighborhood_list[i-2])
+                break
+        upper_bounds_append((node, ub, subgraph))
+    return upper_bounds
+
+"""
+upperbound =
+"""
+def upper_bound_from_cardinality_1_new(graph):
+    nodes = graph.nodes()
+    get_induced_subgraph = graph.induced_subgraph
+    upper_bounds = []
+    upper_bounds_append = upper_bounds.append
+    for node in nodes:
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
+        size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
+                                  for sub_node in sub_nodes]
+        size_neighborhood_list.sort(reverse=True)
+        length = len(size_neighborhood_list) + 1
+        for i in xrange(2, length):
+            if size_neighborhood_list[i-1] <= i:
+                ub = i
+                break
+        upper_bounds_append((node, ub, subgraph))
+    return upper_bounds
+
+"""
+upperbound =
+"""
+def upper_bound_from_cardinality_2(graph):
+    nodes = graph.nodes()
+    get_induced_subgraph = graph.induced_subgraph
+    upper_bounds = []
+    upper_bounds_append = upper_bounds.append
+    for node in nodes:
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
+        size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
+                                  for sub_node in sub_nodes]
+        size_neighborhood_list.sort(reverse=True)
+        length = len(size_neighborhood_list) + 1
+        for i in xrange(length):
+            if size_neighborhood_list[i-1] <= i:
+                ub = min(i, size_neighborhood_list[i-2])
+                break
+        upper_bounds_append((node, ub))
+    return upper_bounds
+
+"""
+upperbound =
+"""
+def upper_bound_from_cardinality_2_new(graph):
+    nodes = graph.nodes()
+    get_induced_subgraph = graph.induced_subgraph
+    upper_bounds = []
+    upper_bounds_append = upper_bounds.append
+    for node in nodes:
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
+        size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
+                                  for sub_node in sub_nodes]
+        size_neighborhood_list.sort(reverse=True)
+        length = len(size_neighborhood_list) + 1
         for i in xrange(length):
             if size_neighborhood_list[i-1] <= i:
                 ub = i
+                break
+        upper_bounds_append((node, ub))
+    return upper_bounds
+
+def upper_bound_from_cardinality_1_p(graph):
+    nodes = graph.nodes()
+    get_induced_subgraph = graph.induced_subgraph
+    ub_min = len(nodes) + 1
+    for node in nodes:
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
+        size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
+                                  for sub_node in sub_nodes]
+        size_neighborhood_list.sort(reverse=True)
+        length = len(size_neighborhood_list) + 1
+        ub = ub_min
+        for i in xrange(2, length):
+            if size_neighborhood_list[i-1] <= i:
+                ub = min(i, size_neighborhood_list[i-2])
                 break
         if ub < ub_min:
             ub_min = ub
             node_min = node
-        elif ub > ub_max:
-            ub_max = ub
-    t_tot = round(time.time() - start, 2)
-    text = ''.join([str(nfile), "; ", l, "; ", e, "; ", str(ub_min), "; ", str(ub_max), "; ", str(t_tot)])
-    logging.info(text)
-    print text
+            sub_min = subgraph
+    return node_min, ub_min, sub_min
 
-def upper_bound_from_cardinality_1(graph):
+def upper_bound_from_cardinality_1_p_new(graph):
     nodes = graph.nodes()
     get_induced_subgraph = graph.induced_subgraph
     ub_min = len(nodes) + 1
-    ub = ub_min
-    adj_list = graph.data
     for node in nodes:
-        #### determiniamo il sottografo ####
-        subgraph = Graph()
-        subgraph.data = {}
-        sub_nodes = set(adj_list[node])
-        sub_nodes.add(node)
-        for adj_node in sub_nodes:
-            subgraph.data[adj_node] = [x for x in adj_list[adj_node] if x in sub_nodes]
-        ####################################
-        #subgraph = get_induced_subgraph(node)
-        #sub_nodes = subgraph.nodes()
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
         size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
                                   for sub_node in sub_nodes]
-        size_neighborhood_list.sort()
-        size_neighborhood_list.reverse()
+        size_neighborhood_list.sort(reverse=True)
         length = len(size_neighborhood_list) + 1
-        print length
-        print size_neighborhood_list
-        for i in xrange(length):
+        ub = ub_min
+        for i in xrange(2, length):
             if size_neighborhood_list[i-1] <= i:
                 ub = i
                 break
-        print ub
         if ub < ub_min:
             ub_min = ub
             node_min = node
@@ -183,46 +201,73 @@ def upper_bound_from_cardinality_1(graph):
     return node_min, ub_min, sub_min
 
 
-def upper_bound_from_cardinality_2(graph):
+def upper_bound_from_cardinality_2_p(graph):
     nodes = graph.nodes()
     get_induced_subgraph = graph.induced_subgraph
     ub_min = len(nodes) + 1
     ub_max = 0
-    adj_list = graph.data
     for node in nodes:
-        #### determiniamo il sottografo ####
-        subgraph = Graph()
-        subgraph.data = {}
-        sub_nodes = set(adj_list[node])
-        sub_nodes.add(node)
-        for adj_node in sub_nodes:
-            subgraph.data[adj_node] = [x for x in adj_list[adj_node] if x in sub_nodes]
-        ####################################
-        #subgraph = get_induced_subgraph(node)
-        #sub_nodes = subgraph.nodes()
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
         size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
                                   for sub_node in sub_nodes]
-        size_neighborhood_list.sort()
-        size_neighborhood_list.reverse()
+        size_neighborhood_list.sort(reverse=True)
         length = len(size_neighborhood_list) + 1
+        ub = ub_min
+        for i in xrange(length):
+            if size_neighborhood_list[i-1] <= i:
+                ub = min(i, size_neighborhood_list[i-2])
+                break
+        if ub > ub_max:
+            ub_max = ub
+        if ub < ub_min:
+            ub_min = ub
+            node_min = node
+    return node_min, ub_min, ub_max
+
+def upper_bound_from_cardinality_2_p_new(graph):
+    nodes = graph.nodes()
+    get_induced_subgraph = graph.induced_subgraph
+    ub_min = len(nodes) + 1
+    ub_max = 0
+    for node in nodes:
+        subgraph = get_induced_subgraph(node)
+        sub_nodes = subgraph.nodes()
+        size_neighborhood_list = [(len(subgraph[sub_node]) + 1)
+                                  for sub_node in sub_nodes]
+        size_neighborhood_list.sort(reverse=True)
+        length = len(size_neighborhood_list) + 1
+        ub = ub_min
         for i in xrange(length):
             if size_neighborhood_list[i-1] <= i:
                 ub = i
                 break
+        if ub > ub_max:
+            ub_max = ub
         if ub < ub_min:
             ub_min = ub
             node_min = node
-        elif ub > ub_max:
-            ub_max = ub
-        #if ub < ub_min:
-            #ub_min = ub
-            #node_min = node
     return node_min, ub_min, ub_max
 
 """
-upperbound = valore ricavato dall'algoritmo di eliminazione sequenziale
+upperbound = valore ricavato dall'algoritmo di eliminazione sequanziale
 """
 def upper_bound_from_sequential_elimination_algorithm(graph, ub_function, init=0):
+    remove_node = graph.remove_node
+    getter = operator.itemgetter
+    upper_bound_opt = init
+    while 1:
+        upper_bounds = ub_function(graph)
+        upper_bounds.sort(key=getter(1))
+        ignore, max_upper_bound = upper_bounds[len(upper_bounds) - 1]
+        if upper_bound_opt >= max_upper_bound:
+            break
+        node, min_upper_bound = upper_bounds[0]
+        upper_bound_opt = max(upper_bound_opt, min_upper_bound)
+        remove_node(node)
+    return upper_bound_opt
+
+def upper_bound_from_sequential_elimination_algorithm_2_p(graph, ub_function, init=0):
     remove_node = graph.remove_node
     upper_bound_opt = init
     while 1:
@@ -233,7 +278,6 @@ def upper_bound_from_sequential_elimination_algorithm(graph, ub_function, init=0
             break
         remove_node(node)
     return upper_bound_opt
-
 """
 upperbound = numero di colori ricavato dall'algoritmo DSATUR
 implementazione dell'algoritmo DSATUR.
@@ -298,23 +342,12 @@ def upper_bound_from_dsatur_1(graph):
     nodes = graph.nodes()
     #inizializzazione
     unique = usefulFunctions.unique
-    nodes = graph.nodes()
-    #get_induced_subgraph = graph.induced_subgraph
+#    nodes = graph.nodes()
+    get_induced_subgraph = graph.induced_subgraph
     upper_bounds = []
     upper_bounds_append = upper_bounds.append
-    adj_list = graph.data
-    ub_min = len(nodes) + 1
-    ub_max = 0
     for node in nodes:
-        #### determiniamo il sottografo ####
-        subgraph = Graph()
-        subgraph.data = {}
-        sub_nodes = set(adj_list[node])
-        sub_nodes.add(node)
-        for adj_node in sub_nodes:
-            subgraph.data[adj_node] = [x for x in adj_list[adj_node] if x in sub_nodes]
-        ####################################
-        #subgraph = get_induced_subgraph(node)
+        subgraph = get_induced_subgraph(node)
         dst = dsatur.DSaturClass(subgraph)
         dst_color = dst.color
         dst_get_node_max_degree = dst.get_node_max_degree
@@ -351,34 +384,18 @@ def upper_bound_from_dsatur_1(graph):
         ncolor = dst_color(sub_node_sel)
         append_color(ncolor)
         ub = len(unique(colors_list))
-        if ub < ub_min:
-            ub_min = ub
-            node_min = node
-            sub_min = subgraph
-        #upper_bounds_append((node, ub, subgraph))
-    return node_min, ub_min, sub_min
-    #return upper_bounds
+        upper_bounds_append((node, ub, subgraph))
+    return upper_bounds
 
 def upper_bound_from_dsatur_2(graph):
     #inizializzazione
     unique = usefulFunctions.unique
     nodes = graph.nodes()
-    #get_induced_subgraph = graph.induced_subgraph
+    get_induced_subgraph = graph.induced_subgraph
     upper_bounds = []
     upper_bounds_append = upper_bounds.append
-    ub_min = len(nodes) + 1
-    ub_max = 0
-    adj_list = graph.data
     for node in nodes:
-        #### determiniamo il sottografo ####
-        subgraph = Graph()
-        subgraph.data = {}
-        sub_nodes = set(adj_list[node])
-        sub_nodes.add(node)
-        for adj_node in sub_nodes:
-            subgraph.data[adj_node] = [x for x in adj_list[adj_node] if x in sub_nodes]
-        ####################################
-        #subgraph = get_induced_subgraph(node)
+        subgraph = get_induced_subgraph(node)
         dst = dsatur.DSaturClass(subgraph)
         dst_color = dst.color
         dst_get_node_max_degree = dst.get_node_max_degree
@@ -415,17 +432,8 @@ def upper_bound_from_dsatur_2(graph):
         ncolor = dst_color(sub_node_sel)
         append_color(ncolor)
         ub = len(unique(colors_list))
-        if ub < ub_min:
-            ub_min = ub
-            node_min = node
-        elif ub > ub_max:
-            ub_max = ub
-        #elif ub < ub_min:
-            #ub_min = ub
-            #node_min = node
-        #upper_bounds_append((node, ub))
-    return node_min, ub_min, ub_max
-    #return upper_bounds
+        upper_bounds_append((node, ub))
+    return upper_bounds
 
 """
 upperbound = numero di colori ricavato dall'algoritmo di Linear Coloring
@@ -462,130 +470,111 @@ def upper_bound_from_linear_coloring(nfile, graph):
     logging.info(text)
     print text
 
+
+"""
+upperbound = numero di colori ricavato dall'algoritmo di Linear Coloring
+"""
 def upper_bound_from_linear_coloring_1(graph):
     nodes = graph.nodes()
-    #get_induced_subgraph = graph.induced_subgraph
-    #upper_bounds = []
-    #upper_bounds_append = upper_bounds.append
-    #unique = usefulFunctions.unique
-    ub_min = len(nodes) + 1
-    ub_max = 0
-    adj_list = graph.data
+    get_induced_subgraph = graph.induced_subgraph
+    upper_bounds = []
+    upper_bounds_append = upper_bounds.append
+    unique = usefulFunctions.unique
     for node in nodes:
-        #### determiniamo il sottografo ####
-        subgraph = Graph()
-        subgraph.data = {}
-        sub_nodes = set(adj_list[node])
-        sub_nodes.add(node)
-        for adj_node in sub_nodes:
-            subgraph.data[adj_node] = [x for x in adj_list[adj_node] if x in sub_nodes]
-        ####################################
-        #subgraph = get_induced_subgraph(node)
+        subgraph = get_induced_subgraph(node)
         data = {}
         colors = set()
-        #adj_colors = []
-        #sub_nodes = subgraph.nodes()
+        adj_colors = []
+        sub_nodes = subgraph.nodes()
         colors_add = colors.add
         for sub_node in sub_nodes:
-            adj_colors = set([data[adj_node] for adj_node in subgraph[sub_node]
+            adj_colors = unique([data[adj_node] for adj_node in graph[sub_node]
                                 if adj_node in data])
-            length = len(subgraph[sub_node])
-            for i in xrange(length):
-                if not i in adj_colors:
-                    data[sub_node] = i
-                    break
+            length = len(adj_colors)
+            if length == 0:
+                data[sub_node] = 0
+            else:
+                if length != adj_colors[length - 1] + 1:
+                    adj_colors.sort()
+                    for i in xrange(length):
+                        if i != adj_colors[i]:
+                            data[sub_node] = i
+                            break
+                else:
+                    data[sub_node] = length
             colors_add(data[sub_node])
-            #adj_colors = unique([data[adj_node] for adj_node in graph[sub_node]
-                                #if adj_node in data])
-            #length = len(adj_colors)
-            #if length == 0:
-                #data[sub_node] = 0
-            #else:
-                #if length != adj_colors[length - 1] + 1:
-                    #adj_colors.sort()
-                    #for i in xrange(length):
-                        #if i != adj_colors[i]:
-                            #data[sub_node] = i
-                            #break
-                #else:
-                    #data[sub_node] = length
-            #colors_add(data[sub_node])
-        ub = len(colors)
-        if ub < ub_min:
-            ub_min = ub
-            node_min = node
-            sub_min = subgraph
-        #upper_bounds_append((node, len(colors), subgraph))
-    return node_min, ub_min, sub_min
-    #return upper_bounds
+        upper_bounds_append((node, len(colors), subgraph))
+    return upper_bounds
 
+"""
+upperbound = numero di colori ricavato dall'algoritmo di Linear Coloring
+"""
+def upper_bound_from_linear_coloring_1_p(graph):
+    nodes = graph.nodes()
+    get_induced_subgraph = graph.induced_subgraph
+    upper_bounds = []
+    upper_bounds_append = upper_bounds.append
+    unique = usefulFunctions.unique
+    for node in nodes:
+        subgraph = get_induced_subgraph(node)
+        data = {}
+        colors = set()
+        adj_colors = []
+        sub_nodes = subgraph.nodes()
+        colors_add = colors.add
+        for sub_node in sub_nodes:
+            adj_colors = unique([data[adj_node] for adj_node in graph[sub_node]
+                                if adj_node in data])
+            length = len(adj_colors)
+            if length == 0:
+                data[sub_node] = 0
+            else:
+                if length != adj_colors[length - 1] + 1:
+                    adj_colors.sort()
+                    for i in xrange(length):
+                        if i != adj_colors[i]:
+                            data[sub_node] = i
+                            break
+                else:
+                    data[sub_node] = length
+            colors_add(data[sub_node])
+        upper_bounds_append((node, len(colors), subgraph))
+    return upper_bounds
+
+"""
+upperbound = numero di colori ricavato dall'algoritmo di Linear Coloring
+"""
 def upper_bound_from_linear_coloring_2(graph):
     nodes = graph.nodes()
-    #get_induced_subgraph = graph.induced_subgraph
-    #upper_bounds = []
-    #upper_bounds_append = upper_bounds.append
-    #unique = usefulFunctions.unique
-    ub_min = len(nodes) + 1
-    ub_max = 0
-    adj_list = graph.data
+    get_induced_subgraph = graph.induced_subgraph
+    upper_bounds = []
+    upper_bounds_append = upper_bounds.append
+    unique = usefulFunctions.unique
     for node in nodes:
-        #### determiniamo il sottografo ####
-        subgraph = Graph()
-        subgraph.data = {}
-        sub_nodes = set(adj_list[node])
-        sub_nodes.add(node)
-        for adj_node in sub_nodes:
-            subgraph.data[adj_node] = [x for x in adj_list[adj_node] if x in sub_nodes]
-        ####################################
-        #subgraph = get_induced_subgraph(node)
-        #sub_nodes = subgraph.nodes()
+        subgraph = get_induced_subgraph(node)
         data = {}
         colors = set()
-        #adj_colors = []
-        #adj_colors = set()
+        adj_colors = []
+        sub_nodes = subgraph.nodes()
         colors_add = colors.add
         for sub_node in sub_nodes:
-            adj_colors = set([data[adj_node] for adj_node in subgraph[sub_node]
+            adj_colors = unique([data[adj_node] for adj_node in graph[sub_node]
                                 if adj_node in data])
-            length = len(subgraph[sub_node])
-            for i in xrange(length):
-                if not i in adj_colors:
-                    data[sub_node] = i
-                    break
+            length = len(adj_colors)
+            if length == 0:
+                data[sub_node] = 0
+            else:
+                if length != adj_colors[length - 1] + 1:
+                    adj_colors.sort()
+                    for i in xrange(length):
+                        if i != adj_colors[i]:
+                            data[sub_node] = i
+                            break
+                else:
+                    data[sub_node] = length
             colors_add(data[sub_node])
-            #[adj_colors.add(data[adj_node]) for adj_node in subgraph[sub_node] if adj_node in data]
-            #adj_colors = set(adj_colors)
-            ## eliminiamo da adj_colors i colori che si ripetono
-            ## metodo + veloce di list(set())
-            #adj_colors = set(adj_colors)
-            #for x in adj_colors:
-                #keys.add(x)
-            #adj_colors = keys.keys()
-            ####################################################
-            #length = len(adj_colors)
-
-            #if length == 0:
-                #data[sub_node] = 0
-            #else:
-                #adj_colors.sort()
-                #if length != adj_colors[length - 1] + 1:
-                    ##adj_colors.sort()
-                    #for i in xrange(length):
-                        #if i != adj_colors[i]:
-                            #data[sub_node] = i
-                            #break
-                #else:
-                    #data[sub_node] = length
-        #colors = set(data.values())
-        #upper_bounds_append((node, len(colors)))
-        ub = len(colors)
-        if ub < ub_min:
-            ub_min = ub
-            node_min = node
-        elif ub > ub_max:
-            ub_max = ub
-    return node_min, ub_min, ub_max
-    #return upper_bounds
+        upper_bounds_append((node, len(colors)))
+    return upper_bounds
 
 #"""
 #upperbound = massimo autovalore della matrice di adiacenza

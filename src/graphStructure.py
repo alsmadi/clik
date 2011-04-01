@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy
+from copy import deepcopy
 from scipy import sparse
+import scipy.weave as weave
 
 """
 classe per gestire i grafi
@@ -9,18 +11,20 @@ classe per gestire i grafi
 class Graph(object):
     def __init__(self, edges=None):
         self.data = {}
-        self.nodes = self.data.keys
-        if isinstance(edges, list):      
-            if edges is not None:
-                dict_set = self.data.setdefault
-                for edge in edges:
-                    dict_set(edge[0],[])
-                    dict_set(edge[1],[])
-                    if edge[1] not in self.data[edge[0]]:
-                        self.data[edge[0]].append(edge[1])
-                        self.data[edge[1]].append(edge[0])
-        elif isinstance(edges, dict):
-            self.data.update(edges)
+        #if isinstance(edges, list):
+            #if edges is not None:
+                #dict_set = self.data.setdefault
+                #for edge in edges:
+                    #dict_set(edge[0],[])
+                    #dict_set(edge[1],[])
+                    #if edge[1] not in self.data[edge[0]]:
+                        #self.data[edge[0]].append(edge[1])
+                        #self.data[edge[1]].append(edge[0])
+        #elif isinstance(edges, dict):
+            #self.data.update(edges)
+
+    def nodes(self):
+        return self.data.keys()
 
     def __iter__(self):
         return self.data.iterkeys()
@@ -64,6 +68,11 @@ class Graph(object):
     def add_edges(self, edges):
         dict_set = self.data.setdefault
         for edge in edges:
+            #dict_set(edge[0],set())
+            #dict_set(edge[1],set())
+            #if edge[1] not in self.data[edge[0]]:
+                #self.data[edge[0]].add(edge[1])
+                #self.data[edge[1]].add(edge[0])
             dict_set(edge[0],[])
             dict_set(edge[1],[])
             if edge[1] not in self.data[edge[0]]:
@@ -89,7 +98,9 @@ class Graph(object):
         self.data[edge[1]].remove(edge[0])
 
     def closed_neighborhood(self, node):
-        neighborhood = self.data[node][:]
+        neighborhood = deepcopy(self.data[node])
+        #neighborhood.add(node)
+        #neighborhood = self.data[node][:]
         neighborhood.append(node)
         return neighborhood
 
@@ -98,54 +109,61 @@ class Graph(object):
         nodes = set(nodes)
         adj_list = self.data
         sub_data = subgraph.data
-        for node in nodes:
-            sub_data[node] = [n for n in adj_list[node] if n in nodes]
+        for adj_node in nodes:
+            sub_data[adj_node] = [x for x in adj_list[adj_node] if x in nodes]
         return subgraph
 
     def induced_subgraph(self, node):
-        subgraph = self.__class__()
         adj_list = self.data
         nodes = set(adj_list[node])
         nodes.add(node)
+        subgraph = self.__class__()
         sub_data = subgraph.data
-        for node in nodes:
-            sub_data[node] = [n for n in adj_list[node] if n in nodes]
+        #nodes = deepcopy(adj_list[node])
+        #nodes.add(node)
+        #for n in nodes:
+        #nodes = set([node]).union(adj_list[node])
+        for adj_node in nodes:
+            #subgraph.data[adj_node] = set(adj_list[adj_node]).intersection(nodes)
+            sub_data[adj_node] = [x for x in adj_list[adj_node] if x in nodes]
+        #subgraph.data = dict([(adj_node, [x for x in adj_list[adj_node].intersection(adj_list[node])]) for adj_node in adj_list[node]])
+        #sub_data[node] = deepcopy(adj_list[node])
         return subgraph
-    
-#    def induced_subgraph_2(self, node):
-#        subgraph = self.__class__()
-#        adj_dict = self.data
-#        nodes = self.closed_neighborhood(node)
-#        sub_data = subgraph.data
-#        code="""
-#        int L_1 = PyList_Size(py_nodes);
-#        int L_2 = 0; 
-#        int i, j = 0;
-#        PyObject *data;
-#        PyObject *adj_list;
-#        PyObject *node_1; 
-#        PyObject *node_2;
-#        PyObject* nodes_set = PySet_New(py_nodes);
-#        
-#        for (i = 0; i < L_1; i++){
-#            data = PyList_New(0);
-#            node_1 = PyList_GetItem(py_nodes, i);
-#            adj_list = PyDict_GetItem(py_adj_dict, node_1);
-#            L_2 = PyList_Size(adj_list);
-#            for (j = 0; j < L_2; j++){
-#                node_2 = PyList_GetItem(adj_list, j);
-#                if (PySet_Contains(nodes_set, node_2)){
-#                    PyList_Append(data, node_2);
-#                    Py_DECREF(node_2);
-#                }
-#            }
-#            PyDict_SetItem(sub_data, node_1, data);
-#        }
-#        return_val = 0;
-#        """
-#        weave.inline(code, ['nodes', 'adj_dict', 'sub_data'])
-#        return subgraph
-    
+
+    def induced_subgraph_(self, node):
+        subgraph = self.__class__()
+        adj_dict = self.data
+        nodes = self.closed_neighborhood(node)
+        sub_data = subgraph.data
+        code="""
+        int L_1 = PyList_Size(py_nodes);
+        int L_2 = 0;
+        int i, j = 0;
+        PyObject *data;
+        PyObject *adj_list;
+        PyObject *node_1;
+        PyObject *node_2;
+        PyObject* nodes_set = PySet_New(py_nodes);
+
+        for (i = 0; i < L_1; i++){
+            data = PyList_New(0);
+            node_1 = PyList_GetItem(py_nodes, i);
+            adj_list = PyDict_GetItem(py_adj_dict, node_1);
+            L_2 = PyList_Size(adj_list);
+            for (j = 0; j < L_2; j++){
+                node_2 = PyList_GetItem(adj_list, j);
+                if (PySet_Contains(nodes_set, node_2)){
+                    PyList_Append(data, node_2);
+                    Py_DECREF(node_2);
+                }
+            }
+            PyDict_SetItem(sub_data, node_1, data);
+        }
+        return_val = 0;
+        """
+        weave.inline(code, ['nodes', 'adj_dict', 'sub_data'])
+        return subgraph
+
     def degree(self, node):
         return len(self.data[node])
 
